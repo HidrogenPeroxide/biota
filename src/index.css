@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 35% 94%; /* ivory */
+    --foreground: 50 8% 14%; /* charcoal */
+    --muted: 40 18% 78%;
+    --accent: 137 26% 18%; /* forest */
+  }
+
+  * {
+    border-color: theme('colors.stone.light');
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ivory text-charcoal font-sans antialiased;
+    font-feature-settings: 'ss01', 'cv01';
+  }
+
+  ::selection {
+    @apply bg-forest/20 text-forest-deep;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+    font-feature-settings: 'ss01';
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: theme('colors.ivory.200');
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.stone');
+    border-radius: 9999px;
+    border: 2px solid theme('colors.ivory.200');
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.stone.dark');
+  }
+}
+
+@layer components {
+  .container-wide {
+    @apply mx-auto w-full max-w-8xl px-6 md:px-10 lg:px-16;
+  }
+
+  .container-narrow {
+    @apply mx-auto w-full max-w-5xl px-6 md:px-10;
+  }
+
+  .eyebrow {
+    @apply text-xs font-medium uppercase tracking-widest-2 text-forest-mist;
+  }
+
+  /* Editorial serif headline */
+  .headline {
+    @apply font-display font-light leading-[1.05] tracking-tight text-charcoal;
+  }
+
+  /* Soft elevated card */
+  .card-earth {
+    @apply rounded-2xl border border-stone-light/70 bg-ivory-50 shadow-[0_1px_2px_rgba(38,36,31,0.04),0_12px_32px_-18px_rgba(38,36,31,0.18)];
+  }
+
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-px w-0 bg-forest transition-all duration-500 ease-organic;
+  }
+  .link-underline:hover::after {
+    @apply w-full;
+  }
+
+  /* Skeleton shimmer */
+  .shimmer {
+    @apply relative overflow-hidden bg-ivory-200;
+  }
+  .shimmer::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.55),
+      transparent
+    );
+    animation: shimmer 1.8s infinite;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Hide elements from sighted users, keep for screen readers */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+/* ===== Leaflet theming to match the earth-tone palette ===== */
+.leaflet-container {
+  background: #e7e0cd;
+  font-family: 'Inter', sans-serif;
+}
+.leaflet-tile {
+  filter: saturate(0.85) brightness(1.02) sepia(0.06);
+}
+.leaflet-bar a,
+.leaflet-control-zoom a {
+  background: #fbf9f3 !important;
+  color: #26241f !important;
+  border-color: #c8bda7 !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #efe9da !important;
+}
+.leaflet-popup-content-wrapper {
+  background: #fbf9f3;
+  color: #26241f;
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -16px rgba(38, 36, 31, 0.4);
+}
+.leaflet-popup-tip {
+  background: #fbf9f3;
+}
+.leaflet-control-attribution {
+  background: rgba(251, 249, 243, 0.8) !important;
+  color: #54514a !important;
+}
+.leaflet-control-attribution a {
+  color: #33513e !important;
+}
+/* Push Leaflet's top controls (zoom) below the fixed navbar so they aren't
+   hidden behind the solid top bar on the Atlas page. */
+.leaflet-top {
+  top: 88px;
+  z-index: 400 !important;
+}
+
+/* D3 chart text defaults */
+.d3-chart text {
+  font-family: 'Inter', sans-serif;
+  fill: #54514a;
+}
+.d3-chart .axis line,
+.d3-chart .axis path {
+  stroke: #c8bda7;
+}
+
+/* ===== Earth-tone range slider (time slider on the map page) ===== */
+.slider-earth {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 9999px;
+  background: linear-gradient(to right, #33513e, #8a9a7b);
+  outline: none;
+}
+.slider-earth::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #f6f2e8;
+  border: 2px solid #243b2c;
+  box-shadow: 0 4px 12px -4px rgba(36, 59, 44, 0.5);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.slider-earth::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.slider-earth::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #f6f2e8;
+  border: 2px solid #243b2c;
+  cursor: pointer;
+}
