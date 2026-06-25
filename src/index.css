@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -26,6 +26,8 @@
   body {
     @apply bg-ivory text-charcoal font-sans antialiased;
     font-feature-settings: 'ss01', 'cv01';
+    /* CJK text needs noticeably more line-height than Latin for readability. */
+    line-height: 1.75;
   }
 
   ::selection {
@@ -71,9 +73,11 @@
     @apply text-xs font-medium uppercase tracking-widest-2 text-forest-mist;
   }
 
-  /* Editorial serif headline */
+  /* Editorial serif headline — tuned for CJK breathing room while staying
+     elegant for Latin. CJK glyphs sit taller, so ~1.2 keeps multi-line
+     titles from clamping. */
   .headline {
-    @apply font-display font-light leading-[1.05] tracking-tight text-charcoal;
+    @apply font-display font-light leading-[1.18] tracking-tight text-charcoal;
   }
 
   /* Soft elevated card */
@@ -115,6 +119,21 @@
   }
   .text-pretty {
     text-wrap: pretty;
+  }
+
+  /* Comfortable CJK line-height for prose paragraphs. */
+  .leading-cn {
+    line-height: 1.85;
+  }
+  /* Slightly looser tracking for Chinese display headings — adds the
+     "breathable, luxury magazine" spacing CJK benefits from. */
+  .tracking-cn {
+    letter-spacing: 0.04em;
+  }
+  /* CJK has no true italic; browsers synthesize an ugly oblique. Use this on
+     accent words instead of `italic` so they stay elegant in both languages. */
+  .accent {
+    font-style: normal;
   }
 
   /* Hide elements from sighted users, keep for screen readers */

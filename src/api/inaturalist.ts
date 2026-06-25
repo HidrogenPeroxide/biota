@@ -32,10 +32,21 @@ import type {
 
 const BASE_URL = 'https://api.inaturalist.org/v1'
 
-/** Build a query string from a record, skipping null/undefined values. */
+/**
+ * Active locale. iNaturalist localizes `preferred_common_name` per request,
+ * so setting `locale=zh` returns Chinese common names. Driven by the i18n
+ * context via `setApiLocale()`.
+ */
+let activeLocale: 'zh' | 'en' = 'zh'
+export function setApiLocale(locale: 'zh' | 'en') {
+  activeLocale = locale
+}
+
+/** Build a query string from a record, skipping null/undefined/empty values.
+ *  The active locale is always merged in so common names come back localized. */
 function qs(params: Record<string, unknown>): string {
-  const entries = Object.entries(params)
-    .filter(([, v]) => v !== undefined && v !== null && v !== '')
+  const entries = Object.entries({ locale: activeLocale, ...params })
+    .filter(([, v]) => v !== undefined && v !== null && `${v}` !== '')
     .map(([k, v]) => [k, String(v)])
   return entries.length ? '?' + new URLSearchParams(entries).toString() : ''
 }

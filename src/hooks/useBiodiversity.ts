@@ -59,8 +59,11 @@ export function useHeroSlides() {
           photoUrl(pickPhoto(o.photos?.[0], 'large'), 'large') ||
           pickPhoto(o.photos?.[0], 'large') ||
           '',
-        credit: `Observed by ${o.user?.name || o.user?.login || 'a naturalist'}`,
-        caption: o.taxon?.preferred_common_name || o.taxon?.name || 'Wildlife',
+        // Credit is composed in the component (localized), so we stash the raw
+        // observer name here; the component renders the localized template.
+        credit: o.user?.name || o.user?.login || '',
+        observer: o.user?.name || o.user?.login || '',
+        caption: o.taxon?.preferred_common_name || o.taxon?.name || '',
         common: o.taxon?.preferred_common_name || undefined,
         scientific: o.taxon?.name,
       }))

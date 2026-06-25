@@ -15,6 +15,7 @@ import {
 } from '@/api/inaturalist'
 import { TAXONOMY_ROOT, iconColor } from '@/data/taxonomy'
 import type { Observation, SpeciesCount, Taxon } from '@/types'
+import { useT } from '@/i18n'
 
 interface Selection {
   id: number
@@ -26,6 +27,7 @@ interface Selection {
 const ease = [0.22, 1, 0.36, 1] as const
 
 export function Explore() {
+  const t = useT()
   const [params, setParams] = useSearchParams()
   const initialTaxon = params.get('taxon')
   const initialNode =
@@ -118,24 +120,23 @@ export function Explore() {
         <div className="border-b border-stone-light/60 bg-ivory-50">
           <div className="container-wide flex flex-col gap-4 py-8 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="eyebrow">Explore</p>
+              <p className="eyebrow">{t('explore.eyebrow')}</p>
               <h1 className="headline mt-2 text-4xl md:text-5xl">
-                Wander the tree of life
+                {t('explore.title')}
               </h1>
-              <p className="mt-3 max-w-xl text-charcoal-soft">
-                Choose a branch to see where its species live, what's been
-                observed lately, and which ones are most common.
+              <p className="mt-3 max-w-xl leading-cn text-charcoal-soft">
+                {t('explore.body')}
               </p>
             </div>
             <div className="flex items-center gap-4 text-sm text-charcoal-soft">
               <span className="inline-flex items-center gap-2">
-                <ListTree className="h-4 w-4 text-forest" /> Taxonomy
+                <ListTree className="h-4 w-4 text-forest" /> {t('explore.tagTaxonomy')}
               </span>
               <span className="inline-flex items-center gap-2">
-                <MapIcon className="h-4 w-4 text-forest" /> Live map
+                <MapIcon className="h-4 w-4 text-forest" /> {t('explore.tagMap')}
               </span>
               <span className="hidden items-center gap-2 sm:inline-flex">
-                <SlidersHorizontal className="h-4 w-4 text-forest" /> Details
+                <SlidersHorizontal className="h-4 w-4 text-forest" /> {t('explore.tagDetails')}
               </span>
             </div>
           </div>
@@ -193,7 +194,7 @@ export function Explore() {
                 />
                 <span>
                   <span className="block text-xs text-charcoal-soft">
-                    Viewing
+                    {t('explore.viewing')}
                   </span>
                   <span className="block text-sm font-medium text-charcoal">
                     {selection.common || selection.name}
@@ -206,11 +207,10 @@ export function Explore() {
               <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
                 <div className="max-w-sm rounded-2xl bg-ivory-50/85 p-6 text-center backdrop-blur-md">
                   <p className="font-display text-xl text-charcoal">
-                    Select a branch to begin
+                    {t('explore.mapHintTitle')}
                   </p>
-                  <p className="mt-2 text-sm text-charcoal-soft">
-                    Pick any group on the left and the map will come alive with
-                    its latest observations from around the world.
+                  <p className="mt-2 text-sm leading-cn text-charcoal-soft">
+                    {t('explore.mapHintBody')}
                   </p>
                 </div>
               </div>

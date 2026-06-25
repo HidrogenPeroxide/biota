@@ -15,9 +15,10 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { useAsync } from '@/hooks/useAsync'
 import { fetchObservations } from '@/api/inaturalist'
-import { ICONIC_META, TAXONOMY_ROOT, iconColor } from '@/data/taxonomy'
+import { ICONIC_META, TAXONOMY_ROOT, iconColor, iconicLabel } from '@/data/taxonomy'
 import { formatCompact } from '@/lib/utils'
 import type { Observation, Taxon } from '@/types'
+import { useT } from '@/i18n'
 
 type Mode = 'markers' | 'heat'
 
@@ -28,6 +29,7 @@ const YEAR_MIN = 2015
 const YEAR_MAX = new Date().getFullYear()
 
 export function MapExplore() {
+  const t = useT()
   const [mode, setMode] = useState<Mode>('markers')
   const [taxon, setTaxon] = useState<Taxon | null>(null)
   const [group, setGroup] = useState<string | null>(null)
@@ -117,7 +119,7 @@ export function MapExplore() {
               className="flex items-center gap-2 rounded-full border border-stone-light/80 bg-ivory-50/90 px-4 py-2.5 text-sm font-medium text-charcoal shadow-sm backdrop-blur-md transition-colors hover:bg-ivory-50"
             >
               <SlidersHorizontal className="h-4 w-4" />
-              <span className="hidden sm:inline">Filters</span>
+              <span className="hidden sm:inline">{t('map.filters')}</span>
             </button>
           </div>
           <div className="pointer-events-auto mx-auto mt-2 max-w-3xl md:hidden">
@@ -142,12 +144,12 @@ export function MapExplore() {
               )}
               {group && (
                 <ActiveChip
-                  label={ICONIC_META[group]?.label || group}
+                  label={iconicLabel(t, group)}
                   onClear={() => setGroup(null)}
                 />
               )}
-              <span className="px-1 text-xs text-charcoal-soft">
-                {formatCompact(observations?.length ?? 0)} shown · {year}
+              <span className="px-1 text-xs leading-cn text-charcoal-soft">
+                {formatCompact(observations?.length ?? 0)} {t('map.shown')} · {year}
               </span>
             </div>
           </div>
@@ -165,15 +167,15 @@ export function MapExplore() {
             >
               <div className="flex items-center justify-between border-b border-stone-light/60 px-5 py-4">
                 <div>
-                  <p className="eyebrow">Atlas controls</p>
+                  <p className="eyebrow">{t('map.controls')}</p>
                   <h2 className="font-display text-lg text-charcoal">
-                    Explore the record
+                    {t('map.controlsTitle')}
                   </h2>
                 </div>
                 <button
                   onClick={() => setPanelOpen(false)}
                   className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-light text-charcoal-soft hover:bg-ivory-200"
-                  aria-label="Collapse panel"
+                  aria-label={t('map.collapse')}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -181,30 +183,30 @@ export function MapExplore() {
 
               <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
                 {/* Layer mode */}
-                <ControlGroup label="Layer">
+                <ControlGroup label={t('map.layer')}>
                   <div className="grid grid-cols-2 gap-2">
                     <ModeButton
                       active={mode === 'markers'}
                       onClick={() => setMode('markers')}
                       icon={<CircleDot className="h-4 w-4" />}
-                      label="Observations"
+                      label={t('map.layerMarkers')}
                     />
                     <ModeButton
                       active={mode === 'heat'}
                       onClick={() => setMode('heat')}
                       icon={<Flame className="h-4 w-4" />}
-                      label="Heatmap"
+                      label={t('map.layerHeat')}
                     />
                   </div>
                 </ControlGroup>
 
                 {/* Group filter */}
-                <ControlGroup label="Branch of life">
+                <ControlGroup label={t('map.branch')}>
                   <div className="flex flex-wrap gap-1.5">
                     <FilterChip
                       active={!group}
                       onClick={() => setGroup(null)}
-                      label="All"
+                      label={t('map.all')}
                     />
                     {TAXONOMY_ROOT.filter((n) => n.iconic).map((n) => (
                       <FilterChip
@@ -214,7 +216,7 @@ export function MapExplore() {
                           setGroup(group === n.iconic ? null : n.iconic!)
                           setTaxon(null)
                         }}
-                        label={ICONIC_META[n.iconic!]?.label || n.common || ''}
+                        label={iconicLabel(t, n.iconic)}
                         color={iconColor(n.iconic)}
                       />
                     ))}
@@ -222,7 +224,7 @@ export function MapExplore() {
                 </ControlGroup>
 
                 {/* Time slider */}
-                <ControlGroup label={`Time · ${year}`}>
+                <ControlGroup label={t('map.time', { year })}>
                   <input
                     type="range"
                     min={YEAR_MIN}
@@ -238,7 +240,7 @@ export function MapExplore() {
                 </ControlGroup>
 
                 {/* Top species summary */}
-                <ControlGroup label="In current view">
+                <ControlGroup label={t('map.inView')}>
                   {summary.length ? (
                     <ul className="space-y-1.5">
                       {summary.map((s, i) => (
@@ -254,7 +256,7 @@ export function MapExplore() {
                               className="h-2 w-2 shrink-0 rounded-full"
                               style={{ background: iconColor(s.iconic) }}
                             />
-                            <span className="truncate text-charcoal">
+                            <span className="truncate leading-cn text-charcoal">
                               {s.name}
                             </span>
                           </span>
@@ -265,16 +267,16 @@ export function MapExplore() {
                       ))}
                     </ul>
                   ) : (
-                    <p className="text-sm text-charcoal-soft">
-                      {loading ? 'Loading…' : 'No observations in this view.'}
+                    <p className="text-sm leading-cn text-charcoal-soft">
+                      {loading ? t('common.loading') : t('common.noData')}
                     </p>
                   )}
                 </ControlGroup>
               </div>
 
-              <div className="border-t border-stone-light/60 px-5 py-3 text-[11px] text-charcoal-soft">
+              <div className="border-t border-stone-light/60 px-5 py-3 text-[11px] leading-cn text-charcoal-soft">
                 <Info className="mr-1 inline h-3 w-3" />
-                Showing up to 250 of the most recent research-grade records.
+                {t('map.viewNote')}
               </div>
             </motion.aside>
           )}
@@ -287,7 +289,7 @@ export function MapExplore() {
             animate={{ opacity: 1, x: 0 }}
             onClick={() => setPanelOpen(true)}
             className="absolute left-4 top-1/2 z-[1000] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-stone-light/70 bg-ivory-50/90 text-forest shadow-lg backdrop-blur-md hover:bg-ivory-50"
-            aria-label="Open controls"
+            aria-label={t('map.open')}
           >
             <SlidersHorizontal className="h-5 w-5" />
           </motion.button>
@@ -296,9 +298,9 @@ export function MapExplore() {
         {/* Empty / hint overlay */}
         {!loading && !observations?.length && (
           <div className="pointer-events-none absolute bottom-6 left-1/2 z-[1000] -translate-x-1/2">
-            <div className="flex items-center gap-2 rounded-full border border-stone-light/70 bg-ivory-50/90 px-4 py-2 text-sm text-charcoal-soft shadow-sm backdrop-blur-md">
+            <div className="flex items-center gap-2 rounded-full border border-stone-light/70 bg-ivory-50/90 px-4 py-2 text-sm leading-cn text-charcoal-soft shadow-sm backdrop-blur-md">
               <Search className="h-4 w-4" />
-              Try a different species, group, or year.
+              {t('map.tryDifferent')}
             </div>
           </div>
         )}

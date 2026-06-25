@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { LazyImage } from '@/components/motion/LazyImage'
+import { useT } from '@/i18n'
 
 export interface HeroSlide {
   url: string
   credit: string
+  observer?: string
   caption: string
   common?: string
   scientific?: string
@@ -15,6 +17,7 @@ export interface HeroSlide {
  * and cross-fades into the next with a long, organic dissolve.
  */
 export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+  const t = useT()
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
@@ -79,7 +82,7 @@ export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
 
       {/* Credit */}
       <div className="absolute bottom-6 right-6 z-10 max-w-[60%] text-right text-[11px] uppercase tracking-widest-2 text-ivory-50/55">
-        {slide.credit}
+        {t('label.observedBy', { name: slide.observer || slide.credit })}
       </div>
     </div>
   )

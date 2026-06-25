@@ -161,3 +161,17 @@ export const ICONIC_META: Record<
 export function iconColor(name?: string | null): string {
   return (name && ICONIC_META[name]?.color) || '#5A4A3A'
 }
+
+/**
+ * Localized label for an iconic taxon name. Falls back to the English label in
+ * ICONIC_META, then the raw name. Use this anywhere a group name is shown.
+ */
+export function iconicLabel(
+  t: (key: string) => string,
+  name?: string | null,
+): string {
+  if (!name) return ''
+  const localized = t(`taxa.${name}`)
+  if (localized && localized !== `taxa.${name}`) return localized
+  return ICONIC_META[name]?.label || name
+}

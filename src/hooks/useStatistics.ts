@@ -114,11 +114,13 @@ async function loadDiversity(): Promise<{
     }),
   )
 
+  // Top-level group names are raw iconic keys (e.g. "Aves"); the page
+  // localizes them. Root is the localized key for "Life".
   const hierarchy: TreemapDatum = {
     name: 'Life',
     value: 0,
     children: perGroup.map((g) => ({
-      name: g.label,
+      name: g.name,
       value: g.observations,
       color: g.color,
       children: g.children,
@@ -175,10 +177,10 @@ async function loadSeasonality(): Promise<{
   seasonality: HeatmapCell[]
   seasonGroups: string[]
 }> {
+  // Rows are kept as raw iconic keys (e.g. "Aves"); the page localizes them
+  // via iconicLabel() so the chart follows the active language.
   const focusGroups = ['Aves', 'Insecta', 'Plantae', 'Mammalia', 'Reptilia']
-  const seasonGroups = focusGroups.map(
-    (g) => ICONIC_META[g]?.label || g,
-  )
+  const seasonGroups = focusGroups
   const tally: Record<string, number[]> = {}
   for (const iconic of focusGroups) {
     tally[iconic] = new Array(12).fill(0)
@@ -198,7 +200,7 @@ async function loadSeasonality(): Promise<{
   for (const iconic of focusGroups) {
     tally[iconic].forEach((value, m) => {
       cells.push({
-        row: ICONIC_META[iconic]?.label || iconic,
+        row: iconic,
         col: MONTHS[m],
         value,
       })

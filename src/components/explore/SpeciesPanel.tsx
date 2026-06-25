@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { photoUrl } from '@/lib/photos'
 import { formatCompact } from '@/lib/utils'
+import { useT } from '@/i18n'
 
 interface SpeciesPanelProps {
   open: boolean
@@ -32,6 +33,7 @@ export function SpeciesPanel({
   loading,
   count,
 }: SpeciesPanelProps) {
+  const t = useT()
   return (
     <AnimatePresence>
       {open && (
@@ -53,7 +55,7 @@ export function SpeciesPanel({
           >
             <header className="flex items-start justify-between border-b border-stone-light/60 p-6">
               <div className="pr-4">
-                <p className="eyebrow">Most observed in</p>
+                <p className="eyebrow">{t('explore.speciesPanelEyebrow')}</p>
                 <h2 className="mt-2 font-display text-2xl font-light leading-tight text-charcoal">
                   {title}
                 </h2>
@@ -63,14 +65,14 @@ export function SpeciesPanel({
                   </p>
                 )}
                 {typeof count === 'number' && (
-                  <p className="mt-2 text-xs text-charcoal-soft">
-                    {formatCompact(count)} species recorded
+                  <p className="mt-2 text-xs leading-cn text-charcoal-soft">
+                    {t('explore.speciesRecorded', { count: formatCompact(count) })}
                   </p>
                 )}
               </div>
               <button
                 onClick={onClose}
-                aria-label="Close panel"
+                aria-label={t('explore.collapse')}
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-light text-charcoal-soft transition-colors hover:bg-ivory-200"
               >
                 <X className="h-4 w-4" />
@@ -123,7 +125,7 @@ export function SpeciesPanel({
                           <div className="mt-2 flex items-center gap-2">
                             <Badge variant="stone">
                               <MapPin className="mr-1 h-3 w-3" />
-                              {formatCompact(row.count)} obs
+                              {formatCompact(row.count)} {t('label.obs')}
                             </Badge>
                           </div>
                         </div>
@@ -133,8 +135,8 @@ export function SpeciesPanel({
                   ))}
                 </ul>
               ) : (
-                <p className="py-10 text-center text-sm text-charcoal-soft">
-                  No species counts available for this group.
+                <p className="py-10 text-center text-sm leading-cn text-charcoal-soft">
+                  {t('explore.speciesEmpty')}
                 </p>
               )}
             </div>

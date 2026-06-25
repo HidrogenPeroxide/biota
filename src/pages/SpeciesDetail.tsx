@@ -23,10 +23,12 @@ import { fetchObservations, fetchTaxon } from '@/api/inaturalist'
 import { photoUrl, pickPhoto } from '@/lib/photos'
 import { formatCompact, formatNumber } from '@/lib/utils'
 import type { Observation, Taxon } from '@/types'
+import { useT } from '@/i18n'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
 export function SpeciesDetail() {
+  const t = useT()
   const { id } = useParams<{ id: string }>()
 
   const { data: taxon, loading: taxonLoading } = useAsync<Taxon | null>(
@@ -51,10 +53,7 @@ export function SpeciesDetail() {
       <PageTransition>
         <div className="container-wide pt-[72px]">
           <div className="py-24">
-            <EmptyState
-              title="Species not found"
-              message="We couldn't load this species. It may have been reclassified or the network is unavailable."
-            />
+            <EmptyState />
           </div>
         </div>
       </PageTransition>
@@ -102,7 +101,7 @@ export function SpeciesDetail() {
               className="inline-flex items-center gap-2 text-sm text-ivory-50/80 transition-colors hover:text-ivory-50"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to explore
+              {t('species.back')}
             </Link>
             <div className="mt-5 flex flex-wrap items-center gap-2">
               <Badge variant="default">{capitalize(taxon.rank)}</Badge>
@@ -129,16 +128,18 @@ export function SpeciesDetail() {
         {/* Main column */}
         <div className="md:col-span-7">
           <Reveal>
-            <p className="eyebrow">About</p>
+            <p className="eyebrow">{t('species.about')}</p>
             <h2 className="headline mt-3 text-3xl md:text-4xl">
-              A closer look
+              {t('species.aboutTitle')}
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="mt-6 text-pretty text-lg leading-relaxed text-charcoal-soft">
+            <p className="mt-6 text-pretty leading-cn text-lg text-charcoal-soft">
               {taxon.wikipedia_summary
                 ? cleanSummary(taxon.wikipedia_summary)
-                : `Little has been written here yet. ${taxon.preferred_common_name || taxon.name} is one of countless species documented by naturalists on iNaturalist — each observation a small contribution to our understanding of life on Earth.`}
+                : t('species.aboutFallback', {
+                    name: taxon.preferred_common_name || taxon.name,
+                  })}
             </p>
             {taxon.wikipedia_url && (
               <a
@@ -147,7 +148,7 @@ export function SpeciesDetail() {
                 rel="noreferrer"
                 className="link-underline mt-6 inline-flex items-center gap-2 text-sm font-medium text-forest"
               >
-                Read on Wikipedia
+                {t('species.readWiki')}
                 <ExternalLink className="h-3.5 w-3.5" />
               </a>
             )}
@@ -159,18 +160,18 @@ export function SpeciesDetail() {
               <MiniStat
                 icon={<Eye className="h-4 w-4" />}
                 value={taxon.observations_count}
-                label="Observations"
+                label={t('home.stats.observations')}
               />
               <MiniStat
                 icon={<Users className="h-4 w-4" />}
                 value={observations?.length ?? 0}
-                label="Shown here"
+                label={t('species.shownHere')}
                 compact
               />
               <MiniStat
                 icon={<TrendingUp className="h-4 w-4" />}
                 value={taxon.complete_species_count ?? undefined}
-                label="Species in group"
+                label={t('species.speciesInGroup')}
               />
             </div>
           </Reveal>
@@ -180,10 +181,10 @@ export function SpeciesDetail() {
             <div className="mt-16">
               <div className="flex items-center gap-3">
                 <ImageIcon className="h-5 w-5 text-forest" />
-                <h3 className="font-display text-2xl">From the field</h3>
+                <h3 className="font-display text-2xl">{t('species.galleryTitle')}</h3>
               </div>
-              <p className="mt-1 text-sm text-charcoal-soft">
-                Recent community observations of this species.
+              <p className="mt-1 text-sm leading-cn text-charcoal-soft">
+                {t('species.galleryBody')}
               </p>
               {obsLoading ? (
                 <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -220,8 +221,8 @@ export function SpeciesDetail() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-6 text-sm text-charcoal-soft">
-                  No recent photos available.
+                <p className="mt-6 text-sm leading-cn text-charcoal-soft">
+                  {t('species.galleryEmpty')}
                 </p>
               )}
             </div>
@@ -231,9 +232,9 @@ export function SpeciesDetail() {
         {/* Side column: taxonomy + distribution */}
         <aside className="md:col-span-5 md:pl-6 lg:pl-12">
           <Reveal delay={0.1}>
-            <p className="eyebrow">Classification</p>
+            <p className="eyebrow">{t('species.classification')}</p>
             <h3 className="headline mt-3 text-2xl md:text-3xl">
-              Where it belongs
+              {t('species.classificationTitle')}
             </h3>
 
             <ol className="mt-6 flex flex-col gap-1">
@@ -270,10 +271,10 @@ export function SpeciesDetail() {
             <div className="mt-10">
               <div className="flex items-center gap-3">
                 <Globe2 className="h-5 w-5 text-forest" />
-                <h3 className="font-display text-2xl">Distribution</h3>
+                <h3 className="font-display text-2xl">{t('species.distribution')}</h3>
               </div>
-              <p className="mt-1 text-sm text-charcoal-soft">
-                Where naturalists have recorded this species.
+              <p className="mt-1 text-sm leading-cn text-charcoal-soft">
+                {t('species.distributionBody')}
               </p>
               <div className="mt-5 h-[360px] overflow-hidden rounded-2xl border border-stone-light/70">
                 {obsLoading ? (
@@ -294,7 +295,7 @@ export function SpeciesDetail() {
           {photos.length > 1 && (
             <Reveal delay={0.15}>
               <div className="mt-10">
-                <h3 className="font-display text-2xl">Gallery</h3>
+                <h3 className="font-display text-2xl">{t('species.gallery')}</h3>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   {photos.slice(0, 4).map((src) => (
                     <LazyImage

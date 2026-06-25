@@ -1,22 +1,22 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Leaf, Menu, X } from 'lucide-react'
+import { Leaf, Menu, X, Languages } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useI18n, useT } from '@/i18n'
 
 const LINKS = [
-  { to: '/', label: 'Home' },
-  { to: '/explore', label: 'Explore' },
-  { to: '/map', label: 'Atlas' },
-  { to: '/statistics', label: 'Insights' },
+  { to: '/', key: 'nav.home' },
+  { to: '/explore', key: 'nav.explore' },
+  { to: '/map', key: 'nav.atlas' },
+  { to: '/statistics', key: 'nav.insights' },
 ]
 
 /**
  * Routes whose very top is a dark, full-bleed image. On these the navbar
  * starts transparent with light text (over the photo) and turns solid once
- * the user scrolls. Every other route (Explore, Insights, Atlas, 404) sits on
- * a light background, so the navbar is solid with dark text from the top —
- * regardless of scroll position.
+ * the user scrolls. Every other route sits on a light background, so the
+ * navbar is solid with dark text from the top — regardless of scroll.
  */
 function isHeroPage(pathname: string): boolean {
   return pathname === '/' || pathname.startsWith('/species/')
@@ -26,6 +26,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const location = useLocation()
+  const t = useT()
+  const { lang, toggleLang } = useI18n()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -38,15 +40,11 @@ export function Navbar() {
   useEffect(() => setOpen(false), [location.pathname])
 
   const heroPage = isHeroPage(location.pathname)
-  // `solid` ⇒ dark text on an ivory backdrop. True on light-background pages
-  // always, and on hero pages once scrolled past the image.
   const solid = scrolled || !heroPage
 
   return (
     <header
       className={cn(
-        // z-[1200] stays above Leaflet panes/controls (≤ ~1000) and all map
-        // overlays, so the map never covers the top bar.
         'fixed inset-x-0 top-0 z-[1200] transition-all duration-700 ease-organic',
         solid
           ? 'bg-ivory-50/90 backdrop-blur-xl border-b border-stone-light/60'
@@ -69,7 +67,7 @@ export function Navbar() {
                 solid ? 'text-charcoal' : 'text-ivory-50',
               )}
             >
-              Biota
+              {t('brand.name')}
             </span>
             <span
               className={cn(
@@ -77,7 +75,7 @@ export function Navbar() {
                 solid ? 'text-forest-mist' : 'text-ivory-50/70',
               )}
             >
-              Living Atlas
+              {t('brand.tagline')}
             </span>
           </span>
         </Link>
@@ -104,7 +102,7 @@ export function Navbar() {
             >
               {({ isActive }) => (
                 <>
-                  {link.label}
+                  {t(link.key)}
                   {isActive && (
                     <motion.span
                       layoutId="nav-active"
@@ -118,38 +116,55 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:block">
-          <Link
-            to="/explore"
+        <div className="flex items-center gap-2">
+          {/* Language toggle */}
+          <button
+            onClick={toggleLang}
+            aria-label={t('nav.toggle')}
             className={cn(
-              'inline-flex items-center rounded-full border px-5 py-2 text-sm font-medium tracking-wide transition-all duration-500 ease-organic',
+              'flex h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-medium tracking-wide transition-all duration-500 ease-organic',
               solid
-                ? 'border-forest/40 text-forest hover:bg-forest hover:text-ivory-50 hover:border-forest'
-                : 'border-ivory-50/40 text-ivory-50 hover:bg-ivory-50 hover:text-forest-deep hover:border-ivory-50',
+                ? 'border-stone-light text-charcoal-soft hover:border-stone hover:text-charcoal'
+                : 'border-ivory-50/40 text-ivory-50/90 hover:bg-ivory-50/10',
             )}
           >
-            Begin exploring
-          </Link>
-        </div>
+            <Languages className="h-3.5 w-3.5" />
+            {lang === 'zh' ? 'EN' : '中'}
+          </button>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {solid ? (
-            open ? (
-              <X className="h-6 w-6 text-charcoal" />
+          <div className="hidden md:block">
+            <Link
+              to="/explore"
+              className={cn(
+                'inline-flex items-center rounded-full border px-5 py-2 text-sm font-medium tracking-wide transition-all duration-500 ease-organic',
+                solid
+                  ? 'border-forest/40 text-forest hover:bg-forest hover:text-ivory-50 hover:border-forest'
+                  : 'border-ivory-50/40 text-ivory-50 hover:bg-ivory-50 hover:text-forest-deep hover:border-ivory-50',
+              )}
+            >
+              {t('brand.cta')}
+            </Link>
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={t('nav.menu')}
+          >
+            {solid ? (
+              open ? (
+                <X className="h-6 w-6 text-charcoal" />
+              ) : (
+                <Menu className="h-6 w-6 text-charcoal" />
+              )
+            ) : open ? (
+              <X className="h-6 w-6 text-ivory-50" />
             ) : (
-              <Menu className="h-6 w-6 text-charcoal" />
-            )
-          ) : open ? (
-            <X className="h-6 w-6 text-ivory-50" />
-          ) : (
-            <Menu className="h-6 w-6 text-ivory-50" />
-          )}
-        </button>
+              <Menu className="h-6 w-6 text-ivory-50" />
+            )}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile menu */}
@@ -177,7 +192,7 @@ export function Navbar() {
                     )
                   }
                 >
-                  {link.label}
+                  {t(link.key)}
                 </NavLink>
               ))}
             </div>

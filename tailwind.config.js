@@ -69,10 +69,38 @@ export default {
         },
       },
       fontFamily: {
-        // Editorial serif for display headings, clean sans for body.
-        serif: ['Fraunces', 'Cormorant Garamond', 'Georgia', 'serif'],
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['Fraunces', 'Georgia', 'serif'],
+        // Editorial serif for display headings: Latin leads, CJK falls back
+        // to Noto Serif SC so Chinese titles stay elegant & breathable.
+        serif: [
+          'Playfair Display',
+          'Cormorant Garamond',
+          'Fraunces',
+          'Noto Serif SC',
+          'Source Han Serif SC',
+          'Songti SC',
+          'Georgia',
+          'serif',
+        ],
+        // Clean sans for body: Latin leads, CJK falls back to PingFang SC
+        // (Apple) then Noto Sans SC. Deliberately avoids YaHei/SimSun.
+        sans: [
+          'Inter',
+          'PingFang SC',
+          'Noto Sans SC',
+          'Source Han Sans SC',
+          'system-ui',
+          'sans-serif',
+        ],
+        display: [
+          'Playfair Display',
+          'Cormorant Garamond',
+          'Fraunces',
+          'Noto Serif SC',
+          'Source Han Serif SC',
+          'Songti SC',
+          'Georgia',
+          'serif',
+        ],
       },
       letterSpacing: {
         'widest-2': '0.25em',

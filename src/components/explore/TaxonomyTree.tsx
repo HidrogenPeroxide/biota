@@ -5,7 +5,8 @@ import type { TaxonomyNode } from '@/types'
 import { fetchTaxonChildren } from '@/api/inaturalist'
 import { photoUrl } from '@/lib/photos'
 import { cn } from '@/lib/utils'
-import { TAXONOMY_ROOT } from '@/data/taxonomy'
+import { TAXONOMY_ROOT, iconicLabel } from '@/data/taxonomy'
+import { useT } from '@/i18n'
 
 interface TaxonomyTreeProps {
   selectedId: number | null
@@ -24,10 +25,11 @@ interface TaxonomyTreeProps {
  * with a smooth, organic expand.
  */
 export function TaxonomyTree({ selectedId, onSelect }: TaxonomyTreeProps) {
+  const t = useT()
   return (
     <nav className="flex flex-col">
       <div className="mb-4 flex items-center gap-3">
-        <span className="eyebrow">Tree of life</span>
+        <span className="eyebrow">{t('explore.treeEyebrow')}</span>
         <span className="h-px flex-1 bg-stone-light/70" />
       </div>
       <ul className="flex flex-col gap-1">
@@ -38,6 +40,7 @@ export function TaxonomyTree({ selectedId, onSelect }: TaxonomyTreeProps) {
             depth={0}
             selectedId={selectedId}
             onSelect={onSelect}
+            t={t}
           />
         ))}
       </ul>
@@ -50,17 +53,23 @@ function TreeNode({
   depth,
   selectedId,
   onSelect,
+  t,
 }: {
   node: TaxonomyNode
   depth: number
   selectedId: number | null
   onSelect: TaxonomyTreeProps['onSelect']
+  t: (key: string, params?: Record<string, string | number>) => string
 }) {
   const [open, setOpen] = useState(false)
   const [children, setChildren] = useState<TaxonomyNode[] | null>(null)
   const [loading, setLoading] = useState(false)
 
   const isSelected = selectedId === node.id
+  // Root nodes use the localized iconic-taxon label; lazy-loaded children use
+  // the (localized) common name returned by the API.
+  const displayCommon =
+    depth === 0 ? iconicLabel(t, node.iconic) : node.common
 
   async function handleExpand() {
     const next = !open
@@ -70,17 +79,17 @@ function TreeNode({
       try {
         const taxa = await fetchTaxonChildren(node.taxonId, 40)
         const mapped: TaxonomyNode[] = taxa
-          .filter((t) => t.id !== node.id)
-          .map((t) => ({
-            id: t.id,
-            taxonId: t.id,
-            name: t.name,
-            common: t.preferred_common_name ?? null,
-            rank: t.rank,
-            rank_level: t.rank_level,
-            iconic: t.iconic_taxon_name ?? node.iconic,
-            photo: photoUrl(t.default_photo?.url, 'square'),
-            count: t.observations_count,
+          .filter((x) => x.id !== node.id)
+          .map((x) => ({
+            id: x.id,
+            taxonId: x.id,
+            name: x.name,
+            common: x.preferred_common_name ?? null,
+            rank: x.rank,
+            rank_level: x.rank_level,
+            iconic: x.iconic_taxon_name ?? node.iconic,
+            photo: photoUrl(x.default_photo?.url, 'square'),
+            count: x.observations_count,
             children: [],
           }))
         setChildren(mapped)
@@ -107,7 +116,7 @@ function TreeNode({
             'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-charcoal-soft transition-transform duration-500 ease-organic',
             open && 'rotate-90',
           )}
-          aria-label={open ? 'Collapse' : 'Expand'}
+          aria-label={open ? t('explore.collapse') : t('explore.expand')}
         >
           {loading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -121,7 +130,7 @@ function TreeNode({
             onSelect({
               id: node.id,
               name: node.name,
-              common: node.common,
+              common: displayCommon,
               rank: node.rank,
             })
           }
@@ -138,8 +147,7 @@ function TreeNode({
             <span
               className="h-7 w-7 shrink-0 rounded-md"
               style={{
-                background:
-                  'linear-gradient(135deg, var(--tw-gradient-from, #A8B59B), #C8BDA7)',
+                background: 'linear-gradient(135deg, #A8B59B, #C8BDA7)',
               }}
             />
           )}
@@ -150,7 +158,7 @@ function TreeNode({
                 isSelected ? 'text-forest' : 'text-charcoal',
               )}
             >
-              {node.common || node.name}
+              {displayCommon || node.name}
             </span>
             <span className="block truncate text-xs italic text-charcoal-soft">
               {node.name}
@@ -175,6 +183,7 @@ function TreeNode({
                 depth={depth + 1}
                 selectedId={selectedId}
                 onSelect={onSelect}
+                t={t}
               />
             ))}
           </motion.ul>

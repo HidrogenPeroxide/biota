@@ -17,12 +17,14 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { useFeaturedSpecies, useGlobalStats, useHeroSlides } from '@/hooks/useBiodiversity'
 import { photoUrl } from '@/lib/photos'
-import { formatCompact, formatNumber } from '@/lib/utils'
-import { TAXONOMY_ROOT, iconColor } from '@/data/taxonomy'
+import { formatCompact } from '@/lib/utils'
+import { TAXONOMY_ROOT, iconColor, iconicLabel } from '@/data/taxonomy'
+import { useT } from '@/i18n'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
 export function Landing() {
+  const t = useT()
   const { data: stats, loading: statsLoading } = useGlobalStats()
   const { data: slides, loading: slidesLoading } = useHeroSlides()
   const { data: featured, loading: featuredLoading } = useFeaturedSpecies(
@@ -50,20 +52,18 @@ export function Landing() {
             <div className="mb-6 flex items-center gap-3">
               <span className="h-px w-10 bg-ivory-50/60" />
               <span className="text-xs font-medium uppercase tracking-widest-2 text-ivory-50/80">
-                A Living Atlas of Biodiversity
+                {t('home.hero.eyebrow')}
               </span>
             </div>
-            <h1 className="font-display text-[2.75rem] font-light leading-[1.02] tracking-tight text-ivory-50 sm:text-6xl md:text-7xl lg:text-[5.5rem]">
-              Every species,
+            <h1 className="font-display text-[2.5rem] font-light leading-[1.18] tracking-tight text-ivory-50 sm:text-6xl md:text-7xl lg:text-[5rem]">
+              {t('home.hero.title1')}
               <br />
-              <span className="italic text-sage-light">a story</span> worth
+              <span className="accent text-sage-light">{t('home.hero.titleAccent')}</span>
               <br />
-              discovering.
+              {t('home.hero.title2')}
             </h1>
-            <p className="mt-8 max-w-xl text-pretty text-lg leading-relaxed text-ivory-50/85">
-              Wander through a living natural history museum — millions of
-              real wildlife observations, mapped and told like never before.
-              Powered by the global community of iNaturalist.
+            <p className="mt-8 max-w-xl text-pretty leading-cn text-lg text-ivory-50/85">
+              {t('home.hero.body')}
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -71,7 +71,7 @@ export function Landing() {
                 to="/explore"
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium tracking-wide text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100 hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.5)]"
               >
-                Begin exploring
+                {t('home.hero.cta1')}
                 <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
               </Link>
               <Link
@@ -79,7 +79,7 @@ export function Landing() {
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-ivory-50/40 px-8 py-4 text-sm font-medium tracking-wide text-ivory-50 backdrop-blur-sm transition-all duration-500 ease-organic hover:bg-ivory-50/10"
               >
                 <MapPin className="h-4 w-4" />
-                Open the atlas
+                {t('home.hero.cta2')}
               </Link>
             </div>
           </motion.div>
@@ -92,7 +92,9 @@ export function Landing() {
           transition={{ delay: 1.6, duration: 1.2, ease }}
           className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-ivory-50/60 md:flex"
         >
-          <span className="text-[10px] uppercase tracking-widest-2">Scroll</span>
+          <span className="text-[10px] uppercase tracking-widest-2">
+            {t('home.hero.scroll')}
+          </span>
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
@@ -107,43 +109,36 @@ export function Landing() {
         <div className="container-wide grid grid-cols-2 gap-y-12 py-16 md:grid-cols-4 md:gap-8">
           <StatBlock
             icon={<Globe2 className="h-5 w-5" strokeWidth={1.5} />}
-            value={
-              stats ? (
-                <CountUp value={stats.observations} compact />
-              ) : (
-                '—'
-              )
-            }
-            label="Observations"
-            sub="citizen-science records"
+            value={stats ? <CountUp value={stats.observations} compact /> : '—'}
+            label={t('home.stats.observations')}
+            sub={t('home.stats.observationsSub')}
             loading={statsLoading}
           />
           <StatBlock
             icon={<LeafIcon className="h-5 w-5" strokeWidth={1.5} />}
             value={stats ? <CountUp value={stats.species} compact /> : '—'}
-            label="Species"
-            sub="and countless more"
+            label={t('home.stats.species')}
+            sub={t('home.stats.speciesSub')}
             loading={statsLoading}
           />
           <StatBlock
             icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
             value={stats ? <CountUp value={stats.observers} compact /> : '—'}
-            label="Naturalists"
-            sub="people watching the wild"
+            label={t('home.stats.naturalists')}
+            sub={t('home.stats.naturalistsSub')}
             loading={statsLoading}
           />
           <StatBlock
             icon={<Sparkles className="h-5 w-5" strokeWidth={1.5} />}
             value={stats ? <CountUp value={stats.places} compact /> : '—'}
-            label="Places"
-            sub="corners of the planet"
+            label={t('home.stats.places')}
+            sub={t('home.stats.placesSub')}
             loading={statsLoading}
           />
         </div>
         {stats && !stats.live && (
-          <p className="pb-6 text-center text-xs text-charcoal-soft/70">
-            Showing representative figures — live totals are momentarily
-            unavailable.
+          <p className="pb-6 text-center text-xs leading-cn text-charcoal-soft/70">
+            {t('home.stats.fallbackNote')}
           </p>
         )}
       </section>
@@ -152,29 +147,25 @@ export function Landing() {
       <section className="container-wide py-28 md:py-40">
         <div className="grid gap-16 md:grid-cols-12 md:items-center">
           <Reveal className="md:col-span-5">
-            <p className="eyebrow">The vision</p>
+            <p className="eyebrow">{t('home.vision.eyebrow')}</p>
             <h2 className="headline mt-4 text-4xl md:text-5xl">
-              Not a database.
-              <br />A living world.
+              {t('home.vision.title1')}
+              <br />
+              {t('home.vision.title2')}
             </h2>
           </Reveal>
           <Reveal delay={0.15} className="md:col-span-6 md:col-start-7">
-            <p className="text-pretty text-lg leading-relaxed text-charcoal-soft">
-              Every observation here is a small act of wonder — someone,
-              somewhere, pausing to notice a beetle, a birdcall, a fern uncurling.
-              Together, those moments form the most detailed portrait of life on
-              Earth ever assembled.
+            <p className="text-pretty leading-cn text-lg text-charcoal-soft">
+              {t('home.vision.body1')}
             </p>
-            <p className="mt-5 text-pretty text-lg leading-relaxed text-charcoal-soft">
-              Biota turns that vast record into an experience. Browse the tree of
-              life, drift across continents of wildlife, and let curiosity lead
-              the way.
+            <p className="mt-5 text-pretty leading-cn text-lg text-charcoal-soft">
+              {t('home.vision.body2')}
             </p>
             <Link
               to="/statistics"
               className="link-underline mt-8 inline-flex items-center gap-2 text-sm font-medium text-forest"
             >
-              See the data come alive
+              {t('home.vision.link')}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Reveal>
@@ -185,13 +176,12 @@ export function Landing() {
       <section className="bg-forest-deep py-28 text-ivory-50 md:py-40">
         <div className="container-wide">
           <Reveal className="max-w-2xl">
-            <p className="eyebrow text-sage">Branches of life</p>
+            <p className="eyebrow text-sage">{t('home.branches.eyebrow')}</p>
             <h2 className="headline mt-4 text-4xl text-ivory-50 md:text-5xl">
-              Ten doorways into the wild
+              {t('home.branches.title')}
             </h2>
-            <p className="mt-5 text-ivory-50/70">
-              Begin with a branch of the tree of life. Each opens onto a whole
-              world of species to discover.
+            <p className="mt-5 leading-cn text-ivory-50/70">
+              {t('home.branches.body')}
             </p>
           </Reveal>
 
@@ -208,7 +198,7 @@ export function Landing() {
                   />
                   <div className="mt-12">
                     <h3 className="font-display text-2xl font-light text-ivory-50">
-                      {node.common}
+                      {iconicLabel(t, node.iconic)}
                     </h3>
                     <p className="mt-1 text-xs italic tracking-wide text-ivory-50/50">
                       {node.name}
@@ -225,16 +215,16 @@ export function Landing() {
       <section className="container-wide py-28 md:py-40">
         <Reveal className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="eyebrow">In the spotlight</p>
+            <p className="eyebrow">{t('home.featured.eyebrow')}</p>
             <h2 className="headline mt-4 text-4xl md:text-5xl">
-              Featured species
+              {t('home.featured.title')}
             </h2>
           </div>
           <Link
             to="/explore"
             className="link-underline inline-flex items-center gap-2 text-sm font-medium text-forest"
           >
-            Explore all
+            {t('home.featured.link')}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Reveal>
@@ -251,10 +241,7 @@ export function Landing() {
                     className="block overflow-hidden rounded-2xl card-earth"
                   >
                     <LazyImage
-                      src={photoUrl(
-                        row.taxon.default_photo?.url,
-                        'large',
-                      )}
+                      src={photoUrl(row.taxon.default_photo?.url, 'large')}
                       alt={row.taxon.preferred_common_name || row.taxon.name}
                       ratioClassName="aspect-[4/5]"
                       zoom
@@ -268,7 +255,9 @@ export function Landing() {
                           {row.taxon.name}
                         </p>
                       </div>
-                      <Badge variant="stone">{formatCompact(row.count)}</Badge>
+                      <Badge variant="stone">
+                        {formatCompact(row.count)}
+                      </Badge>
                     </div>
                   </Link>
                 </Reveal>
@@ -281,21 +270,19 @@ export function Landing() {
         <div className="absolute inset-0 bg-gradient-to-br from-bark-dark via-forest-deep to-forest" />
         <div className="container-wide relative z-10 flex flex-col items-center py-28 text-center md:py-40">
           <Reveal>
-            <p className="eyebrow text-sage">Your turn</p>
+            <p className="eyebrow text-sage">{t('home.closing.eyebrow')}</p>
             <h2 className="headline mx-auto mt-4 max-w-3xl text-4xl text-ivory-50 md:text-6xl">
-              The wild is waiting to be noticed.
+              {t('home.closing.title')}
             </h2>
-            <p className="mx-auto mt-6 max-w-xl text-ivory-50/75">
-              Step into the atlas and follow your curiosity. There's always
-              another species, another habitat, another story just around the
-              bend.
+            <p className="mx-auto mt-6 max-w-xl leading-cn text-ivory-50/75">
+              {t('home.closing.body')}
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 to="/explore"
                 className="group inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
               >
-                Start exploring
+                {t('home.closing.cta1')}
                 <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
               </Link>
               <Link
@@ -303,7 +290,7 @@ export function Landing() {
                 className="inline-flex items-center gap-2 rounded-full border border-ivory-50/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors duration-500 hover:bg-ivory-50/10"
               >
                 <MapPin className="h-4 w-4" />
-                View the map
+                {t('home.closing.cta2')}
               </Link>
             </div>
           </Reveal>
@@ -343,7 +330,7 @@ function StatBlock({
       <p className="mt-2 font-display text-base font-medium text-charcoal">
         {label}
       </p>
-      <p className="text-xs text-charcoal-soft">{sub}</p>
+      <p className="text-xs leading-cn text-charcoal-soft">{sub}</p>
     </Reveal>
   )
 }
