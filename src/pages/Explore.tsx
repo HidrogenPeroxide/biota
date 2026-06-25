@@ -222,30 +222,27 @@ export function Explore() {
                 </div>
               )}
             </div>
-
-            {/* Floating species drawer — aligned to the map's right & bottom
-                edges; the circular toggle sits on its left edge. */}
-            <SpeciesPanel
-              open={!!selection}
-              collapsed={panelCollapsed}
-              onToggleCollapsed={() => setPanelCollapsed((v) => !v)}
-              title={
-                selection?.common ||
-                taxon?.preferred_common_name ||
-                selection?.name ||
-                ''
-              }
-              subtitle={selection ? selection.name : undefined}
-              species={species ?? null}
-              loading={speciesLoading}
-              count={totalSpecies}
-              accentColor={iconColor(
-                TAXONOMY_ROOT.find((n) => n.id === selection?.id)?.iconic,
-              )}
-            />
           </motion.div>
         </div>
       </div>
+
+      {/* Species panel — top-layer drawer (base size & style) with
+          collapse/expand instead of a hard close. */}
+      <SpeciesPanel
+        open={!!selection}
+        collapsed={panelCollapsed}
+        onToggleCollapsed={() => setPanelCollapsed((v) => !v)}
+        title={
+          selection?.common ||
+          taxon?.preferred_common_name ||
+          selection?.name ||
+          ''
+        }
+        subtitle={selection ? selection.name : undefined}
+        species={species ?? null}
+        loading={speciesLoading}
+        count={totalSpecies}
+      />
     </PageTransition>
   )
 }
