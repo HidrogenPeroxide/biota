@@ -43,7 +43,9 @@ export function Explore() {
         }
       : null,
   )
-  const [panelOpen, setPanelOpen] = useState(Boolean(initialNode))
+  // The species panel is a floating drawer over the map. `collapsed` toggles
+  // between the full list and a slim vertical tab; it never occupies layout.
+  const [panelCollapsed, setPanelCollapsed] = useState(false)
 
   // Resolve the taxon detail (for a nice title/subtitle) when selected.
   const { data: taxon } = useAsync<Taxon | null>(
@@ -96,7 +98,8 @@ export function Explore() {
 
   function handleSelect(node: Selection) {
     setSelection(node)
-    setPanelOpen(true)
+    // Expand the drawer whenever a fresh group is chosen.
+    setPanelCollapsed(false)
     setParams(node ? { taxon: String(node.id) } : {}, { replace: true })
   }
 
@@ -109,7 +112,7 @@ export function Explore() {
       common: initialNode.common,
       rank: initialNode.rank,
     })
-    setPanelOpen(true)
+    setPanelCollapsed(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.get('taxon')])
 
@@ -157,77 +160,92 @@ export function Explore() {
             />
           </motion.aside>
 
-          {/* Map */}
+          {/* Map + floating species drawer share a positioning wrapper so the
+              drawer aligns to the map's edges without being clipped by the
+              map's rounded overflow-hidden container. */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease, delay: 0.1 }}
-            className="relative min-h-[460px] flex-1 overflow-hidden rounded-2xl border border-stone-light/70"
+            className="relative min-h-[460px] flex-1"
           >
-            {obsLoading ? (
-              <Skeleton className="absolute inset-0 rounded-2xl" />
-            ) : (
-              <ObservationMap
-                observations={observations ?? []}
-                mode="markers"
-                flyTo={flyTarget}
-                className="absolute inset-0 h-full w-full"
-              />
-            )}
-
-            {/* Floating selection chip */}
-            {selection && (
-              <motion.button
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease }}
-                onClick={() => setPanelOpen(true)}
-                className="absolute left-4 top-4 flex items-center gap-3 rounded-full border border-stone-light/80 bg-ivory-50/90 px-4 py-2 text-left shadow-lg backdrop-blur-md transition-transform hover:scale-[1.02]"
-              >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{
-                    background: iconColor(
-                      TAXONOMY_ROOT.find((n) => n.id === selection.id)?.iconic,
-                    ),
-                  }}
+            <div className="absolute inset-0 overflow-hidden rounded-2xl border border-stone-light/70">
+              {obsLoading ? (
+                <Skeleton className="absolute inset-0 rounded-2xl" />
+              ) : (
+                <ObservationMap
+                  observations={observations ?? []}
+                  mode="markers"
+                  flyTo={flyTarget}
+                  className="absolute inset-0 h-full w-full"
                 />
-                <span>
-                  <span className="block text-xs text-charcoal-soft">
-                    {t('explore.viewing')}
-                  </span>
-                  <span className="block text-sm font-medium text-charcoal">
-                    {selection.common || selection.name}
-                  </span>
-                </span>
-              </motion.button>
-            )}
+              )}
 
-            {!selection && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
-                <div className="max-w-sm rounded-2xl bg-ivory-50/85 p-6 text-center backdrop-blur-md">
-                  <p className="font-display text-xl text-charcoal">
-                    {t('explore.mapHintTitle')}
-                  </p>
-                  <p className="mt-2 text-sm leading-cn text-charcoal-soft">
-                    {t('explore.mapHintBody')}
-                  </p>
+              {/* Floating selection chip */}
+              {selection && (
+                <motion.button
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease }}
+                  onClick={() => setPanelCollapsed(false)}
+                  className="absolute left-4 top-4 flex items-center gap-3 rounded-full border border-stone-light/80 bg-ivory-50/90 px-4 py-2 text-left shadow-lg backdrop-blur-md transition-transform hover:scale-[1.02]"
+                >
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{
+                      background: iconColor(
+                        TAXONOMY_ROOT.find((n) => n.id === selection.id)?.iconic,
+                      ),
+                    }}
+                  />
+                  <span>
+                    <span className="block text-xs text-charcoal-soft">
+                      {t('explore.viewing')}
+                    </span>
+                    <span className="block text-sm font-medium text-charcoal">
+                      {selection.common || selection.name}
+                    </span>
+                  </span>
+                </motion.button>
+              )}
+
+              {!selection && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
+                  <div className="max-w-sm rounded-2xl bg-ivory-50/85 p-6 text-center backdrop-blur-md">
+                    <p className="font-display text-xl text-charcoal">
+                      {t('explore.mapHintTitle')}
+                    </p>
+                    <p className="mt-2 text-sm leading-cn text-charcoal-soft">
+                      {t('explore.mapHintBody')}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Floating species drawer — aligned to the map's right & bottom
+                edges; the circular toggle sits on its left edge. */}
+            <SpeciesPanel
+              open={!!selection}
+              collapsed={panelCollapsed}
+              onToggleCollapsed={() => setPanelCollapsed((v) => !v)}
+              title={
+                selection?.common ||
+                taxon?.preferred_common_name ||
+                selection?.name ||
+                ''
+              }
+              subtitle={selection ? selection.name : undefined}
+              species={species ?? null}
+              loading={speciesLoading}
+              count={totalSpecies}
+              accentColor={iconColor(
+                TAXONOMY_ROOT.find((n) => n.id === selection?.id)?.iconic,
+              )}
+            />
           </motion.div>
         </div>
       </div>
-
-      <SpeciesPanel
-        open={panelOpen}
-        onClose={() => setPanelOpen(false)}
-        title={selection?.common || taxon?.preferred_common_name || selection?.name || 'Selection'}
-        subtitle={selection ? selection.name : undefined}
-        species={species ?? null}
-        loading={speciesLoading}
-        count={totalSpecies}
-      />
     </PageTransition>
   )
 }
