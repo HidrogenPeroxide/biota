@@ -120,10 +120,17 @@ export default {
         shimmer: {
           '100%': { transform: 'translateX(100%)' },
         },
+        // Extremely gentle cloud drift across the map — a "living Earth" haze.
+        'cloud-drift': {
+          '0%': { transform: 'translate3d(-8%, 0, 0)' },
+          '50%': { transform: 'translate3d(8%, -1%, 0)' },
+          '100%': { transform: 'translate3d(-8%, 0, 0)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards',
         'slow-pan': 'slow-pan 24s ease-in-out infinite alternate',
+        'cloud-drift': 'cloud-drift 120s ease-in-out infinite',
       },
       transitionTimingFunction: {
         organic: 'cubic-bezier(0.22, 1, 0.36, 1)',

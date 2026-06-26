@@ -150,13 +150,65 @@
   }
 }
 
-/* ===== Leaflet theming to match the earth-tone palette ===== */
+/* ===== Leaflet theming — warm, atmospheric exploration-map look ===== */
 .leaflet-container {
-  background: #e7e0cd;
+  background: #2c2a24;
   font-family: 'Inter', sans-serif;
 }
+/* Earth-from-above: desaturate slightly, warm the hue, soften contrast and
+   add a faint haze so satellite tiles read like a documentary globe rather
+   than a vivid nav map. */
 .leaflet-tile {
-  filter: saturate(0.85) brightness(1.02) sepia(0.06);
+  filter: saturate(0.82) brightness(0.96) contrast(0.96) sepia(0.14)
+    hue-rotate(-6deg);
+}
+
+/* Atmospheric overlays layered above the tiles (pointer-events: none so they
+   never block the map). Provided by <MapAtmosphere>. */
+.map-atmosphere {
+  pointer-events: none;
+  /* Above tiles/reference (Leaflet panes ≤ 400) but below markers (600) and
+     controls/popups so observation data always stays crisp on top. */
+  z-index: 500;
+}
+/* Warm documentary vignette + soft haze. */
+.map-haze {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 90% at 50% 35%,
+      rgba(246, 232, 205, 0.1) 0%,
+      rgba(36, 32, 24, 0) 45%,
+      rgba(28, 24, 18, 0.32) 100%
+    ),
+    linear-gradient(180deg, rgba(40, 34, 24, 0.16), rgba(36, 59, 44, 0.1));
+  mix-blend-mode: multiply;
+}
+/* Very gentle moving cloud veil — two translucent soft-noise layers drifting
+   out of phase for a living-Earth shimmer. */
+.map-clouds {
+  position: absolute;
+  inset: -10% -20%;
+  background:
+    radial-gradient(
+      40% 30% at 30% 40%,
+      rgba(255, 250, 240, 0.28),
+      rgba(255, 250, 240, 0) 60%
+    ),
+    radial-gradient(
+      35% 25% at 70% 60%,
+      rgba(255, 250, 240, 0.22),
+      rgba(255, 250, 240, 0) 60%
+    ),
+    radial-gradient(
+      30% 22% at 50% 22%,
+      rgba(255, 250, 240, 0.18),
+      rgba(255, 250, 240, 0) 60%
+    );
+  filter: blur(8px);
+  opacity: 0.55;
+  animation: cloud-drift 120s ease-in-out infinite;
 }
 .leaflet-bar a,
 .leaflet-control-zoom a {

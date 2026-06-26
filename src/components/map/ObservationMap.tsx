@@ -23,6 +23,8 @@ export interface ObservationMapProps {
   className?: string
   /** Render observation popups on click (markers mode only). */
   interactive?: boolean
+  /** Show the atmospheric haze + slow cloud veil over the satellite tiles. */
+  showAtmosphere?: boolean
 }
 
 const WORLD_VIEW: [number, number] = [22, 10]
@@ -45,6 +47,7 @@ export function ObservationMap({
   initialZoom = WORLD_ZOOM,
   className,
   interactive = true,
+  showAtmosphere = true,
 }: ObservationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -66,13 +69,24 @@ export function ObservationMap({
       preferCanvas: true,
     })
     L.control.zoom({ position: 'topright' }).addTo(map)
+
+    // Base layer — satellite imagery for a National Geographic exploration feel.
     L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertile/voyager/{z}/{x}/{y}{r}.png',
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
         attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
+          'Imagery &copy; Esri, Maxar, Earthstar Geographics; observations &copy; iNaturalist contributors.',
+        maxZoom: 18,
+      },
+    ).addTo(map)
+
+    // Sparse reference overlay (place names + faint boundaries only) so the
+    // view reads as an exploration map rather than a road navigator.
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 18,
+        opacity: 0.5,
       },
     ).addTo(map)
     layerRef.current = L.layerGroup().addTo(map)
@@ -153,7 +167,17 @@ export function ObservationMap({
     })
   }, [flyTo?.key, flyTo?.center, flyTo?.zoom])
 
-  return <div ref={containerRef} className={className} />
+  return (
+    <div className={`relative ${className ?? ''}`}>
+      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+      {showAtmosphere && (
+        <div className="map-atmosphere absolute inset-0" aria-hidden="true">
+          <div className="map-haze" />
+          <div className="map-clouds" />
+        </div>
+      )}
+    </div>
+  )
 }
 
 function addCircleMarker(
