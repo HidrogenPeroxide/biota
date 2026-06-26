@@ -2,7 +2,7 @@
   // Cloudflare static-assets deploy (unified `wrangler deploy`).
   // `assets.directory` points wrangler at the build output; it no longer
   // does framework auto-detection, so Vite 5 works fine.
-  "name": "biota",
+  "name": "sanjiangyuan2026",
   "compatibility_date": "2026-06-26",
   "assets": {
     "directory": "./dist",

@@ -1,4 +1,0 @@
-# Cloudflare Pages SPA fallback.
-# This site is a client-side SPA (react-router BrowserRouter). Serve
-# index.html for every route so deep links and refreshes don't 404.
-/*    /index.html   200
