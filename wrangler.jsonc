@@ -1,8 +1,13 @@
 {
-  // Cloudflare Pages config. Pinning `pages_build_output_dir` tells wrangler
-  // the output directory explicitly, so it skips framework auto-detection
-  // (which otherwise rejects Vite <6). Run: `npm run build && npx wrangler pages deploy`.
+  // Cloudflare static-assets deploy (unified `wrangler deploy`).
+  // `assets.directory` points wrangler at the build output; it no longer
+  // does framework auto-detection, so Vite 5 works fine.
   "name": "biota",
-  "pages_build_output_dir": "dist",
-  "compatibility_date": "2026-06-26"
+  "compatibility_date": "2026-06-26",
+  "assets": {
+    "directory": "./dist",
+    // SPA fallback: serve index.html (200) for any route that isn't a static
+    // file, so react-router deep links & refreshes work. (Replaces _redirects.)
+    "not_found_handling": "single-page-application"
+  }
 }
