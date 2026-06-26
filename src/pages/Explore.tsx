@@ -81,19 +81,17 @@ export function Explore() {
     [species],
   )
 
-  const flyTarget = useMemo(() => {
+  // Build the [lat,lng] point set the camera will auto-fit to.
+  const focus = useMemo(() => {
     if (!observations || observations.length === 0) return undefined
-    const withLoc = observations.filter((o) => {
+    const points: [number, number][] = []
+    for (const o of observations) {
       const lat = o.latitude ?? Number(o.location?.split(',')[0])
       const lng = o.longitude ?? Number(o.location?.split(',')[1])
-      return Number.isFinite(lat) && Number.isFinite(lng)
-    })
-    if (!withLoc.length) return undefined
-    const lat =
-      withLoc.reduce((s, o) => s + (o.latitude ?? 0), 0) / withLoc.length
-    const lng =
-      withLoc.reduce((s, o) => s + (o.longitude ?? 0), 0) / withLoc.length
-    return { center: [lat, lng] as [number, number], zoom: 3, key: selection?.id ?? 0 }
+      if (Number.isFinite(lat) && Number.isFinite(lng)) points.push([lat, lng])
+    }
+    if (!points.length) return undefined
+    return { points, key: selection?.id ?? 0 }
   }, [observations, selection?.id])
 
   function handleSelect(node: Selection) {
@@ -176,7 +174,8 @@ export function Explore() {
                 <ObservationMap
                   observations={observations ?? []}
                   mode="markers"
-                  flyTo={flyTarget}
+                  focus={focus}
+                  cameraDuration={0.7}
                   className="absolute inset-0 h-full w-full"
                 />
               )}

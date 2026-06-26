@@ -69,20 +69,17 @@ export function MapExplore() {
     return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 8)
   }, [observations])
 
-  const flyTarget = useMemo(() => {
+  // Build the [lat,lng] point set the camera will auto-fit to.
+  const focus = useMemo(() => {
     if (!observations?.length) return undefined
-    const pts = observations
-      .map((o) => ({
-        lat: o.latitude ?? Number(o.location?.split(',')[0]),
-        lng: o.longitude ?? Number(o.location?.split(',')[1]),
-      }))
-      .filter(
-        (p) => Number.isFinite(p.lat) && Number.isFinite(p.lng),
-      )
-    if (!pts.length) return undefined
-    const lat = pts.reduce((s, p) => s + p.lat, 0) / pts.length
-    const lng = pts.reduce((s, p) => s + p.lng, 0) / pts.length
-    return { center: [lat, lng] as [number, number], zoom: 3, key: `${taxon?.id}-${group}-${year}` }
+    const points: [number, number][] = []
+    for (const o of observations) {
+      const lat = o.latitude ?? Number(o.location?.split(',')[0])
+      const lng = o.longitude ?? Number(o.location?.split(',')[1])
+      if (Number.isFinite(lat) && Number.isFinite(lng)) points.push([lat, lng])
+    }
+    if (!points.length) return undefined
+    return { points, key: `${taxon?.id}-${group}-${year}` }
   }, [observations, taxon?.id, group, year])
 
   return (
@@ -96,7 +93,8 @@ export function MapExplore() {
             <ObservationMap
               observations={observations ?? []}
               mode={mode}
-              flyTo={flyTarget}
+              focus={focus}
+              cameraDuration={0.7}
               interactive
               className="h-full w-full"
             />

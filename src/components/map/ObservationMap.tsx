@@ -15,8 +15,13 @@ type MapMode = 'markers' | 'heat'
 export interface ObservationMapProps {
   observations: Observation[]
   mode?: MapMode
-  /** When changed, the map flies to this [lat, lng] with an organic transition. */
-  flyTo?: { center: [number, number]; zoom?: number; key: string | number }
+  /**
+   * When `key` changes, the camera automatically fits these [lat, lng] points
+   * with a smooth cinematic animation — like a documentary surveying a region.
+   * One point zooms in to ~15; a tight cluster fills comfortably; a wide
+   * spread zooms out to show the whole distribution.
+   */
+  focus?: { points: [number, number][]; key: string | number }
   /** Override the default world view. */
   initialCenter?: [number, number]
   initialZoom?: number
@@ -25,6 +30,11 @@ export interface ObservationMapProps {
   interactive?: boolean
   /** Show the atmospheric haze + slow cloud veil over the satellite tiles. */
   showAtmosphere?: boolean
+  /**
+   * Duration (seconds) of the auto-fit camera glide. Page-tuned for rhythm:
+   * shorter for the working Explore map, longer for the cinematic Atlas page.
+   */
+  cameraDuration?: number
 }
 
 const WORLD_VIEW: [number, number] = [22, 10]
@@ -42,12 +52,13 @@ const WORLD_ZOOM = 2
 export function ObservationMap({
   observations,
   mode = 'markers',
-  flyTo,
+  focus,
   initialCenter = WORLD_VIEW,
   initialZoom = WORLD_ZOOM,
   className,
   interactive = true,
   showAtmosphere = true,
+  cameraDuration = 1.4,
 }: ObservationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<L.Map | null>(null)
@@ -157,15 +168,45 @@ export function ObservationMap({
     }
   }, [observations, mode, interactive])
 
-  // --- Cinematic fly-to ---
+  // --- Cinematic auto-fit camera ---
+  // Frame the selected group's observations like a documentary surveying a
+  // region: compute the points' bounds and smoothly fly to them with generous
+  // padding so nothing kisses the edges. Single point → close-up; tight
+  // cluster → comfortable; wide spread → zoom out to fit all of it.
   useEffect(() => {
     const map = mapRef.current
-    if (!map || !flyTo) return
-    map.flyTo(flyTo.center, flyTo.zoom ?? 5, {
-      duration: 2.4,
-      easeLinearity: 0.25,
+    if (!map || !focus || focus.points.length === 0) return
+
+    const points = focus.points
+    const single = points.length === 1
+
+    if (single) {
+      // One observation — a gentle close-up.
+      map.flyTo(points[0], 15, {
+        duration: cameraDuration,
+        easeLinearity: 0.3,
+      })
+      return
+    }
+
+    const bounds = L.latLngBounds(points)
+
+    // Degenerate bounds (all points identical) → treat as a single point.
+    if (bounds.getNorthWest().equals(bounds.getSouthEast())) {
+      map.flyTo(points[0], 15, {
+        duration: cameraDuration,
+        easeLinearity: 0.3,
+      })
+      return
+    }
+
+    map.flyToBounds(bounds, {
+      padding: [100, 100], // ~100px breathing room on every side
+      maxZoom: 16, // never get uncomfortably close on a tight cluster
+      duration: cameraDuration, // page-tuned cinematic glide
+      easeLinearity: 0.3,
     })
-  }, [flyTo?.key, flyTo?.center, flyTo?.zoom])
+  }, [focus?.key, cameraDuration])
 
   return (
     <div className={`relative ${className ?? ''}`}>
