@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { lazy, Suspense } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -23,6 +23,12 @@ const Statistics = lazy(() =>
 const MapExplore = lazy(() =>
   import('@/pages/MapExplore').then((m) => ({ default: m.MapExplore })),
 )
+const JourneyDetail = lazy(() =>
+  import('@/pages/JourneyDetail').then((m) => ({ default: m.JourneyDetail })),
+)
+const About = lazy(() =>
+  import('@/pages/About').then((m) => ({ default: m.About })),
+)
 const NotFound = lazy(() =>
   import('@/pages/NotFound').then((m) => ({ default: m.NotFound })),
 )
@@ -35,6 +41,10 @@ function RouteFallback() {
   )
 }
 
+const lazied = (el: React.ReactElement) => (
+  <Suspense fallback={<RouteFallback />}>{el}</Suspense>
+)
+
 export default function App() {
   const location = useLocation()
 
@@ -44,47 +54,27 @@ export default function App() {
       <Navbar />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
+          {/* Story-driven home */}
           <Route path="/" element={<Landing />} />
-          <Route
-            path="/explore"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <Explore />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/species/:id"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <SpeciesDetail />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/statistics"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <Statistics />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/map"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <MapExplore />
-              </Suspense>
-            }
-          />
-          <Route
-            path="*"
-            element={
-              <Suspense fallback={<RouteFallback />}>
-                <NotFound />
-              </Suspense>
-            }
-          />
+          <Route path="/journey/:slug" element={lazied(<JourneyDetail />)} />
+
+          {/* Life Data — the scientific exploration section */}
+          <Route path="/life-data" element={<Navigate to="/life-data/explore" replace />} />
+          <Route path="/life-data/explore" element={lazied(<Explore />)} />
+          <Route path="/life-data/map" element={lazied(<MapExplore />)} />
+          <Route path="/life-data/stats" element={lazied(<Statistics />)} />
+          <Route path="/life-data/species/:id" element={lazied(<SpeciesDetail />)} />
+
+          {/* About */}
+          <Route path="/about" element={lazied(<About />)} />
+
+          {/* Back-compat redirects for the old flat routes */}
+          <Route path="/explore" element={<Navigate to="/life-data/explore" replace />} />
+          <Route path="/map" element={<Navigate to="/life-data/map" replace />} />
+          <Route path="/statistics" element={<Navigate to="/life-data/stats" replace />} />
+          <Route path="/species/:id" element={<Navigate to="/life-data/species/:id" replace />} />
+
+          <Route path="*" element={lazied(<NotFound />)} />
         </Routes>
       </AnimatePresence>
       <Footer />

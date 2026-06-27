@@ -14,6 +14,9 @@ const zh = {
 
   // ---- Nav ----
   'nav.home': '首页',
+  'nav.lifeData': '生命数据',
+  'nav.about': '关于',
+  // Legacy labels (still used inside Life Data surfaces)
   'nav.explore': '探索',
   'nav.atlas': '图集',
   'nav.insights': '数据',
@@ -84,6 +87,85 @@ const zh = {
     '走进图集，追随你的好奇心。总有另一个物种、另一片栖息地、另一个故事，就在下一个转角。',
   'home.closing.cta1': '开始探索',
   'home.closing.cta2': '查看地图',
+
+  // ---- Home: story-driven hero ----
+  'home.story.eyebrow': '一份数字野外手记',
+  'home.story.title1': '每段旅程，',
+  'home.story.titleAccent': '始于好奇',
+  'home.story.subtitle':
+    '每一次观察，都是关于一个地方、一片山川、以及栖息其间的生命的故事。',
+  'home.story.cta1': '追随我们的旅程',
+  'home.story.cta2': '直接探索生命数据',
+  'home.story.scroll': '向下滚动',
+
+  // ---- Home: journey map ----
+  'home.journey.eyebrow': '我们的足迹',
+  'home.journey.title': '我们去过的远方',
+  'home.journey.body':
+    '地图上的每个标记都是旅程中的一章——一个清晨、一座山谷、一段与自然的相遇。悬停预览，点击进入当天的故事。',
+  'home.journey.hint': '悬停标记预览 · 点击进入当天故事',
+  'home.journey.readStory': '阅读完整故事',
+
+  // ---- Home: chapter cards ----
+  'home.chapters.eyebrow': '行程章节',
+  'home.chapters.title': '七天，七种远方',
+  'home.chapters.day': '第 {n} 天',
+  'home.chapters.species': '{count} 个物种',
+  'home.chapters.openJournal': '翻开这一天',
+
+  // ---- Home: bridge into Life Data ----
+  'home.bridge.eyebrow': '故事之后，是数据',
+  'home.bridge.title': '从足迹，走进生命数据',
+  'home.bridge.body':
+    '每一段旅程的背后，都是成百上千条真实的物种观察。走进 Life Data，按地点、时间与类群，亲手丈量我们记录下的生命。',
+  'home.bridge.cta1': '进入 Life Data',
+  'home.bridge.cta2': '查看数据洞察',
+
+  // ---- Journey detail page ----
+  'journey.back': '返回行程地图',
+  'journey.day': '第 {n} 天',
+  'journey.diary': '日记',
+  'journey.moments': '难忘瞬间',
+  'journey.route': '当日路线',
+  'journey.gallery': '现场影像',
+  'journey.speciesTitle': '这一天记录到的生命',
+  'journey.speciesBody': '基于该地坐标，由 iNaturalist 社区数据汇总。',
+  'journey.exploreFromHere': '从此地继续探索生命数据',
+  'journey.weather': '天气',
+  'journey.elevation': '海拔',
+  'journey.notFound': '未找到这一天的行程',
+  'journey.notFoundBody': '这个章节似乎漂离了我们的地图。回到行程地图继续探索。',
+
+  // ---- Life Data section labels ----
+  'lifeData.eyebrow': '生命数据',
+  'lifeData.title': '亲手丈量这片生命',
+  'lifeData.body':
+    '这里存放着我们所有旅途记录下的物种观察——分类树、观察地图、物种档案与统计洞察。',
+  'lifeData.explore': '分类探索',
+  'lifeData.map': '观察图集',
+  'lifeData.stats': '数据洞察',
+  'lifeData.exploreDesc': '漫游生命之树',
+  'lifeData.mapDesc': '在地图上查看观察',
+  'lifeData.statsDesc': '生物多样性的数据视角',
+  'lifeData.filteredHere': '正显示 {place} 的观察',
+
+  // ---- About ----
+  'about.eyebrow': '关于',
+  'about.title': '一段由好奇心驱动的旅程',
+  'about.intro':
+    'Biota 是一份正在生长的数字野外手记。我们背着相机与图鉴走向山野，把每一次与生命的相遇记录下来——这个网站，是这些相遇的延续。',
+  'about.motivationTitle': '我们为什么出发',
+  'about.motivationBody':
+    '生物多样性数据常常以表格和图表的形式出现，冰冷而抽象。我们想换一种讲法：先讲我们去过的远方，再讲在那里遇见的生命。让数据有温度，让科学有故事。',
+  'about.teamTitle': '团队',
+  'about.teamBody': '由野外工作者、设计师与开发者组成的小型跨学科团队。',
+  'about.dataTitle': '数据来源',
+  'about.dataBody':
+    '所有物种数据均来自 {inat} 公开 API——加州科学院与国家地理学会共同发起的公民科学平台。照片版权归原始观察者所有。',
+  'about.techTitle': '技术',
+  'about.techBody': 'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Leaflet。',
+  'about.thanksTitle': '致谢',
+  'about.thanksBody': '感谢每一位在 iNaturalist 上记录自然的人；感谢向导、接待我们的社区，以及所有让这次旅程成为可能的人。',
 
   // ---- Iconic taxa (group labels) ----
   'taxa.Aves': '鸟类',

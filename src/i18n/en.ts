@@ -10,6 +10,9 @@ const en = {
 
   // ---- Nav ----
   'nav.home': 'Home',
+  'nav.lifeData': 'Life Data',
+  'nav.about': 'About',
+  // Legacy labels (still used inside Life Data surfaces)
   'nav.explore': 'Explore',
   'nav.atlas': 'Atlas',
   'nav.insights': 'Insights',
@@ -81,6 +84,90 @@ const en = {
     "Step into the atlas and follow your curiosity. There's always another species, another habitat, another story just around the bend.",
   'home.closing.cta1': 'Start exploring',
   'home.closing.cta2': 'View the map',
+
+  // ---- Home: story-driven hero ----
+  'home.story.eyebrow': 'A Digital Field Journal',
+  'home.story.title1': 'Every Journey',
+  'home.story.titleAccent': 'Begins With Curiosity',
+  'home.story.subtitle':
+    'Every observation tells a story of a place, a landscape, and the life that inhabits it.',
+  'home.story.cta1': 'Follow our journeys',
+  'home.story.cta2': 'Explore the Life Data',
+  'home.story.scroll': 'Scroll',
+
+  // ---- Home: journey map ----
+  'home.journey.eyebrow': 'Where we have been',
+  'home.journey.title': 'The places we travelled',
+  'home.journey.body':
+    'Each marker is a chapter of the journey — a morning, a valley, an encounter with the wild. Hover to preview, click to step into that day.',
+  'home.journey.hint': 'Hover a marker to preview · click to enter the day',
+  'home.journey.readStory': 'Read the full story',
+
+  // ---- Home: chapter cards ----
+  'home.chapters.eyebrow': 'Chapters',
+  'home.chapters.title': 'Seven days, seven horizons',
+  'home.chapters.day': 'Day {n}',
+  'home.chapters.species': '{count} species',
+  'home.chapters.openJournal': 'Open this day',
+
+  // ---- Home: bridge into Life Data ----
+  'home.bridge.eyebrow': 'After the story, the data',
+  'home.bridge.title': 'From footprints, into the Life Data',
+  'home.bridge.body':
+    'Behind every journey are hundreds of real species observations. Step into Life Data and measure the life we recorded — by place, by season, by group.',
+  'home.bridge.cta1': 'Enter Life Data',
+  'home.bridge.cta2': 'View the insights',
+
+  // ---- Journey detail page ----
+  'journey.back': 'Back to the journey map',
+  'journey.day': 'Day {n}',
+  'journey.diary': 'Diary',
+  'journey.moments': 'Memorable moments',
+  'journey.route': "Today's route",
+  'journey.gallery': 'From the field',
+  'journey.speciesTitle': 'The life recorded this day',
+  'journey.speciesBody': 'Aggregated from iNaturalist community data near this location.',
+  'journey.exploreFromHere': 'Explore the Life Data from here',
+  'journey.weather': 'Weather',
+  'journey.elevation': 'Elevation',
+  'journey.notFound': 'This day was not found',
+  'journey.notFoundBody':
+    "This chapter seems to have drifted off our map. Return to the journey map to keep exploring.",
+  'journey.notFound.cta': 'Back to the map',
+
+  // ---- Life Data section labels ----
+  'lifeData.eyebrow': 'Life Data',
+  'lifeData.title': 'Measure this living world, firsthand',
+  'lifeData.body':
+    'Every species we recorded across our travels lives here — the taxonomy tree, the observation map, species profiles, and statistical insights.',
+  'lifeData.explore': 'Taxonomy',
+  'lifeData.map': 'Observation Atlas',
+  'lifeData.stats': 'Insights',
+  'lifeData.exploreDesc': 'Wander the tree of life',
+  'lifeData.mapDesc': 'See observations on the map',
+  'lifeData.statsDesc': 'Biodiversity, in data',
+  'lifeData.filteredHere': 'Showing observations near {place}',
+
+  // ---- About ----
+  'about.eyebrow': 'About',
+  'about.title': 'A journey driven by curiosity',
+  'about.intro':
+    'Biota is a growing digital field journal. We head into the wild with cameras and field guides and record every encounter with life — this site is where those encounters continue.',
+  'about.motivationTitle': 'Why we set out',
+  'about.motivationBody':
+    'Biodiversity data usually arrives as tables and charts — cold and abstract. We wanted to tell it differently: first the places we travelled, then the life we met there. Data with warmth; science with a story.',
+  'about.teamTitle': 'Team',
+  'about.teamBody':
+    'A small, interdisciplinary crew of field workers, designers, and developers.',
+  'about.dataTitle': 'Data source',
+  'about.dataBody':
+    'All species data comes from the {inat} public API — a citizen-science platform run by the California Academy of Sciences and the National Geographic Society. Photography remains the property of the original observers.',
+  'about.techTitle': 'Technology',
+  'about.techBody':
+    'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Leaflet.',
+  'about.thanksTitle': 'Acknowledgements',
+  'about.thanksBody':
+    'Thanks to everyone who records nature on iNaturalist; to our guides and the communities that hosted us; and to everyone who made this journey possible.',
 
   // ---- Iconic taxa ----
   'taxa.Aves': 'Birds',

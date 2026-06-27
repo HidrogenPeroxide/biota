@@ -7,9 +7,8 @@ import { useI18n, useT } from '@/i18n'
 
 const LINKS = [
   { to: '/', key: 'nav.home' },
-  { to: '/explore', key: 'nav.explore' },
-  { to: '/map', key: 'nav.atlas' },
-  { to: '/statistics', key: 'nav.insights' },
+  { to: '/life-data/explore', key: 'nav.lifeData' },
+  { to: '/about', key: 'nav.about' },
 ]
 
 /**
@@ -134,7 +133,7 @@ export function Navbar() {
 
           <div className="hidden md:block">
             <Link
-              to="/explore"
+              to="/life-data/explore"
               className={cn(
                 'inline-flex items-center rounded-full border px-5 py-2 text-sm font-medium tracking-wide transition-all duration-500 ease-organic',
                 solid

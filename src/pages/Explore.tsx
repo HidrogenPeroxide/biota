@@ -47,33 +47,59 @@ export function Explore() {
   // between the full list and a slim vertical tab; it never occupies layout.
   const [panelCollapsed, setPanelCollapsed] = useState(false)
 
+  // Location / date deep-link filters (e.g. arriving from a journey journal:
+  // /life-data/explore?lat=..&lng=..&radius=50&place=..&d1=..&d2=..).
+  const latParam = params.get('lat')
+  const lngParam = params.get('lng')
+  const geo =
+    latParam && lngParam
+      ? {
+          lat: Number(latParam),
+          lng: Number(lngParam),
+          radius: Number(params.get('radius')) || 50,
+        }
+      : null
+  const place = params.get('place')
+  const d1 = params.get('d1') ?? undefined
+  const d2 = params.get('d2') ?? undefined
+
+  // The combined base query: a taxon (from the tree) and/or a location window
+  // (from a journey), optionally narrowed by date.
+  const query = useMemo(
+    () => ({
+      ...(geo ?? {}),
+      ...(selection ? { taxon_id: selection.id } : {}),
+      ...(d1 ? { d1 } : {}),
+      ...(d2 ? { d2 } : {}),
+    }),
+    [geo, selection?.id, d1, d2],
+  )
+  const hasQuery = !!selection || !!geo
+
   // Resolve the taxon detail (for a nice title/subtitle) when selected.
   const { data: taxon } = useAsync<Taxon | null>(
     () => (selection ? fetchTaxon(selection.id) : Promise.resolve(null)),
     [selection?.id],
   )
 
-  // Most-observed species within the selection (for the panel).
+  // Most-observed species within the active query (for the panel).
   const { data: species, loading: speciesLoading } = useAsync<SpeciesCount[]>(
-    () =>
-      selection
-        ? fetchSpeciesCounts({ taxon_id: selection.id }, 40)
-        : Promise.resolve([]),
-    [selection?.id],
+    () => (hasQuery ? fetchSpeciesCounts(query, 40) : Promise.resolve([])),
+    [hasQuery, query],
   )
 
-  // Map observations within the selection.
+  // Map observations within the active query.
   const { data: observations, loading: obsLoading } = useAsync<Observation[]>(
     () =>
-      selection
+      hasQuery
         ? fetchObservations({
-            taxon_id: selection.id,
+            ...query,
             order_by: 'observed_on',
             order: 'desc',
             per_page: 120,
           })
         : Promise.resolve([]),
-    [selection?.id],
+    [hasQuery, query],
   )
 
   const totalSpecies = useMemo(
@@ -91,8 +117,8 @@ export function Explore() {
       if (Number.isFinite(lat) && Number.isFinite(lng)) points.push([lat, lng])
     }
     if (!points.length) return undefined
-    return { points, key: selection?.id ?? 0 }
-  }, [observations, selection?.id])
+    return { points, key: `${selection?.id ?? 'geo'}-${place ?? ''}-${d1 ?? ''}-${d2 ?? ''}` }
+  }, [observations, selection?.id, place, d1, d2])
 
   function handleSelect(node: Selection) {
     setSelection(node)
@@ -180,8 +206,8 @@ export function Explore() {
                 />
               )}
 
-              {/* Floating selection chip */}
-              {selection && (
+              {/* Floating selection chip — shows the active taxon or place */}
+              {hasQuery && (
                 <motion.button
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -193,7 +219,7 @@ export function Explore() {
                     className="h-2.5 w-2.5 rounded-full"
                     style={{
                       background: iconColor(
-                        TAXONOMY_ROOT.find((n) => n.id === selection.id)?.iconic,
+                        TAXONOMY_ROOT.find((n) => n.id === selection?.id)?.iconic,
                       ),
                     }}
                   />
@@ -202,13 +228,13 @@ export function Explore() {
                       {t('explore.viewing')}
                     </span>
                     <span className="block text-sm font-medium text-charcoal">
-                      {selection.common || selection.name}
+                      {selection?.common || selection?.name || place || ''}
                     </span>
                   </span>
                 </motion.button>
               )}
 
-              {!selection && (
+              {!hasQuery && (
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-6">
                   <div className="max-w-sm rounded-2xl bg-ivory-50/85 p-6 text-center backdrop-blur-md">
                     <p className="font-display text-xl text-charcoal">
@@ -228,16 +254,23 @@ export function Explore() {
       {/* Species panel — top-layer drawer (base size & style) with
           collapse/expand instead of a hard close. */}
       <SpeciesPanel
-        open={!!selection}
+        open={hasQuery}
         collapsed={panelCollapsed}
         onToggleCollapsed={() => setPanelCollapsed((v) => !v)}
         title={
           selection?.common ||
           taxon?.preferred_common_name ||
           selection?.name ||
+          place ||
           ''
         }
-        subtitle={selection ? selection.name : undefined}
+        subtitle={
+          selection
+            ? selection.name
+            : place
+              ? t('lifeData.filteredHere', { place })
+              : undefined
+        }
         species={species ?? null}
         loading={speciesLoading}
         count={totalSpecies}

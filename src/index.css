@@ -247,6 +247,94 @@
   font-family: 'Inter', sans-serif;
   fill: #54514a;
 }
+
+/* ===== Journey Map (dark stylized Earth) ===== */
+.journey-map .leaflet-container {
+  background: #14130f;
+}
+/* Numbered day markers on the dark globe. */
+.journey-marker {
+  background: transparent;
+  border: none;
+}
+.journey-marker__pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9999px;
+  background: #b8893a;
+  color: #14130f;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 13px;
+  border: 2px solid #f6f2e8;
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.8);
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.4s ease;
+  cursor: pointer;
+}
+.journey-marker:hover .journey-marker__pin {
+  transform: scale(1.18);
+}
+.journey-marker__pin--active {
+  background: #33513e;
+  color: #f6f2e8;
+  transform: scale(1.2);
+}
+/* Animated dashed route line. */
+.journey-route {
+  stroke-dasharray: 6 10;
+  animation: route-draw 40s linear infinite;
+}
+@keyframes route-draw {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+/* Hover preview tooltip. */
+.journey-tooltip.leaflet-tooltip {
+  background: #fbf9f3;
+  color: #26241f;
+  border: 1px solid #c8bda7;
+  border-radius: 14px;
+  padding: 0;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  width: 200px;
+  font-family: 'Inter', sans-serif;
+}
+.journey-tooltip.leaflet-tooltip-top::before {
+  border-top-color: #fbf9f3;
+}
+.journey-tooltip__img {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 13px 13px 0 0;
+  background: #e4dcc6;
+  display: block;
+}
+.journey-tooltip__body {
+  padding: 10px 12px 12px;
+}
+.journey-tooltip__day {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7e9a86;
+}
+.journey-tooltip__name {
+  font-family: 'Fraunces', serif;
+  font-size: 16px;
+  color: #26241f;
+  margin-top: 2px;
+}
+.journey-tooltip__meta {
+  font-size: 11px;
+  color: #54514a;
+  margin-top: 4px;
+}
 .d3-chart .axis line,
 .d3-chart .axis path {
   stroke: #c8bda7;

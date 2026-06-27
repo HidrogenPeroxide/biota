@@ -1,36 +1,24 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import {
-  ArrowRight,
-  ArrowDown,
-  MapPin,
-  Sparkles,
-  Globe2,
-  Users,
-  Leaf as LeafIcon,
-} from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowRight, ArrowDown, MapPin, Compass, BarChart3, GitBranch } from 'lucide-react'
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
+import { JourneyMap } from '@/components/journey/JourneyMap'
 import { Reveal } from '@/components/motion/Reveal'
-import { CountUp } from '@/components/motion/CountUp'
 import { LazyImage } from '@/components/motion/LazyImage'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
-import { useFeaturedSpecies, useGlobalStats, useHeroSlides } from '@/hooks/useBiodiversity'
-import { photoUrl } from '@/lib/photos'
-import { formatCompact } from '@/lib/utils'
-import { TAXONOMY_ROOT, iconColor, iconicLabel } from '@/data/taxonomy'
-import { useT } from '@/i18n'
+import { useHeroSlides } from '@/hooks/useBiodiversity'
+import { useAllJourneyMedia } from '@/hooks/useJourneyMedia'
+import { JOURNEYS, type Journey } from '@/data/journeys'
+import { useI18n, useT } from '@/i18n'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
 export function Landing() {
   const t = useT()
-  const { data: stats, loading: statsLoading } = useGlobalStats()
+  const { lang } = useI18n()
   const { data: slides, loading: slidesLoading } = useHeroSlides()
-  const { data: featured, loading: featuredLoading } = useFeaturedSpecies(
-    { iconic_taxa: 'Aves' },
-    6,
-  )
+  const media = useAllJourneyMedia()
+  const [selected, setSelected] = useState<Journey | null>(null)
 
   return (
     <div>
@@ -52,40 +40,37 @@ export function Landing() {
             <div className="mb-6 flex items-center gap-3">
               <span className="h-px w-10 bg-ivory-50/60" />
               <span className="text-xs font-medium uppercase tracking-widest-2 text-ivory-50/80">
-                {t('home.hero.eyebrow')}
+                {t('home.story.eyebrow')}
               </span>
             </div>
-            <h1 className="font-display text-[2.5rem] font-light leading-[1.18] tracking-tight text-ivory-50 sm:text-6xl md:text-7xl lg:text-[5rem]">
-              {t('home.hero.title1')}
+            <h1 className="font-display text-[2.6rem] font-light leading-[1.12] tracking-tight text-ivory-50 sm:text-6xl md:text-7xl lg:text-[5.2rem]">
+              {t('home.story.title1')}
               <br />
-              <span className="accent text-sage-light">{t('home.hero.titleAccent')}</span>
-              <br />
-              {t('home.hero.title2')}
+              <span className="accent text-ochre">{t('home.story.titleAccent')}</span>
             </h1>
             <p className="mt-8 max-w-xl text-pretty leading-cn text-lg text-ivory-50/85">
-              {t('home.hero.body')}
+              {t('home.story.subtitle')}
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <Link
-                to="/explore"
-                className="group inline-flex items-center justify-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium tracking-wide text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100 hover:shadow-[0_18px_40px_-16px_rgba(0,0,0,0.5)]"
+              <a
+                href="#journey"
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium tracking-wide text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
               >
-                {t('home.hero.cta1')}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
-              </Link>
+                {t('home.story.cta1')}
+                <ArrowDown className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-y-0.5" />
+              </a>
               <Link
-                to="/map"
+                to="/life-data/explore"
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-ivory-50/40 px-8 py-4 text-sm font-medium tracking-wide text-ivory-50 backdrop-blur-sm transition-all duration-500 ease-organic hover:bg-ivory-50/10"
               >
                 <MapPin className="h-4 w-4" />
-                {t('home.hero.cta2')}
+                {t('home.story.cta2')}
               </Link>
             </div>
           </motion.div>
         </div>
 
-        {/* Scroll cue */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -93,7 +78,7 @@ export function Landing() {
           className="absolute bottom-8 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 text-ivory-50/60 md:flex"
         >
           <span className="text-[10px] uppercase tracking-widest-2">
-            {t('home.hero.scroll')}
+            {t('home.story.scroll')}
           </span>
           <motion.div
             animate={{ y: [0, 8, 0] }}
@@ -104,233 +89,238 @@ export function Landing() {
         </motion.div>
       </section>
 
-      {/* ============ HEADLINE STATS ============ */}
-      <section className="border-y border-stone-light/60 bg-ivory-50">
-        <div className="container-wide grid grid-cols-2 gap-y-12 py-16 md:grid-cols-4 md:gap-8">
-          <StatBlock
-            icon={<Globe2 className="h-5 w-5" strokeWidth={1.5} />}
-            value={stats ? <CountUp value={stats.observations} compact /> : '—'}
-            label={t('home.stats.observations')}
-            sub={t('home.stats.observationsSub')}
-            loading={statsLoading}
-          />
-          <StatBlock
-            icon={<LeafIcon className="h-5 w-5" strokeWidth={1.5} />}
-            value={stats ? <CountUp value={stats.species} compact /> : '—'}
-            label={t('home.stats.species')}
-            sub={t('home.stats.speciesSub')}
-            loading={statsLoading}
-          />
-          <StatBlock
-            icon={<Users className="h-5 w-5" strokeWidth={1.5} />}
-            value={stats ? <CountUp value={stats.observers} compact /> : '—'}
-            label={t('home.stats.naturalists')}
-            sub={t('home.stats.naturalistsSub')}
-            loading={statsLoading}
-          />
-          <StatBlock
-            icon={<Sparkles className="h-5 w-5" strokeWidth={1.5} />}
-            value={stats ? <CountUp value={stats.places} compact /> : '—'}
-            label={t('home.stats.places')}
-            sub={t('home.stats.placesSub')}
-            loading={statsLoading}
-          />
+      {/* ============ JOURNEY MAP ============ */}
+      <section id="journey" className="bg-forest-deep py-24 text-ivory-50 md:py-32">
+        <div className="container-wide">
+          <Reveal className="max-w-2xl">
+            <p className="eyebrow text-sage">{t('home.journey.eyebrow')}</p>
+            <h2 className="headline mt-4 text-4xl text-ivory-50 md:text-5xl">
+              {t('home.journey.title')}
+            </h2>
+            <p className="mt-5 leading-cn text-ivory-50/70">
+              {t('home.journey.body')}
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.1}>
+            <div className="relative mt-12 h-[60vh] min-h-[420px] overflow-hidden rounded-3xl border border-ivory-50/10 shadow-2xl md:h-[68vh]">
+              <JourneyMap
+                journeys={JOURNEYS}
+                media={media}
+                selectedSlug={selected?.slug ?? null}
+                onSelect={setSelected}
+                lang={lang}
+                className="absolute inset-0 h-full w-full"
+              />
+
+              {/* Slide-in preview panel for the selected day */}
+              <AnimatePresence>
+                {selected && (
+                  <motion.div
+                    initial={{ x: 40, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: 40, opacity: 0 }}
+                    transition={{ duration: 0.5, ease }}
+                    className="absolute bottom-5 right-5 top-5 z-[600] flex w-[78vw] max-w-sm flex-col overflow-hidden rounded-2xl border border-ivory-50/15 bg-charcoal/80 backdrop-blur-xl md:w-96"
+                  >
+                    {media[selected.slug]?.cover && (
+                      <div className="relative h-40 shrink-0 overflow-hidden">
+                        <img
+                          src={media[selected.slug]!.cover!}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/90 to-transparent" />
+                        <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-ochre font-display text-sm font-semibold text-charcoal">
+                          {selected.day}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col p-6">
+                      <p className="text-[10px] uppercase tracking-widest-2 text-sage">
+                        {t('home.chapters.day', { n: selected.day })}
+                      </p>
+                      <h3 className="mt-1 font-display text-2xl text-ivory-50">
+                        {selected.location[lang]}
+                      </h3>
+                      <p className="mt-0.5 text-xs italic text-ivory-50/55">
+                        {selected.region[lang]} · {selected.date}
+                      </p>
+                      <p className="mt-4 text-pretty leading-cn text-sm text-ivory-50/75">
+                        {selected.intro[lang]}
+                      </p>
+                      {media[selected.slug]?.speciesCount ? (
+                        <p className="mt-3 text-xs text-sage">
+                          {t('home.chapters.species', {
+                            count: media[selected.slug]!.speciesCount,
+                          })}
+                        </p>
+                      ) : null}
+                      <div className="mt-auto pt-5">
+                        <Link
+                          to={`/journey/${selected.slug}`}
+                          className="group inline-flex items-center gap-2 text-sm font-medium text-ochre"
+                        >
+                          {t('home.journey.readStory')}
+                          <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
+                        </Link>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <p className="pointer-events-none absolute bottom-4 left-1/2 z-[500] -translate-x-1/2 rounded-full bg-charcoal/60 px-4 py-1.5 text-[11px] text-ivory-50/70 backdrop-blur-md">
+                {t('home.journey.hint')}
+              </p>
+            </div>
+          </Reveal>
         </div>
-        {stats && !stats.live && (
-          <p className="pb-6 text-center text-xs leading-cn text-charcoal-soft/70">
-            {t('home.stats.fallbackNote')}
-          </p>
-        )}
       </section>
 
-      {/* ============ INTRO NARRATIVE ============ */}
-      <section className="container-wide py-28 md:py-40">
-        <div className="grid gap-16 md:grid-cols-12 md:items-center">
-          <Reveal className="md:col-span-5">
-            <p className="eyebrow">{t('home.vision.eyebrow')}</p>
+      {/* ============ CHAPTER CARDS ============ */}
+      <section className="container-wide py-24 md:py-32">
+        <Reveal className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+          <div>
+            <p className="eyebrow">{t('home.chapters.eyebrow')}</p>
             <h2 className="headline mt-4 text-4xl md:text-5xl">
-              {t('home.vision.title1')}
-              <br />
-              {t('home.vision.title2')}
+              {t('home.chapters.title')}
             </h2>
+          </div>
+        </Reveal>
+
+        <div className="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {JOURNEYS.map((j, i) => (
+            <Reveal key={j.slug} delay={(i % 3) * 0.06}>
+              <Link
+                to={`/journey/${j.slug}`}
+                className={`group flex h-full flex-col overflow-hidden rounded-2xl card-earth ${
+                  j.spotlight ? 'ring-1 ring-ochre/40' : ''
+                }`}
+              >
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  {media[j.slug]?.cover ? (
+                    <img
+                      src={media[j.slug]!.cover!}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-[1.6s] ease-organic group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="shimmer h-full w-full" />
+                  )}
+                  <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-ivory-50/90 font-display text-sm font-semibold text-forest-deep backdrop-blur-sm">
+                    {j.day}
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <p className="text-[10px] uppercase tracking-widest-2 text-forest-mist">
+                    {t('home.chapters.day', { n: j.day })}
+                  </p>
+                  <h3 className="mt-1 font-display text-2xl text-charcoal">
+                    {j.location[lang]}
+                  </h3>
+                  <p className="mt-0.5 text-xs italic text-charcoal-soft">
+                    {j.region[lang]}
+                  </p>
+                  <p className="mt-3 flex-1 text-pretty leading-cn text-sm text-charcoal-soft">
+                    {j.intro[lang]}
+                  </p>
+                  <div className="mt-5 flex items-center justify-between">
+                    <span className="text-xs text-forest-mist">
+                      {media[j.slug]?.speciesCount
+                        ? t('home.chapters.species', {
+                            count: media[j.slug]!.speciesCount,
+                          })
+                        : j.date}
+                    </span>
+                    <span className="link-underline inline-flex items-center gap-1 text-sm font-medium text-forest">
+                      {t('home.chapters.openJournal')}
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* ============ BRIDGE INTO LIFE DATA ============ */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-bark-dark via-forest-deep to-forest" />
+        <div className="container-wide relative z-10 py-24 md:py-36">
+          <Reveal className="max-w-3xl">
+            <p className="eyebrow text-sage">{t('home.bridge.eyebrow')}</p>
+            <h2 className="headline mt-4 text-4xl text-ivory-50 md:text-6xl">
+              {t('home.bridge.title')}
+            </h2>
+            <p className="mt-6 max-w-xl leading-cn text-ivory-50/75">
+              {t('home.bridge.body')}
+            </p>
           </Reveal>
-          <Reveal delay={0.15} className="md:col-span-6 md:col-start-7">
-            <p className="text-pretty leading-cn text-lg text-charcoal-soft">
-              {t('home.vision.body1')}
-            </p>
-            <p className="mt-5 text-pretty leading-cn text-lg text-charcoal-soft">
-              {t('home.vision.body2')}
-            </p>
+
+          <div className="mt-12 grid gap-5 sm:grid-cols-3">
+            <BridgeCard
+              to="/life-data/explore"
+              icon={<GitBranch className="h-5 w-5" />}
+              title={t('lifeData.explore')}
+              desc={t('lifeData.exploreDesc')}
+            />
+            <BridgeCard
+              to="/life-data/map"
+              icon={<MapPin className="h-5 w-5" />}
+              title={t('lifeData.map')}
+              desc={t('lifeData.mapDesc')}
+            />
+            <BridgeCard
+              to="/life-data/stats"
+              icon={<BarChart3 className="h-5 w-5" />}
+              title={t('lifeData.stats')}
+              desc={t('lifeData.statsDesc')}
+            />
+          </div>
+
+          <Reveal delay={0.1}>
             <Link
-              to="/statistics"
-              className="link-underline mt-8 inline-flex items-center gap-2 text-sm font-medium text-forest"
+              to="/life-data/explore"
+              className="group mt-12 inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
             >
-              {t('home.vision.link')}
-              <ArrowRight className="h-4 w-4" />
+              {t('home.bridge.cta1')}
+              <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
             </Link>
           </Reveal>
         </div>
       </section>
 
-      {/* ============ BRANCHES OF LIFE ============ */}
-      <section className="bg-forest-deep py-28 text-ivory-50 md:py-40">
-        <div className="container-wide">
-          <Reveal className="max-w-2xl">
-            <p className="eyebrow text-sage">{t('home.branches.eyebrow')}</p>
-            <h2 className="headline mt-4 text-4xl text-ivory-50 md:text-5xl">
-              {t('home.branches.title')}
-            </h2>
-            <p className="mt-5 leading-cn text-ivory-50/70">
-              {t('home.branches.body')}
-            </p>
-          </Reveal>
-
-          <div className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-ivory-50/10 bg-ivory-50/10 sm:grid-cols-3 lg:grid-cols-5">
-            {TAXONOMY_ROOT.map((node, i) => (
-              <Reveal as="div" key={node.id} delay={i * 0.05}>
-                <Link
-                  to={`/explore?taxon=${node.taxonId}`}
-                  className="group flex h-full flex-col justify-between bg-forest-deep p-7 transition-colors duration-700 ease-organic hover:bg-forest"
-                >
-                  <span
-                    className="h-1.5 w-10 rounded-full transition-all duration-700 ease-organic group-hover:w-16"
-                    style={{ background: iconColor(node.iconic) }}
-                  />
-                  <div className="mt-12">
-                    <h3 className="font-display text-2xl font-light text-ivory-50">
-                      {iconicLabel(t, node.iconic)}
-                    </h3>
-                    <p className="mt-1 text-xs italic tracking-wide text-ivory-50/50">
-                      {node.name}
-                    </p>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ FEATURED SPECIES ============ */}
-      <section className="container-wide py-28 md:py-40">
-        <Reveal className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-          <div>
-            <p className="eyebrow">{t('home.featured.eyebrow')}</p>
-            <h2 className="headline mt-4 text-4xl md:text-5xl">
-              {t('home.featured.title')}
-            </h2>
-          </div>
-          <Link
-            to="/explore"
-            className="link-underline inline-flex items-center gap-2 text-sm font-medium text-forest"
-          >
-            {t('home.featured.link')}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Reveal>
-
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
-              ))
-            : (featured ?? []).slice(0, 6).map((row, i) => (
-                <Reveal key={row.taxon.id} delay={i * 0.06} className="group">
-                  <Link
-                    to={`/species/${row.taxon.id}`}
-                    className="block overflow-hidden rounded-2xl card-earth"
-                  >
-                    <LazyImage
-                      src={photoUrl(row.taxon.default_photo?.url, 'large')}
-                      alt={row.taxon.preferred_common_name || row.taxon.name}
-                      ratioClassName="aspect-[4/5]"
-                      zoom
-                    />
-                    <div className="flex items-end justify-between p-5">
-                      <div>
-                        <h3 className="font-display text-xl leading-tight text-charcoal">
-                          {row.taxon.preferred_common_name || row.taxon.name}
-                        </h3>
-                        <p className="mt-0.5 text-sm italic text-charcoal-soft">
-                          {row.taxon.name}
-                        </p>
-                      </div>
-                      <Badge variant="stone">
-                        {formatCompact(row.count)}
-                      </Badge>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-        </div>
-      </section>
-
-      {/* ============ CLOSING CTA ============ */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-bark-dark via-forest-deep to-forest" />
-        <div className="container-wide relative z-10 flex flex-col items-center py-28 text-center md:py-40">
-          <Reveal>
-            <p className="eyebrow text-sage">{t('home.closing.eyebrow')}</p>
-            <h2 className="headline mx-auto mt-4 max-w-3xl text-4xl text-ivory-50 md:text-6xl">
-              {t('home.closing.title')}
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl leading-cn text-ivory-50/75">
-              {t('home.closing.body')}
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link
-                to="/explore"
-                className="group inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
-              >
-                {t('home.closing.cta1')}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
-              </Link>
-              <Link
-                to="/map"
-                className="inline-flex items-center gap-2 rounded-full border border-ivory-50/40 px-8 py-4 text-sm font-medium text-ivory-50 transition-colors duration-500 hover:bg-ivory-50/10"
-              >
-                <MapPin className="h-4 w-4" />
-                {t('home.closing.cta2')}
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {/* Decorative compass flourish */}
+      <div className="pointer-events-none flex justify-center pb-16">
+        <Compass className="h-6 w-6 text-stone" strokeWidth={1} />
+      </div>
     </div>
   )
 }
 
-function StatBlock({
+function BridgeCard({
+  to,
   icon,
-  value,
-  label,
-  sub,
-  loading,
+  title,
+  desc,
 }: {
+  to: string
   icon: React.ReactNode
-  value: React.ReactNode
-  label: string
-  sub: string
-  loading: boolean
+  title: string
+  desc: string
 }) {
   return (
-    <Reveal className="px-2 text-center md:text-left">
-      <div className="mb-4 flex justify-center text-forest md:justify-start">
-        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-forest/8">
-          {icon}
-        </span>
-      </div>
-      {loading ? (
-        <Skeleton className="mx-auto h-9 w-28 md:mx-0" />
-      ) : (
-        <div className="font-display text-4xl font-light tracking-tight text-charcoal md:text-5xl">
-          {value}
-        </div>
-      )}
-      <p className="mt-2 font-display text-base font-medium text-charcoal">
-        {label}
-      </p>
-      <p className="text-xs leading-cn text-charcoal-soft">{sub}</p>
-    </Reveal>
+    <Link
+      to={to}
+      className="group rounded-2xl border border-ivory-50/15 bg-ivory-50/5 p-6 backdrop-blur-sm transition-colors duration-500 hover:bg-ivory-50/10"
+    >
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50/10 text-ochre">
+        {icon}
+      </span>
+      <h3 className="mt-4 font-display text-xl text-ivory-50">{title}</h3>
+      <p className="mt-1 text-sm leading-cn text-ivory-50/60">{desc}</p>
+    </Link>
   )
 }
