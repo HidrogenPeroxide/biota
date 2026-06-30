@@ -26,6 +26,9 @@ const MapExplore = lazy(() =>
 const JourneyDetail = lazy(() =>
   import('@/pages/JourneyDetail').then((m) => ({ default: m.JourneyDetail })),
 )
+const LifeDataHub = lazy(() =>
+  import('@/pages/LifeDataHub').then((m) => ({ default: m.LifeDataHub })),
+)
 const About = lazy(() =>
   import('@/pages/About').then((m) => ({ default: m.About })),
 )
@@ -59,7 +62,7 @@ export default function App() {
           <Route path="/journey/:slug" element={lazied(<JourneyDetail />)} />
 
           {/* Life Data — the scientific exploration section */}
-          <Route path="/life-data" element={<Navigate to="/life-data/explore" replace />} />
+          <Route path="/life-data" element={lazied(<LifeDataHub />)} />
           <Route path="/life-data/explore" element={lazied(<Explore />)} />
           <Route path="/life-data/map" element={lazied(<MapExplore />)} />
           <Route path="/life-data/stats" element={lazied(<Statistics />)} />

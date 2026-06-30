@@ -9,7 +9,7 @@
 const zh = {
   // ---- Brand ----
   'brand.name': 'Biota',
-  'brand.tagline': '生命图集',
+  'brand.tagline': '生命学院2026三江源实践',
   'brand.cta': '开始探索',
 
   // ---- Nav ----
@@ -141,6 +141,7 @@ const zh = {
   'lifeData.title': '亲手丈量这片生命',
   'lifeData.body':
     '这里存放着我们所有旅途记录下的物种观察——分类树、观察地图、物种档案与统计洞察。',
+  'lifeData.overviewTag': '总览',
   'lifeData.explore': '分类探索',
   'lifeData.map': '观察图集',
   'lifeData.stats': '数据洞察',

@@ -140,6 +140,7 @@ const en = {
   'lifeData.title': 'Measure this living world, firsthand',
   'lifeData.body':
     'Every species we recorded across our travels lives here — the taxonomy tree, the observation map, species profiles, and statistical insights.',
+  'lifeData.overviewTag': 'Overview',
   'lifeData.explore': 'Taxonomy',
   'lifeData.map': 'Observation Atlas',
   'lifeData.stats': 'Insights',
