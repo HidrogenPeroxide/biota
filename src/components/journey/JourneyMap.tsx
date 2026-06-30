@@ -1,9 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
-import L from 'leaflet'
-import { useInView } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useInView } from 'framer-motion'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
 import { sleep } from '@/lib/utils'
+
+/* Cesium is loaded from the CDN (see index.html) as a global to avoid
+ * bundling its workers/assets into the Vite build. */
+type CesiumNS = any
+declare global {
+  interface Window {
+    Cesium?: CesiumNS
+    CESIUM_BASE_URL?: string
+  }
+}
 
 export interface JourneyMedia {
   cover: string | null
@@ -12,7 +21,6 @@ export interface JourneyMedia {
 
 interface JourneyMapProps {
   journeys: Journey[]
-  /** slug → live cover photo + species count (fetched in the parent). */
   media: Record<string, JourneyMedia>
   selectedSlug?: string | null
   onSelect: (j: Journey) => void
@@ -21,29 +29,103 @@ interface JourneyMapProps {
 }
 
 type Phase = 'idle' | 'playing' | 'done'
+type Pt = [number, number]
 
 const PLAYED_KEY = 'biota-journey-played'
-const SEG_DURATION = 2000 // ms per drawn segment + camera glide
-const INITIAL_PAUSE = 900 // ms after the map fades in, before the journey begins
-const TRAVEL_ZOOM = 5
+const INITIAL_PAUSE = 900
+const ROUTE_COLOR = '#b89a5a'
 
-/** Cubic ease-in-out for an organic, hand-drawn pace. */
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 }
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * t
+
+/** Catmull-Rom → smooth curve through every stop (latitude/longitude space). */
+function catmull(p0: Pt, p1: Pt, p2: Pt, p3: Pt, perSeg: number): Pt[] {
+  const out: Pt[] = []
+  for (let i = 0; i <= perSeg; i++) {
+    const t = i / perSeg
+    const t2 = t * t
+    const t3 = t2 * t
+    out.push([
+      0.5 *
+        (2 * p1[0] +
+          (-p0[0] + p2[0]) * t +
+          (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2 +
+          (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3),
+      0.5 *
+        (2 * p1[1] +
+          (-p0[1] + p2[1]) * t +
+          (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2 +
+          (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3),
+    ])
+  }
+  return out
+}
+function buildSegments(stops: Pt[], perSeg = 28): Pt[][] {
+  const ext = [stops[0], ...stops, stops[stops.length - 1]]
+  const segs: Pt[][] = []
+  for (let i = 0; i < stops.length - 1; i++) {
+    segs.push(catmull(ext[i], ext[i + 1], ext[i + 2], ext[i + 3], perSeg))
+  }
+  return segs
+}
+
+/** One cached canvas: a soft glowing point (radial halo + bright core). */
+let glowDot: HTMLCanvasElement | null = null
+function glowDotCanvas(): HTMLCanvasElement {
+  if (glowDot) return glowDot
+  const S = 64
+  const dpr = 2
+  const c = document.createElement('canvas')
+  c.width = S * dpr
+  c.height = S * dpr
+  const ctx = c.getContext('2d')!
+  ctx.scale(dpr, dpr)
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
+  g.addColorStop(0, 'rgba(255,253,246,0.95)')
+  g.addColorStop(0.18, 'rgba(240,200,120,0.8)')
+  g.addColorStop(0.45, 'rgba(200,155,75,0.32)')
+  g.addColorStop(1, 'rgba(200,155,75,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, S, S)
+  ctx.beginPath()
+  ctx.arc(32, 32, 7, 0, Math.PI * 2)
+  ctx.fillStyle = '#fff6e2'
+  ctx.fill()
+  ctx.lineWidth = 2
+  ctx.strokeStyle = 'rgba(255,250,235,0.9)'
+  ctx.stroke()
+  glowDot = c
+  return c
+}
+
+/** Resolve once the CDN Cesium global is available. */
+function useCesiumReady() {
+  const [ready, setReady] = useState<boolean>(
+    typeof window !== 'undefined' && !!window.Cesium,
+  )
+  useEffect(() => {
+    if (ready) return
+    let id: ReturnType<typeof setTimeout>
+    const check = () => {
+      if (window.Cesium) {
+        setReady(true)
+        return
+      }
+      id = setTimeout(check, 150)
+    }
+    check()
+    return () => clearTimeout(id)
+  }, [ready])
+  return ready
 }
 
 /**
- * The homepage's cinematic expedition sequence.
- *
- * When the section scrolls into view (once per session), the map fades in
- * empty; a warm golden route draws itself segment-by-segment while the camera
- * glides from stop to stop; each destination marker fades in and softly
- * pulses as it is reached. When the journey completes the map unlocks for
- * full interaction — hover reveals a photo preview, click opens the journal
- * preview. Subsequent visits skip the intro and show the finished map.
+ * Cinematic 3D expedition globe (CesiumJS). Quiet glowing points mark each
+ * day; a minimal "Day + Location" chapter label appears only over the hovered
+ * or selected point. On entering the viewport it plays once per session: a
+ * flight from space → the region, then the golden route draws itself stop by
+ * stop as the camera arcs to each chapter.
  */
 export function JourneyMap({
   journeys,
@@ -53,32 +135,63 @@ export function JourneyMap({
   lang,
   className,
 }: JourneyMapProps) {
+  const cesiumReady = useCesiumReady()
   const wrapRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const mapRef = useRef<L.Map | null>(null)
-  const zoomRef = useRef<L.Control.Zoom | null>(null)
-  const glowRef = useRef<L.Polyline | null>(null)
-  const lineRef = useRef<L.Polyline | null>(null)
-  const drawnRef = useRef<[number, number][]>([])
-  const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const labelPosRef = useRef<HTMLDivElement>(null)
+
+  const viewerRef = useRef<any>(null)
+  const lineCollectionRef = useRef<any>(null)
+  const routeLineRef = useRef<any>(null)
+  const segCartRef = useRef<any[][]>([])
+  const revealedRef = useRef<any[]>([])
+  const markersRef = useRef<Map<string, any>>(new Map())
+  const markerCartRef = useRef<Map<string, any>>(new Map())
   const rafsRef = useRef<number[]>([])
+  const labelRafRef = useRef<number | null>(null)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
-  const phaseRef = useRef<Phase>('idle')
+  const handlerRef = useRef<any>(null)
+  const pulseListenerRef = useRef<((t: number) => void) | null>(null)
   const onSelectRef = useRef(onSelect)
   onSelectRef.current = onSelect
-  const mediaRef = useRef(media)
-  mediaRef.current = media
+  const selectedRef = useRef<string | null>(selectedSlug ?? null)
+  selectedRef.current = selectedSlug ?? null
+  const hoverRef = useRef<string | null>(null)
+  const introFocusRef = useRef<string | null>(null)
+  const phaseRef = useRef<Phase>('idle')
+  const labelSlugRef = useRef<string | null>(null)
   const playedRef = useRef<boolean>(
     typeof sessionStorage !== 'undefined' &&
       sessionStorage.getItem(PLAYED_KEY) === '1',
   )
 
+  const segments = useMemo(
+    () => buildSegments(journeys.map((j) => j.coords)),
+    [journeys],
+  )
+
   const [phase, setPhase] = useState<Phase>('idle')
+  const [labelSlug, setLabelSlug] = useState<string | null>(null)
   const setPhaseBoth = (p: Phase) => {
     phaseRef.current = p
     setPhase(p)
   }
-  const inView = useInView(wrapRef, { once: true, amount: 0.35 })
+  const inView = useInView(wrapRef, { once: true, amount: 0.3 })
+
+  /** Which stop the label should follow right now. */
+  const computeLabelSlug = (): string | null => {
+    if (phaseRef.current === 'playing') return introFocusRef.current
+    if (phaseRef.current === 'done')
+      return hoverRef.current ?? selectedRef.current ?? null
+    return null
+  }
+  const syncLabel = () => {
+    const next = computeLabelSlug()
+    if (next !== labelSlugRef.current) {
+      labelSlugRef.current = next
+      setLabelSlug(next)
+    }
+  }
 
   const cancelAllAnim = () => {
     rafsRef.current.forEach((id) => cancelAnimationFrame(id))
@@ -87,287 +200,412 @@ export function JourneyMap({
     timersRef.current = []
   }
 
-  /* ----------------------------- map init ----------------------------- */
+  /* ----------------------------- globe init ----------------------------- */
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return
+    if (!cesiumReady || !containerRef.current || viewerRef.current) return
+    const C = window.Cesium!
 
-    const map = L.map(containerRef.current, {
-      center: [33, 108],
-      zoom: 4,
-      // Locked during the intro so the camera owns the movement.
-      zoomControl: false,
-      attributionControl: true,
-      dragging: false,
-      scrollWheelZoom: false,
-      touchZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      worldCopyJump: true,
+    const viewer = new C.Viewer(containerRef.current, {
+      baseLayer: false,
+      baseLayerPicker: false,
+      geocoder: false,
+      homeButton: false,
+      sceneModePicker: false,
+      navigationHelpButton: false,
+      animation: false,
+      timeline: false,
+      fullscreenButton: false,
+      infoBox: false,
+      selectionIndicator: false,
+      creditContainer: document.createElement('div'),
+      contextOptions: { webgl: { alpha: true } },
+    })
+    viewerRef.current = viewer
+
+    viewer.imageryLayers.addImageryProvider(
+      new C.UrlTemplateImageryProvider({
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        maximumLevel: 17,
+        credit: 'Imagery © Esri',
+      }),
+    )
+
+    viewer.scene.backgroundColor = C.Color.fromCssColorString('#080b09')
+    viewer.scene.skyBox.show = false
+    viewer.scene.sun.show = false
+    viewer.scene.moon.show = false
+    viewer.scene.skyAtmosphere.show = true
+    viewer.scene.skyAtmosphere.hueShift = -0.4
+    viewer.scene.skyAtmosphere.saturationShift = -0.2
+    viewer.scene.fog.enabled = true
+    viewer.scene.fog.density = 0.00015
+    viewer.scene.globe.showGroundAtmosphere = true
+    viewer.scene.globe.baseColor = C.Color.fromCssColorString('#101613')
+    viewer.scene.screenSpaceCameraController.enabled = false
+
+    segCartRef.current = segments.map((seg) =>
+      seg.map(([lat, lng]) => C.Cartesian3.fromDegrees(lng, lat)),
+    )
+
+    // Golden route, always on top (depth test disabled).
+    lineCollectionRef.current = viewer.scene.primitives.add(
+      new C.PolylineCollection(),
+    )
+    routeLineRef.current = lineCollectionRef.current.add({
+      positions: [],
+      width: 5,
+      material: C.Material.fromType('PolylineGlow', {
+        color: C.Color.fromCssColorString(ROUTE_COLOR),
+        glowPower: 0.22,
+      }),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
     })
 
-    // Dark stylized Earth base.
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
-      },
-    ).addTo(map)
+    // Interaction.
+    const handler = new C.ScreenSpaceEventHandler(viewer.scene.canvas)
+    handlerRef.current = handler
+    handler.setInputAction((movement: any) => {
+      if (phaseRef.current !== 'done') return
+      const picked = viewer.scene.pick(movement.endPosition)
+      const slug =
+        picked && picked.id && markersRef.current.has(picked.id.id)
+          ? picked.id.id
+          : null
+      hoverRef.current = slug
+      containerRef.current!.style.cursor = slug ? 'pointer' : 'default'
+      markersRef.current.forEach((ent, s) =>
+        applyMarkerScale(ent, s === selectedRef.current, s === slug),
+      )
+      syncLabel()
+    }, C.ScreenSpaceEventType.MOUSE_MOVE)
+    handler.setInputAction((click: any) => {
+      if (phaseRef.current !== 'done') return
+      const picked = viewer.scene.pick(click.position)
+      if (!picked || !picked.id) return
+      const slug = picked.id.id
+      const journey = journeys.find((j) => j.slug === slug)
+      if (!journey) return
+      viewer.camera.flyTo({
+        destination: focusDestination(
+          C,
+          journey.coords[1],
+          journey.coords[0],
+          0,
+          -38,
+          420000,
+        ),
+        orientation: { heading: 0, pitch: C.Math.toRadians(-38), roll: 0 },
+        duration: 1.8,
+        easingFunction: C.EasingFunction?.QUARTIC_IN_OUT,
+      })
+      onSelectRef.current(journey)
+    }, C.ScreenSpaceEventType.LEFT_CLICK)
 
-    // Warm golden route: a soft glow under a crisp line.
-    glowRef.current = L.polyline([], {
-      color: '#cda44a',
-      weight: 9,
-      opacity: 0.16,
-      lineCap: 'round',
-      className: 'journey-glow',
-    }).addTo(map)
-    lineRef.current = L.polyline([], {
-      color: '#e2b45e',
-      weight: 2.5,
-      opacity: 0.95,
-      lineCap: 'round',
-    }).addTo(map)
-
-    mapRef.current = map
-    setTimeout(() => map.invalidateSize(), 60)
+    // Per-frame: project the active label's 3D point to screen space.
+    const positionLabel = () => {
+      const node = labelPosRef.current
+      const slug = labelSlugRef.current
+      if (!node) {
+        labelRafRef.current = requestAnimationFrame(positionLabel)
+        return
+      }
+      const cart = slug ? markerCartRef.current.get(slug) : null
+      if (slug && cart) {
+        const p = viewer.scene.cartesianToCanvasCoordinates(cart)
+        if (p && p.x > 0 && p.y > 0) {
+          node.style.display = 'block'
+          node.style.transform = `translate(calc(${p.x}px - 50%), calc(${p.y}px - 140%))`
+        } else {
+          node.style.display = 'none'
+        }
+      } else {
+        node.style.display = 'none'
+      }
+      labelRafRef.current = requestAnimationFrame(positionLabel)
+    }
+    labelRafRef.current = requestAnimationFrame(positionLabel)
 
     return () => {
       cancelAllAnim()
-      map.remove()
-      mapRef.current = null
+      if (labelRafRef.current) cancelAnimationFrame(labelRafRef.current)
+      labelRafRef.current = null
+      handler.destroy()
+      handlerRef.current = null
+      if (pulseListenerRef.current && viewerRef.current) {
+        viewerRef.current.scene.preRender.removeListener(pulseListenerRef.current)
+        pulseListenerRef.current = null
+      }
+      viewer.destroy()
+      viewerRef.current = null
       markersRef.current.clear()
+      markerCartRef.current.clear()
     }
-  }, [])
+  }, [cesiumReady, segments, journeys])
 
-  /* ----------------------------- helpers ----------------------------- */
-  function buildMarkerIcon(j: Journey, active: boolean, enter: boolean) {
-    return L.divIcon({
-      className: 'journey-marker' + (enter ? ' journey-marker--enter' : ''),
-      html: `
-        <div class="journey-marker__pin ${active ? 'journey-marker__pin--active' : ''}">${j.day}</div>
-        <div class="journey-marker__label">
-          <span class="journey-marker__label-day">${lang === 'zh' ? '第 ' + j.day + ' 天' : 'Day ' + j.day}</span>
-          <span class="journey-marker__label-name">${j.location[lang]}</span>
-        </div>
-      `,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
-    })
+  /* ----------------------------- markers ----------------------------- */
+  const BASE_SCALE = 0.5
+  function applyMarkerScale(ent: any, active: boolean, hover: boolean) {
+    if (!ent.billboard) return
+    const base = active ? 0.66 : BASE_SCALE
+    ent.billboard.scale = hover ? base + 0.08 : base
   }
 
-  function revealMarker(j: Journey, enter: boolean) {
-    const map = mapRef.current
-    if (!map) return
+  function revealMarker(j: Journey) {
+    const viewer = viewerRef.current
+    const C = window.Cesium
+    if (!viewer || !C) return
     if (markersRef.current.has(j.slug)) return
-    const marker = L.marker(j.coords, {
-      icon: buildMarkerIcon(j, false, enter),
-      zIndexOffset: 0,
-    }).addTo(map)
-    marker.on('click', () => {
-      if (phaseRef.current !== 'done') return
-      map.flyTo(j.coords, 6, { duration: 1.2, easeLinearity: 0.25 })
-      onSelectRef.current(j)
+    const cart = C.Cartesian3.fromDegrees(j.coords[1], j.coords[0])
+    markerCartRef.current.set(j.slug, cart)
+    const ent = viewer.entities.add({
+      id: j.slug,
+      position: cart,
+      billboard: {
+        image: glowDotCanvas(),
+        scale: 0,
+        verticalOrigin: C.VerticalOrigin.CENTER,
+        heightReference: C.HeightReference.NONE,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        scaleByDistance: new C.NearFarScalar(5e5, 1, 3e7, 0.4),
+        translucencyByDistance: new C.NearFarScalar(6e5, 1, 4e7, 0.3),
+      },
     })
-    markersRef.current.set(j.slug, marker)
+    markersRef.current.set(j.slug, ent)
+
+    // Gentle rise: scale 0 → base.
+    const start = performance.now()
+    const grow = () => {
+      const t = Math.min(1, (performance.now() - start) / 700)
+      ent.billboard.scale = BASE_SCALE * easeInOutCubic(t)
+      if (t < 1) rafsRef.current.push(requestAnimationFrame(grow))
+    }
+    rafsRef.current.push(requestAnimationFrame(grow))
   }
 
-  /** Progressively draw one segment a→b over `dur` ms. The camera is driven
-   *  from THIS SAME loop (setView per frame to the line tip), so the line and
-   *  the camera share one clock and one easing curve — they never drift. */
-  function drawSegment(
-    a: [number, number],
-    b: [number, number],
-    dur: number,
-    zoom: number,
-  ) {
+  /* ----------------------------- route drawing ----------------------------- */
+  function drawSegment(segCart: any[], durMs: number) {
     return new Promise<void>((resolve) => {
-      const map = mapRef.current
-      const drawn = drawnRef.current
-      // Ensure the line ends at `a`, then add a moving point we will animate.
-      const last = drawn[drawn.length - 1]
-      if (!last || last[0] !== a[0] || last[1] !== a[1]) drawn.push(a)
-      drawn.push(a)
-      const moveIdx = drawn.length - 1
+      const base = revealedRef.current.slice()
+      const n = segCart.length
       const start = performance.now()
       const paint = () => {
-        const t = Math.min(1, (performance.now() - start) / dur)
+        const t = Math.min(1, (performance.now() - start) / durMs)
         const e = easeInOutCubic(t)
-        const p: [number, number] = [lerp(a[0], b[0], e), lerp(a[1], b[1], e)]
-        drawn[moveIdx] = p
-        const pts = drawn.slice()
-        lineRef.current?.setLatLngs(pts)
-        glowRef.current?.setLatLngs(pts)
-        // Camera tracks the pen tip — same loop, same easing → in sync.
-        map?.setView(p, zoom, { animate: false })
-        if (t < 1) {
-          rafsRef.current.push(requestAnimationFrame(paint))
-        } else {
-          drawn[moveIdx] = b
-          resolve()
+        const idx = Math.max(1, Math.min(n - 1, Math.round(e * (n - 1))))
+        revealedRef.current = base.concat(segCart.slice(1, idx + 1))
+        if (routeLineRef.current) {
+          routeLineRef.current.positions = revealedRef.current.slice()
         }
+        if (t < 1) rafsRef.current.push(requestAnimationFrame(paint))
+        else resolve()
       }
       rafsRef.current.push(requestAnimationFrame(paint))
     })
   }
 
-  /** Final state: full route + every marker, interactive, framed to fit. */
-  function finalize() {
-    const map = mapRef.current
-    if (!map) return
-    // Make sure the entire route + all markers are present.
-    drawnRef.current = journeys.map((j) => j.coords)
-    lineRef.current?.setLatLngs(drawnRef.current)
-    glowRef.current?.setLatLngs(drawnRef.current)
-    journeys.forEach((j) => revealMarker(j, false))
-
-    // Unlock interaction (keep scroll-wheel zoom off so the page still scrolls).
-    map.dragging.enable()
-    map.touchZoom.enable()
-    map.doubleClickZoom.enable()
-    map.boxZoom.enable()
-    map.keyboard.enable()
-    if (!zoomRef.current) {
-      zoomRef.current = L.control.zoom({ position: 'bottomright' })
-      zoomRef.current.addTo(map)
-    }
-
-    // Bind rich hover previews now that we may have cover imagery.
-    bindTooltips()
-
-    try {
-      map.flyToBounds(L.latLngBounds(journeys.map((j) => j.coords)), {
-        padding: [70, 70],
-        duration: 2.2,
-        easeLinearity: 0.25,
-      })
-    } catch {
-      /* bounds not ready */
-    }
-
-    if (typeof sessionStorage !== 'undefined') {
-      sessionStorage.setItem(PLAYED_KEY, '1')
-    }
-    setPhaseBoth('done')
+  /* ----------------------------- camera + intro ----------------------------- */
+  function focusDestination(
+    C: CesiumNS,
+    lng: number,
+    lat: number,
+    headingDeg: number,
+    pitchDeg: number,
+    range: number,
+  ) {
+    const target = C.Cartesian3.fromDegrees(lng, lat)
+    const enu = C.Transforms.eastNorthUpToFixedFrame(target)
+    const heading = C.Math.toRadians(headingDeg)
+    const pitch = C.Math.toRadians(pitchDeg)
+    const east = -Math.sin(heading) * Math.cos(pitch) * range
+    const north = -Math.cos(heading) * Math.cos(pitch) * range
+    const up = -Math.sin(pitch) * range
+    const dest = new C.Cartesian3()
+    C.Matrix4.multiplyByPoint(enu, new C.Cartesian3(east, north, up), dest)
+    return dest
+  }
+  function segDuration(a: Pt, b: Pt): number {
+    const C = window.Cesium
+    const d = C.Cartesian3.distance(
+      C.Cartesian3.fromDegrees(a[1], a[0]),
+      C.Cartesian3.fromDegrees(b[1], b[0]),
+    )
+    return Math.min(3.8, Math.max(1.8, d / 1_100_000))
+  }
+  function stopHeight(j: Journey): number {
+    return j.elevation ? 360000 : 620000
   }
 
-  function bindTooltips() {
-    const m = mediaRef.current
-    markersRef.current.forEach((marker, slug) => {
-      const j = journeys.find((x) => x.slug === slug)
-      if (!j) return
-      const cover = m[slug]?.cover
-      const count = m[slug]?.speciesCount ?? 0
-      const body = `
-        <div class="journey-tooltip__body">
-          <div class="journey-tooltip__day">${lang === 'zh' ? '第 ' + j.day + ' 天' : 'Day ' + j.day}</div>
-          <div class="journey-tooltip__name">${j.location[lang]}</div>
-          <div class="journey-tooltip__meta">${j.date}${count ? ' · ' + count + (lang === 'zh' ? ' 物种' : ' species') : ''}</div>
-        </div>`
-      marker.bindTooltip(
-        cover ? `<img class="journey-tooltip__img" src="${cover}" alt=""/>` + body : body,
-        { className: 'journey-tooltip', direction: 'top', offset: [0, -14], opacity: 1 },
-      )
-    })
+  function focusStop(slug: string) {
+    introFocusRef.current = slug
+    syncLabel()
   }
 
-  /** The full documentary opening, played once. */
   async function playIntro() {
-    const map = mapRef.current
-    if (!map) return
+    const viewer = viewerRef.current
+    const C = window.Cesium
+    if (!viewer || !C) return
     setPhaseBoth('playing')
 
+    viewer.camera.setView({
+      destination: C.Cartesian3.fromDegrees(104, 12, 17_000_000),
+      orientation: { heading: 0, pitch: C.Math.toRadians(-20), roll: 0 },
+    })
     await sleep(INITIAL_PAUSE)
-    if (phaseRef.current !== 'playing') return // skipped / unmounted
-
-    const stops = journeys
-    // Reveal the origin (Beijing) and glide the camera to it. No line is
-    // being drawn yet, so a normal flyTo is fine here.
-    revealMarker(stops[0], true)
-    map.flyTo(stops[0].coords, TRAVEL_ZOOM, { duration: 1.8, easeLinearity: 0.25 })
-    await sleep(1900)
     if (phaseRef.current !== 'playing') return
 
-    // Walk each segment: the golden line draws toward the next stop while
-    // the camera follows the pen tip in the same loop. Destination reveals
-    // once the line reaches it.
-    for (let i = 1; i < stops.length; i++) {
-      const a = stops[i - 1].coords
-      const b = stops[i].coords
-      await drawSegment(a, b, SEG_DURATION, TRAVEL_ZOOM)
+    viewer.camera.flyTo({
+      destination: focusDestination(C, 104, 30, 0, -34, 3_600_000),
+      orientation: { heading: 0, pitch: C.Math.toRadians(-34), roll: 0 },
+      duration: 3.2,
+      easingFunction: C.EasingFunction?.QUARTIC_IN_OUT,
+    })
+    await sleep(3300)
+    if (phaseRef.current !== 'playing') return
+
+    const stops = journeys
+    revealMarker(stops[0])
+    focusStop(stops[0].slug)
+
+    for (let i = 0; i < segments.length; i++) {
+      const a = stops[i].coords
+      const b = stops[i + 1].coords
+      const dur = segDuration(a, b)
+      viewer.camera.flyTo({
+        destination: focusDestination(C, b[1], b[0], 0, -42, stopHeight(stops[i + 1])),
+        orientation: { heading: 0, pitch: C.Math.toRadians(-42), roll: 0 },
+        duration: dur,
+        easingFunction: C.EasingFunction?.QUARTIC_IN_OUT,
+      })
+      await drawSegment(segCartRef.current[i], dur * 1000)
       if (phaseRef.current !== 'playing') return
-      revealMarker(stops[i], true)
-      await sleep(520) // a beat to read the new label
+      revealMarker(stops[i + 1])
+      focusStop(stops[i + 1].slug)
+      await sleep(900)
       if (phaseRef.current !== 'playing') return
     }
 
     finalize()
   }
 
-  /* ------------------------- trigger the intro ------------------------ */
-  useEffect(() => {
-    if (!inView || !mapRef.current) return
-    // Already seen this session → show the finished map immediately.
-    if (playedRef.current) {
-      finalize()
-    } else if (phaseRef.current === 'idle') {
-      playIntro()
+  function finalize() {
+    const viewer = viewerRef.current
+    const C = window.Cesium
+    if (!viewer || !C) return
+
+    revealedRef.current = segCartRef.current.flat()
+    if (routeLineRef.current) {
+      routeLineRef.current.positions = revealedRef.current.slice()
     }
+    journeys.forEach((j) => revealMarker(j))
+
+    viewer.scene.screenSpaceCameraController.enabled = true
+    startSelectedPulse(C, viewer)
+
+    viewer.flyTo(viewer.entities.values, {
+      offset: new C.HeadingPitchRange(0, C.Math.toRadians(-32), 3_200_000),
+      duration: 3,
+    })
+
+    introFocusRef.current = null
+    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(PLAYED_KEY, '1')
+    setPhaseBoth('done')
+    syncLabel()
+  }
+
+  function startSelectedPulse(C: CesiumNS, viewer: any) {
+    if (pulseListenerRef.current) {
+      viewer.scene.preRender.removeListener(pulseListenerRef.current)
+    }
+    const t0 = performance.now()
+    const fn = () => {
+      const t = (performance.now() - t0) / 1000
+      const slug = selectedRef.current
+      const ent = slug ? markersRef.current.get(slug) : null
+      if (ent && ent.billboard) {
+        const pulse = 0.5 + 0.5 * Math.sin(t * 1.6)
+        ent.billboard.scale = 0.66 + pulse * 0.05
+      }
+    }
+    pulseListenerRef.current = fn
+    viewer.scene.preRender.addEventListener(fn)
+  }
+
+  /* ------------------------- trigger / sync ------------------------ */
+  useEffect(() => {
+    if (!inView || !viewerRef.current) return
+    if (playedRef.current) finalize()
+    else if (phaseRef.current === 'idle') playIntro()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inView])
 
-  // Re-bind tooltips when cover imagery arrives after the intro.
   useEffect(() => {
-    if (phaseRef.current === 'done') bindTooltips()
+    if (phaseRef.current === 'done') syncLabel()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [media, lang])
-
-  // Keep the selected marker visually active.
-  useEffect(() => {
-    markersRef.current.forEach((marker, slug) => {
-      const j = journeys.find((x) => x.slug === slug)
-      if (j) marker.setIcon(buildMarkerIcon(j, slug === selectedSlug, false))
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSlug, lang, phase])
+  }, [selectedSlug, phase])
 
   function handleReplay() {
     cancelAllAnim()
-    // Reset route + markers.
-    drawnRef.current = []
-    lineRef.current?.setLatLngs([])
-    glowRef.current?.setLatLngs([])
-    markersRef.current.forEach((m) => m.remove())
+    const viewer = viewerRef.current
+    if (!viewer) return
+    revealedRef.current = []
+    if (routeLineRef.current) routeLineRef.current.positions = []
+    markersRef.current.forEach((ent) => viewer.entities.remove(ent))
     markersRef.current.clear()
-    // Remove the zoom control added at finalize (re-added on next finalize).
-    if (zoomRef.current && mapRef.current) {
-      mapRef.current.removeControl(zoomRef.current)
-      zoomRef.current = null
-    }
+    markerCartRef.current.clear()
+    viewer.scene.screenSpaceCameraController.enabled = false
     sessionStorage.removeItem(PLAYED_KEY)
     playedRef.current = false
     setPhaseBoth('idle')
-    // Restart after a tick so React flushes.
     timersRef.current.push(setTimeout(() => playIntro(), 60))
   }
-
   function handleSkip() {
     cancelAllAnim()
     finalize()
   }
 
-  return (
-    <div ref={wrapRef} className={`journey-map relative ${className ?? ''}`}>
-      <div ref={containerRef} className="absolute inset-0 h-full w-full" />
+  const labelJourney = labelSlug ? journeys.find((j) => j.slug === labelSlug) : null
 
-      {/* Skip / Replay controls — minimal, editorial */}
+  return (
+    <div ref={wrapRef} className={`journey-globe relative ${className ?? ''}`}>
+      <div ref={containerRef} className="absolute inset-0" />
+      {!cesiumReady && (
+        <div className="shimmer absolute inset-0 bg-forest-deep" aria-hidden />
+      )}
+      <div className="journey-vignette pointer-events-none absolute inset-0" />
+      <div className="journey-grade pointer-events-none absolute inset-0" />
+
+      {/* Minimal chapter label — tracks the active point each frame. */}
+      <div
+        ref={labelPosRef}
+        className="pointer-events-none absolute left-0 top-0 z-[600]"
+        style={{ display: 'none' }}
+      >
+        <AnimatePresence>
+          {labelJourney && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="expedition-label"
+            >
+              <div className="expedition-label__day">
+                {lang === 'zh'
+                  ? `第 ${labelJourney.day} 天`
+                  : `Day ${labelJourney.day}`}
+              </div>
+              <div className="expedition-label__name">
+                {labelJourney.location[lang]}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {phase === 'playing' && (
         <button
           onClick={handleSkip}
-          className="absolute bottom-4 right-4 z-[700] rounded-full border border-ivory-50/25 bg-charcoal/60 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/80 backdrop-blur-md transition-colors hover:bg-charcoal/80 hover:text-ivory-50"
+          className="absolute bottom-4 right-4 z-[700] rounded-full border border-ivory-50/20 bg-charcoal/55 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/85 backdrop-blur-md transition-colors hover:bg-charcoal/80 hover:text-ivory-50"
         >
           {lang === 'zh' ? '跳过开场 ›' : 'Skip intro ›'}
         </button>
@@ -375,9 +613,9 @@ export function JourneyMap({
       {phase === 'done' && (
         <button
           onClick={handleReplay}
-          className="absolute bottom-4 right-4 z-[700] flex items-center gap-1.5 rounded-full border border-ivory-50/20 bg-charcoal/50 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/70 backdrop-blur-md transition-colors hover:bg-charcoal/70 hover:text-ivory-50"
+          className="absolute bottom-4 right-4 z-[700] flex items-center gap-1.5 rounded-full border border-ivory-50/15 bg-charcoal/45 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/70 backdrop-blur-md transition-colors hover:bg-charcoal/70 hover:text-ivory-50"
         >
-          <span className="h-3.5 w-3.5 rounded-full border border-ivory-50/50" />
+          <span className="h-3 w-3 rounded-full border border-ivory-50/50" />
           {lang === 'zh' ? '重播旅程' : 'Replay journey'}
         </button>
       )}

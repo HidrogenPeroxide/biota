@@ -34,7 +34,7 @@ const zh = {
   'footer.dataBody':
     '所有生物多样性数据均来自 {inat} 公开 API，这是加州科学院与国家地理学会共同发起的项目。照片版权归原始观察者所有。',
   'footer.inat': 'iNaturalist',
-  'footer.copyright': '© {year} Biota —— 非商业展示项目。',
+  'footer.copyright': '© {year} sanjiangyuan.thusls.org',
   'footer.tagline2': '怀揣好奇心打造，由公民科学驱动。',
 
   // ---- Landing / hero ----

@@ -248,6 +248,45 @@
   fill: #54514a;
 }
 
+/* ===== Cesium 3D expedition globe ===== */
+.journey-globe .cesium-viewer,
+.journey-globe .cesium-widget,
+.journey-globe .cesium-widget canvas {
+  background: transparent !important;
+}
+.journey-globe .cesium-viewer .cesium-widget-toolbar,
+.journey-globe .cesium-viewer-bottom {
+  display: none;
+}
+
+/* Minimal cinematic chapter label (Day + Location only). */
+.expedition-label {
+  background: rgba(18, 18, 18, 0.6);
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  border: 1px solid rgba(224, 177, 94, 0.22);
+  border-radius: 12px;
+  padding: 9px 18px;
+  text-align: center;
+  box-shadow: 0 18px 42px -18px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.expedition-label__day {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d9b56e;
+  font-weight: 600;
+}
+.expedition-label__name {
+  font-family: 'Fraunces', 'Noto Serif SC', serif;
+  font-size: 18px;
+  color: #f2efe6;
+  line-height: 1.15;
+  margin-top: 2px;
+}
+
 /* ===== Journey Map (dark stylized Earth) ===== */
 .journey-map .leaflet-container {
   background: #14130f;
