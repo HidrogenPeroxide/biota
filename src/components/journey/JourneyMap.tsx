@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useInView } from 'framer-motion'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
-import { sleep } from '@/lib/utils'
 
 /* Cesium is loaded from the CDN (see index.html) as a global to avoid
  * bundling its workers/assets into the Vite build. */
@@ -153,6 +152,12 @@ export function JourneyMap({
   const rafsRef = useRef<number[]>([])
   const labelRafRef = useRef<number | null>(null)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+  /** Per-run id: bumping it makes any in-flight intro chain bail out, so a
+   *  cancelled/replaced run can never resume and collide with a new one. */
+  const runIdRef = useRef(0)
+  /** Resolvers for currently-pending anim/sleep promises, so cancellation can
+   *  settle them cleanly instead of leaking forever. */
+  const pendingRef = useRef<Set<() => void>>(new Set())
   const handlerRef = useRef<any>(null)
   const pulseListenerRef = useRef<((t: number) => void) | null>(null)
   const onSelectRef = useRef(onSelect)
@@ -197,11 +202,30 @@ export function JourneyMap({
   }
 
   const cancelAllAnim = () => {
+    // Invalidate any running intro chain and settle its pending promises.
+    runIdRef.current++
+    pendingRef.current.forEach((f) => f())
+    pendingRef.current.clear()
     rafsRef.current.forEach((id) => cancelAnimationFrame(id))
     rafsRef.current = []
     timersRef.current.forEach((id) => clearTimeout(id))
     timersRef.current = []
   }
+
+  /** Cancellable sleep: resolves after `ms`, or immediately if the current
+   *  run is cancelled (via cancelAllAnim). */
+  const wait = (ms: number) =>
+    new Promise<void>((resolve) => {
+      let done = false
+      const finish = () => {
+        if (done) return
+        done = true
+        pendingRef.current.delete(finish)
+        resolve()
+      }
+      pendingRef.current.add(finish)
+      timersRef.current.push(setTimeout(finish, ms))
+    })
 
   /* ----------------------------- globe init ----------------------------- */
   useEffect(() => {
@@ -386,14 +410,23 @@ export function JourneyMap({
   }
 
   /* ----------------------------- route drawing ----------------------------- */
-  /** Reveal one curved segment progressively. The camera is flown separately
-   *  (per-stop flyTo) so the route drawing and camera stay in loose sync. */
-  function drawSegment(segCart: any[], durMs: number) {
+  /** Reveal one curved segment progressively; settles immediately if the run
+   *  is cancelled. */
+  function drawSegment(segCart: any[], durMs: number, runId: number) {
     return new Promise<void>((resolve) => {
+      let done = false
+      const finish = () => {
+        if (done) return
+        done = true
+        pendingRef.current.delete(finish)
+        resolve()
+      }
+      pendingRef.current.add(finish)
       const base = revealedRef.current.slice()
       const n = segCart.length
       const start = performance.now()
       const paint = () => {
+        if (runIdRef.current !== runId) return finish()
         const t = Math.min(1, (performance.now() - start) / durMs)
         const e = easeInOutCubic(t)
         const idx = Math.max(1, Math.min(n - 1, Math.round(e * (n - 1))))
@@ -402,7 +435,7 @@ export function JourneyMap({
           routeLineRef.current.positions = revealedRef.current.slice()
         }
         if (t < 1) rafsRef.current.push(requestAnimationFrame(paint))
-        else resolve()
+        else finish()
       }
       rafsRef.current.push(requestAnimationFrame(paint))
     })
@@ -454,11 +487,20 @@ export function JourneyMap({
     endRange: number,
     pitchDeg: number,
     durSec: number,
+    runId: number,
   ) {
     return new Promise<void>((resolve) => {
       const viewer = viewerRef.current
       const C = window.Cesium
       if (!viewer || !C) return resolve()
+      let done = false
+      const finish = () => {
+        if (done) return
+        done = true
+        pendingRef.current.delete(finish)
+        resolve()
+      }
+      pendingRef.current.add(finish)
       const pitch = C.Math.toRadians(pitchDeg)
       // Arc peak scales with the inter-stop distance: long legs lift toward
       // the ceiling, short legs barely lift at all.
@@ -474,6 +516,7 @@ export function JourneyMap({
       const start = performance.now()
       const dur = durSec * 1000
       const tick = () => {
+        if (runIdRef.current !== runId) return finish()
         const t = Math.min(1, (performance.now() - start) / dur)
         const e = easeInOutCubic(t)
         const lat = from[0] + (to[0] - from[0]) * e
@@ -485,7 +528,7 @@ export function JourneyMap({
           new C.HeadingPitchRange(0, pitch, altitude),
         )
         if (t < 1) rafsRef.current.push(requestAnimationFrame(tick))
-        else resolve()
+        else finish()
       }
       rafsRef.current.push(requestAnimationFrame(tick))
     })
@@ -500,6 +543,9 @@ export function JourneyMap({
     const viewer = viewerRef.current
     const C = window.Cesium
     if (!viewer || !C) return
+    // Start a fresh run; any previously-running chain is now stale.
+    const myRun = ++runIdRef.current
+    const stale = () => runIdRef.current !== myRun
     setPhaseBoth('playing')
 
     // Establishing shot from on high, looking toward East Asia.
@@ -507,8 +553,8 @@ export function JourneyMap({
       destination: C.Cartesian3.fromDegrees(104, 18, 6_000_000),
       orientation: { heading: 0, pitch: C.Math.toRadians(-20), roll: 0 },
     })
-    await sleep(INITIAL_PAUSE)
-    if (phaseRef.current !== 'playing') return
+    await wait(INITIAL_PAUSE)
+    if (stale()) return
 
     const stops = journeys
     revealMarker(stops[0])
@@ -522,8 +568,9 @@ export function JourneyMap({
       stopHeight(stops[0]),
       -42,
       3.4,
+      myRun,
     )
-    if (phaseRef.current !== 'playing') return
+    if (stale()) return
 
     // Station-to-station: each leg glides at the (low) stop heights, so the
     // camera never climbs high between chapters. The route draws in parallel.
@@ -539,14 +586,15 @@ export function JourneyMap({
           stopHeight(stops[i + 1]),
           -42,
           dur,
+          myRun,
         ),
-        drawSegment(segCartRef.current[i], dur * 1000),
+        drawSegment(segCartRef.current[i], dur * 1000, myRun),
       ])
-      if (phaseRef.current !== 'playing') return
+      if (stale()) return
       revealMarker(stops[i + 1])
       focusStop(stops[i + 1].slug)
-      await sleep(900)
-      if (phaseRef.current !== 'playing') return
+      await wait(900)
+      if (stale()) return
     }
 
     finalize()
