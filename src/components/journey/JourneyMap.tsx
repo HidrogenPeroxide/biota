@@ -34,6 +34,9 @@ type Pt = [number, number]
 const PLAYED_KEY = 'biota-journey-played'
 const INITIAL_PAUSE = 900
 const ROUTE_COLOR = '#b89a5a'
+const MAX_ARC_HEIGHT = 1_200_000 // ceiling for the mid-leg camera arc between stops
+const MIN_ARC_HEIGHT = 200_000 // floor (very short hops barely lift)
+const ARC_K = 0.8 // arc peak scales with inter-stop distance (metre → metre)
 
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
@@ -438,10 +441,11 @@ export function JourneyMap({
   }
 
   /**
-   * Glide the camera from one point to another while interpolating its
-   * altitude between `startRange` and `endRange` — altitude is fully under
-   * our control (no Cesium flyTo arc), so station-to-station movement never
-   * rises above the higher of the two stop heights.
+   * Glide the camera from one point to another along an arcing altitude
+   * profile (like a Cesium flyTo) — but the mid-leg peak is capped at
+   * MAX_ARC_HEIGHT, so the camera rises gently between stops without ever
+   * climbing too high. On high→low legs (e.g. the establishing descent) the
+   * cap is below the midpoint, so no bump is added and it descends cleanly.
    */
   function flyBetween(
     from: Pt,
@@ -456,6 +460,17 @@ export function JourneyMap({
       const C = window.Cesium
       if (!viewer || !C) return resolve()
       const pitch = C.Math.toRadians(pitchDeg)
+      // Arc peak scales with the inter-stop distance: long legs lift toward
+      // the ceiling, short legs barely lift at all.
+      const dist = C.Cartesian3.distance(
+        C.Cartesian3.fromDegrees(from[1], from[0]),
+        C.Cartesian3.fromDegrees(to[1], to[0]),
+      )
+      const peakHeight = Math.min(
+        MAX_ARC_HEIGHT,
+        Math.max(MIN_ARC_HEIGHT, dist * ARC_K),
+      )
+      const rise = Math.max(0, peakHeight - (startRange + endRange) / 2)
       const start = performance.now()
       const dur = durSec * 1000
       const tick = () => {
@@ -463,10 +478,11 @@ export function JourneyMap({
         const e = easeInOutCubic(t)
         const lat = from[0] + (to[0] - from[0]) * e
         const lng = from[1] + (to[1] - from[1]) * e
-        const range = startRange + (endRange - startRange) * e
+        const base = startRange + (endRange - startRange) * e
+        const altitude = base + Math.sin(Math.PI * e) * rise
         viewer.camera.lookAt(
           C.Cartesian3.fromDegrees(lng, lat),
-          new C.HeadingPitchRange(0, pitch, range),
+          new C.HeadingPitchRange(0, pitch, altitude),
         )
         if (t < 1) rafsRef.current.push(requestAnimationFrame(tick))
         else resolve()
