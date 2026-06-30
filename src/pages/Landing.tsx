@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowDown, MapPin, Compass, BarChart3, GitBranch } from 'lucide-react'
+import { ArrowRight, ArrowDown, MapPin, BarChart3, GitBranch } from 'lucide-react'
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
 import { JourneyMap } from '@/components/journey/JourneyMap'
 import { Reveal } from '@/components/motion/Reveal'
@@ -103,7 +103,13 @@ export function Landing() {
           </Reveal>
 
           <Reveal delay={0.1}>
-            <div className="relative mt-12 h-[60vh] min-h-[420px] overflow-hidden rounded-3xl border border-ivory-50/10 shadow-2xl md:h-[68vh]">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 1.4, ease }}
+              className="relative mt-12 h-[60vh] min-h-[420px] overflow-hidden rounded-3xl border border-ivory-50/10 shadow-2xl md:h-[68vh]"
+            >
               <JourneyMap
                 journeys={JOURNEYS}
                 media={media}
@@ -173,7 +179,7 @@ export function Landing() {
               <p className="pointer-events-none absolute bottom-4 left-1/2 z-[500] -translate-x-1/2 rounded-full bg-charcoal/60 px-4 py-1.5 text-[11px] text-ivory-50/70 backdrop-blur-md">
                 {t('home.journey.hint')}
               </p>
-            </div>
+            </motion.div>
           </Reveal>
         </div>
       </section>
@@ -291,11 +297,6 @@ export function Landing() {
           </Reveal>
         </div>
       </section>
-
-      {/* Decorative compass flourish */}
-      <div className="pointer-events-none flex justify-center pb-16">
-        <Compass className="h-6 w-6 text-stone" strokeWidth={1} />
-      </div>
     </div>
   )
 }

@@ -264,7 +264,7 @@
   width: 30px;
   height: 30px;
   border-radius: 9999px;
-  background: #b8893a;
+  background: #cda44a;
   color: #14130f;
   font-family: 'Fraunces', serif;
   font-weight: 600;
@@ -282,6 +282,57 @@
   background: #33513e;
   color: #f6f2e8;
   transform: scale(1.2);
+}
+/* Documentary marker reveal: gentle fade-in + one soft pulse. */
+.journey-marker--enter .journey-marker__pin {
+  animation: journey-marker-enter 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes journey-marker-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.journey-marker--enter .journey-marker__label {
+  animation: journey-label-enter 1s ease both;
+  animation-delay: 0.35s;
+}
+@keyframes journey-label-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.journey-marker__label {
+  margin-top: 5px;
+  text-align: center;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+.journey-marker__label-day {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #cda44a;
+}
+.journey-marker__label-name {
+  display: block;
+  font-size: 11px;
+  color: #f6f2e8;
 }
 /* Animated dashed route line. */
 .journey-route {
