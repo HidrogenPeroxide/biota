@@ -383,6 +383,8 @@ export function JourneyMap({
   }
 
   /* ----------------------------- route drawing ----------------------------- */
+  /** Reveal one curved segment progressively. The camera is flown separately
+   *  (per-stop flyTo) so the route drawing and camera stay in loose sync. */
   function drawSegment(segCart: any[], durMs: number) {
     return new Promise<void>((resolve) => {
       const base = revealedRef.current.slice()
@@ -432,7 +434,45 @@ export function JourneyMap({
     return Math.min(3.8, Math.max(1.8, d / 1_100_000))
   }
   function stopHeight(j: Journey): number {
-    return j.elevation ? 360000 : 620000
+    return j.elevation ? 240000 : 340000
+  }
+
+  /**
+   * Glide the camera from one point to another while interpolating its
+   * altitude between `startRange` and `endRange` — altitude is fully under
+   * our control (no Cesium flyTo arc), so station-to-station movement never
+   * rises above the higher of the two stop heights.
+   */
+  function flyBetween(
+    from: Pt,
+    to: Pt,
+    startRange: number,
+    endRange: number,
+    pitchDeg: number,
+    durSec: number,
+  ) {
+    return new Promise<void>((resolve) => {
+      const viewer = viewerRef.current
+      const C = window.Cesium
+      if (!viewer || !C) return resolve()
+      const pitch = C.Math.toRadians(pitchDeg)
+      const start = performance.now()
+      const dur = durSec * 1000
+      const tick = () => {
+        const t = Math.min(1, (performance.now() - start) / dur)
+        const e = easeInOutCubic(t)
+        const lat = from[0] + (to[0] - from[0]) * e
+        const lng = from[1] + (to[1] - from[1]) * e
+        const range = startRange + (endRange - startRange) * e
+        viewer.camera.lookAt(
+          C.Cartesian3.fromDegrees(lng, lat),
+          new C.HeadingPitchRange(0, pitch, range),
+        )
+        if (t < 1) rafsRef.current.push(requestAnimationFrame(tick))
+        else resolve()
+      }
+      rafsRef.current.push(requestAnimationFrame(tick))
+    })
   }
 
   function focusStop(slug: string) {
@@ -446,37 +486,46 @@ export function JourneyMap({
     if (!viewer || !C) return
     setPhaseBoth('playing')
 
+    // Establishing shot from on high, looking toward East Asia.
     viewer.camera.setView({
-      destination: C.Cartesian3.fromDegrees(104, 12, 17_000_000),
+      destination: C.Cartesian3.fromDegrees(104, 18, 6_000_000),
       orientation: { heading: 0, pitch: C.Math.toRadians(-20), roll: 0 },
     })
     await sleep(INITIAL_PAUSE)
-    if (phaseRef.current !== 'playing') return
-
-    viewer.camera.flyTo({
-      destination: focusDestination(C, 104, 30, 0, -34, 3_600_000),
-      orientation: { heading: 0, pitch: C.Math.toRadians(-34), roll: 0 },
-      duration: 3.2,
-      easingFunction: C.EasingFunction?.QUARTIC_IN_OUT,
-    })
-    await sleep(3300)
     if (phaseRef.current !== 'playing') return
 
     const stops = journeys
     revealMarker(stops[0])
     focusStop(stops[0].slug)
 
+    // Descend onto the first chapter (high start → low stop height).
+    await flyBetween(
+      [18, 104],
+      stops[0].coords,
+      6_000_000,
+      stopHeight(stops[0]),
+      -42,
+      3.4,
+    )
+    if (phaseRef.current !== 'playing') return
+
+    // Station-to-station: each leg glides at the (low) stop heights, so the
+    // camera never climbs high between chapters. The route draws in parallel.
     for (let i = 0; i < segments.length; i++) {
       const a = stops[i].coords
       const b = stops[i + 1].coords
       const dur = segDuration(a, b)
-      viewer.camera.flyTo({
-        destination: focusDestination(C, b[1], b[0], 0, -42, stopHeight(stops[i + 1])),
-        orientation: { heading: 0, pitch: C.Math.toRadians(-42), roll: 0 },
-        duration: dur,
-        easingFunction: C.EasingFunction?.QUARTIC_IN_OUT,
-      })
-      await drawSegment(segCartRef.current[i], dur * 1000)
+      await Promise.all([
+        flyBetween(
+          a,
+          b,
+          stopHeight(stops[i]),
+          stopHeight(stops[i + 1]),
+          -42,
+          dur,
+        ),
+        drawSegment(segCartRef.current[i], dur * 1000),
+      ])
       if (phaseRef.current !== 'playing') return
       revealMarker(stops[i + 1])
       focusStop(stops[i + 1].slug)
@@ -500,6 +549,10 @@ export function JourneyMap({
 
     viewer.scene.screenSpaceCameraController.enabled = true
     startSelectedPulse(C, viewer)
+
+    // Release the lookAt lock used during the glide so the overview flight
+    // and subsequent free interaction behave normally.
+    viewer.camera.lookAtTransform(C.Matrix4.IDENTITY)
 
     viewer.flyTo(viewer.entities.values, {
       offset: new C.HeadingPitchRange(0, C.Math.toRadians(-32), 3_200_000),

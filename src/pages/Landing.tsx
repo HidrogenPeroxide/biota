@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowDown, MapPin, BarChart3, GitBranch } from 'lucide-react'
+import { ArrowRight, ArrowDown, MapPin, BarChart3, GitBranch, X } from 'lucide-react'
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
 import { JourneyMap } from '@/components/journey/JourneyMap'
 import { Reveal } from '@/components/motion/Reveal'
@@ -129,6 +129,13 @@ export function Landing() {
                     transition={{ duration: 0.5, ease }}
                     className="absolute bottom-5 right-5 top-5 z-[600] flex w-[78vw] max-w-sm flex-col overflow-hidden rounded-2xl border border-ivory-50/15 bg-charcoal/80 backdrop-blur-xl md:w-96"
                   >
+                    <button
+                      onClick={() => setSelected(null)}
+                      aria-label="Close"
+                      className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-charcoal/70 text-ivory-50/80 backdrop-blur-md transition-colors hover:bg-charcoal/90 hover:text-ivory-50"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
                     {media[selected.slug]?.cover && (
                       <div className="relative h-40 shrink-0 overflow-hidden">
                         <img
