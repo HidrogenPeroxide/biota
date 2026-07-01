@@ -80,7 +80,8 @@ export default function App() {
           <Route path="*" element={lazied(<NotFound />)} />
         </Routes>
       </AnimatePresence>
-      <Footer />
+      {/* The home page is an immersive full-screen deck — no footer there. */}
+      {location.pathname !== '/' && <Footer />}
     </div>
   )
 }

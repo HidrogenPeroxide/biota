@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion, useInView } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
 
@@ -25,6 +25,8 @@ interface JourneyMapProps {
   onSelect: (j: Journey) => void
   lang: Lang
   className?: string
+  /** When true (its chapter is active), play the cinematic intro (once). */
+  active?: boolean
 }
 
 type Phase = 'idle' | 'playing' | 'done'
@@ -136,6 +138,7 @@ export function JourneyMap({
   onSelect,
   lang,
   className,
+  active = false,
 }: JourneyMapProps) {
   const cesiumReady = useCesiumReady()
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -184,7 +187,8 @@ export function JourneyMap({
     phaseRef.current = p
     setPhase(p)
   }
-  const inView = useInView(wrapRef, { once: true, amount: 0.3 })
+  const activeRef = useRef(active)
+  activeRef.current = active
 
   /** Which stop the label should follow right now. */
   const computeLabelSlug = (): string | null => {
@@ -648,12 +652,13 @@ export function JourneyMap({
   }
 
   /* ------------------------- trigger / sync ------------------------ */
+  // The parent (presentation deck) tells us when our chapter is active.
   useEffect(() => {
-    if (!inView || !viewerRef.current) return
+    if (!active || !viewerRef.current) return
     if (playedRef.current) finalize()
     else if (phaseRef.current === 'idle') playIntro()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView])
+  }, [active])
 
   useEffect(() => {
     if (phaseRef.current === 'done') syncLabel()
