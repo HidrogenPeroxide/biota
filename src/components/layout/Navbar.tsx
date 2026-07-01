@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Leaf, Menu, X, Languages, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getNavTheme, subscribeNavTheme } from '@/lib/navTheme'
 import { useI18n, useT } from '@/i18n'
 
 const LIFE_DATA_ITEMS = [
@@ -40,7 +41,8 @@ export function Navbar() {
   useEffect(() => setOpen(false), [location.pathname])
 
   const heroPage = isHeroPage(location.pathname)
-  const solid = scrolled || !heroPage
+  const navLight = useSyncExternalStore(subscribeNavTheme, getNavTheme) === 'light'
+  const solid = scrolled || !heroPage || navLight
 
   /** A plain nav link with the shared active-underline animation. */
   const renderPill = (to: string, key: string, end: boolean) => (

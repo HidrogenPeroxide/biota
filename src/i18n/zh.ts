@@ -123,6 +123,7 @@ const zh = {
 
   // ---- Journey detail page ----
   'journey.back': '返回行程地图',
+  'journey.fieldJournal': '野外手记',
   'journey.day': '第 {n} 天',
   'journey.diary': '日记',
   'journey.moments': '难忘瞬间',

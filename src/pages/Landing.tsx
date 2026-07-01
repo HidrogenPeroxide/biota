@@ -9,6 +9,7 @@ import { useHeroSlides } from '@/hooks/useBiodiversity'
 import { useAllJourneyMedia } from '@/hooks/useJourneyMedia'
 import { JOURNEYS, type Journey } from '@/data/journeys'
 import { useI18n, useT } from '@/i18n'
+import { setNavTheme } from '@/lib/navTheme'
 
 const ease = [0.22, 1, 0.36, 1] as const
 const CHAPTERS = 4
@@ -43,6 +44,12 @@ export function Landing() {
 
   /* ---- presentation deck: one chapter at a time ---- */
   const [index, setIndex] = useState(0)
+  // The Travel Journey chapter is light-themed → switch the navbar to a solid
+  // dark-text variant while it's on screen (and restore on leaving the deck).
+  useEffect(() => {
+    setNavTheme(index === 2 ? 'light' : 'dark')
+    return () => setNavTheme('dark')
+  }, [index])
   const indexRef = useRef(0)
   const lockedRef = useRef(false)
   const pendingRef = useRef(0) // queued direction while a transition runs
@@ -311,7 +318,7 @@ export function Landing() {
         variants={sectionVar}
         initial="hidden"
         animate={index === 2 ? 'show' : 'hidden'}
-        className="absolute inset-0 overflow-hidden bg-forest-deep"
+        className="absolute inset-0 overflow-hidden bg-ivory"
         style={{ pointerEvents: index === 2 ? 'auto' : 'none' }}
       >
         <JourneyTimeline
