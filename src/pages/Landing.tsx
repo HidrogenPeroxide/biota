@@ -153,12 +153,6 @@ export function Landing() {
           animate={index === 0 ? 'show' : 'hidden'}
           className="container-wide relative z-10 pt-24"
         >
-          <motion.div variants={item} className="mb-6 flex items-center gap-3">
-            <span className="h-px w-10 bg-ivory-50/60" />
-            <span className="text-xs font-medium uppercase tracking-widest-2 text-ivory-50/80">
-              {t('home.story.eyebrow')}
-            </span>
-          </motion.div>
           <motion.h1
             variants={item}
             className="font-display text-[2.6rem] font-light leading-[1.12] tracking-tight text-ivory-50 sm:text-6xl md:text-7xl lg:text-[5.2rem]"
@@ -169,9 +163,14 @@ export function Landing() {
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-8 max-w-xl text-pretty leading-cn text-lg text-ivory-50/85"
+            className="mt-8 max-w-xl text-balance leading-cn text-lg text-ivory-50/85"
           >
             {t('home.story.subtitle')}
+            {t('home.story.subtitleAttribution') && (
+              <span className="mt-3 block text-base not-italic text-ivory-50/55">
+                {t('home.story.subtitleAttribution')}
+              </span>
+            )}
           </motion.p>
           <motion.div
             variants={item}

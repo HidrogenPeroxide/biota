@@ -8,14 +8,14 @@
 
 const zh = {
   // ---- Brand ----
-  'brand.name': 'Biota',
+  'brand.name': '清溯江源',
   'brand.tagline': '生命学院2026三江源实践',
   'brand.cta': '开始探索',
 
   // ---- Nav ----
   'nav.home': '首页',
   'nav.lifeData': '生命数据',
-  'nav.about': '关于',
+  'nav.about': '关于我们',
   // Legacy labels (still used inside Life Data surfaces)
   'nav.explore': '探索',
   'nav.atlas': '图集',
@@ -90,10 +90,10 @@ const zh = {
 
   // ---- Home: story-driven hero ----
   'home.story.eyebrow': '一份数字野外手记',
-  'home.story.title1': '每段旅程，',
-  'home.story.titleAccent': '始于好奇',
-  'home.story.subtitle':
-    '每一次观察，都是关于一个地方、一片山川、以及栖息其间的生命的故事。',
+  'home.story.title1': '但远山长，云山乱，',
+  'home.story.titleAccent': '晓山青。',
+  'home.story.subtitle': '——苏轼《行香子·过七里濑》',
+  'home.story.subtitleAttribution': '',
   'home.story.cta1': '追随我们的旅程',
   'home.story.cta2': '直接探索生命数据',
   'home.story.scroll': '向下滚动',

@@ -4,8 +4,8 @@
 
 const en = {
   // ---- Brand ----
-  'brand.name': 'Biota',
-  'brand.tagline': 'Living Atlas',
+  'brand.name': 'Sanjiangyuan 2026',
+  'brand.tagline': 'School of Life Sciences, Tsinghua University',
   'brand.cta': 'Begin exploring',
 
   // ---- Nav ----
@@ -90,7 +90,8 @@ const en = {
   'home.story.title1': 'Every Journey',
   'home.story.titleAccent': 'Begins With Curiosity',
   'home.story.subtitle':
-    'Every observation tells a story of a place, a landscape, and the life that inhabits it.',
+    '“To keep every cog and wheel is the first precaution of intelligent tinkering.”',
+  'home.story.subtitleAttribution': '— Aldo Leopold',
   'home.story.cta1': 'Follow our journeys',
   'home.story.cta2': 'Explore the Life Data',
   'home.story.scroll': 'Scroll',
