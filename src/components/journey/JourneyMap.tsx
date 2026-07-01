@@ -622,15 +622,24 @@ export function JourneyMap({
     // and subsequent free interaction behave normally.
     viewer.camera.lookAtTransform(C.Matrix4.IDENTITY)
 
-    viewer.flyTo(viewer.entities.values, {
-      offset: new C.HeadingPitchRange(0, C.Math.toRadians(-32), 3_200_000),
-      duration: 3,
-    })
+    frameOverview()
 
     introFocusRef.current = null
     if (typeof sessionStorage !== 'undefined') sessionStorage.setItem(PLAYED_KEY, '1')
     setPhaseBoth('done')
     syncLabel()
+  }
+
+  /** Fit the whole expedition into view at the cinematic overview framing. */
+  function frameOverview() {
+    const viewer = viewerRef.current
+    const C = window.Cesium
+    if (!viewer || !C) return
+    viewer.camera.lookAtTransform(C.Matrix4.IDENTITY)
+    viewer.flyTo(viewer.entities.values, {
+      offset: new C.HeadingPitchRange(0, C.Math.toRadians(-32), 3_200_000),
+      duration: 2.4,
+    })
   }
 
   function startSelectedPulse(C: CesiumNS, viewer: any) {
@@ -653,10 +662,16 @@ export function JourneyMap({
 
   /* ------------------------- trigger / sync ------------------------ */
   // The parent (presentation deck) tells us when our chapter is active.
+  // First visit (this session): play the full intro once. Every re-entry:
+  // skip the intro but re-fit the camera to the best overview framing.
   useEffect(() => {
     if (!active || !viewerRef.current) return
-    if (playedRef.current) finalize()
-    else if (phaseRef.current === 'idle') playIntro()
+    if (playedRef.current) {
+      if (phaseRef.current !== 'done') finalize()
+      else frameOverview()
+    } else if (phaseRef.current === 'idle') {
+      playIntro()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
 
@@ -665,21 +680,6 @@ export function JourneyMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSlug, phase])
 
-  function handleReplay() {
-    cancelAllAnim()
-    const viewer = viewerRef.current
-    if (!viewer) return
-    revealedRef.current = []
-    if (routeLineRef.current) routeLineRef.current.positions = []
-    markersRef.current.forEach((ent) => viewer.entities.remove(ent))
-    markersRef.current.clear()
-    markerCartRef.current.clear()
-    viewer.scene.screenSpaceCameraController.enabled = false
-    sessionStorage.removeItem(PLAYED_KEY)
-    playedRef.current = false
-    setPhaseBoth('idle')
-    timersRef.current.push(setTimeout(() => playIntro(), 60))
-  }
   function handleSkip() {
     cancelAllAnim()
     finalize()
@@ -730,15 +730,6 @@ export function JourneyMap({
           className="absolute bottom-4 right-4 z-[700] rounded-full border border-ivory-50/20 bg-charcoal/55 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/85 backdrop-blur-md transition-colors hover:bg-charcoal/80 hover:text-ivory-50"
         >
           {lang === 'zh' ? '跳过开场 ›' : 'Skip intro ›'}
-        </button>
-      )}
-      {phase === 'done' && (
-        <button
-          onClick={handleReplay}
-          className="absolute bottom-4 right-4 z-[700] flex items-center gap-1.5 rounded-full border border-ivory-50/15 bg-charcoal/45 px-4 py-1.5 text-[11px] font-medium tracking-wide text-ivory-50/70 backdrop-blur-md transition-colors hover:bg-charcoal/70 hover:text-ivory-50"
-        >
-          <span className="h-3 w-3 rounded-full border border-ivory-50/50" />
-          {lang === 'zh' ? '重播旅程' : 'Replay journey'}
         </button>
       )}
     </div>

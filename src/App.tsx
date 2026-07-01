@@ -1,7 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
-import { useLocation } from 'react-router-dom'
 
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -55,31 +53,29 @@ export default function App() {
     <div className="flex min-h-screen flex-col bg-ivory">
       <ScrollToTop />
       <Navbar />
-      <AnimatePresence mode="wait">
-        <Routes location={location} key={location.pathname}>
-          {/* Story-driven home */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/journey/:slug" element={lazied(<JourneyDetail />)} />
+      <Routes>
+        {/* Story-driven home */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/journey/:slug" element={lazied(<JourneyDetail />)} />
 
-          {/* Life Data — the scientific exploration section */}
-          <Route path="/life-data" element={lazied(<LifeDataHub />)} />
-          <Route path="/life-data/explore" element={lazied(<Explore />)} />
-          <Route path="/life-data/map" element={lazied(<MapExplore />)} />
-          <Route path="/life-data/stats" element={lazied(<Statistics />)} />
-          <Route path="/life-data/species/:id" element={lazied(<SpeciesDetail />)} />
+        {/* Life Data — the scientific exploration section */}
+        <Route path="/life-data" element={lazied(<LifeDataHub />)} />
+        <Route path="/life-data/explore" element={lazied(<Explore />)} />
+        <Route path="/life-data/map" element={lazied(<MapExplore />)} />
+        <Route path="/life-data/stats" element={lazied(<Statistics />)} />
+        <Route path="/life-data/species/:id" element={lazied(<SpeciesDetail />)} />
 
-          {/* About */}
-          <Route path="/about" element={lazied(<About />)} />
+        {/* About */}
+        <Route path="/about" element={lazied(<About />)} />
 
-          {/* Back-compat redirects for the old flat routes */}
-          <Route path="/explore" element={<Navigate to="/life-data/explore" replace />} />
-          <Route path="/map" element={<Navigate to="/life-data/map" replace />} />
-          <Route path="/statistics" element={<Navigate to="/life-data/stats" replace />} />
-          <Route path="/species/:id" element={<Navigate to="/life-data/species/:id" replace />} />
+        {/* Back-compat redirects for the old flat routes */}
+        <Route path="/explore" element={<Navigate to="/life-data/explore" replace />} />
+        <Route path="/map" element={<Navigate to="/life-data/map" replace />} />
+        <Route path="/statistics" element={<Navigate to="/life-data/stats" replace />} />
+        <Route path="/species/:id" element={<Navigate to="/life-data/species/:id" replace />} />
 
-          <Route path="*" element={lazied(<NotFound />)} />
-        </Routes>
-      </AnimatePresence>
+        <Route path="*" element={lazied(<NotFound />)} />
+      </Routes>
       {/* The home page is an immersive full-screen deck — no footer there. */}
       {location.pathname !== '/' && <Footer />}
     </div>
