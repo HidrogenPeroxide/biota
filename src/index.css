@@ -51,7 +51,7 @@
     background: theme('colors.ivory.200');
   }
   ::-webkit-scrollbar-thumb {
-    background: theme('colors.stone');
+    background: theme('colors.stone.DEFAULT');
     border-radius: 9999px;
     border: 2px solid theme('colors.ivory.200');
   }
@@ -124,11 +124,6 @@
   /* Comfortable CJK line-height for prose paragraphs. */
   .leading-cn {
     line-height: 1.85;
-  }
-  /* Slightly looser tracking for Chinese display headings — adds the
-     "breathable, luxury magazine" spacing CJK benefits from. */
-  .tracking-cn {
-    letter-spacing: 0.04em;
   }
   /* CJK has no true italic; browsers synthesize an ugly oblique. Use this on
      accent words instead of `italic` so they stay elegant in both languages. */

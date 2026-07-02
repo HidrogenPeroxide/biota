@@ -94,7 +94,7 @@ export function Navbar() {
           aria-label="Biota home"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest text-ivory-50 transition-transform duration-700 ease-organic group-hover:rotate-[18deg]">
-            <Leaf className="h-4.5 w-4.5" strokeWidth={1.6} />
+            <Leaf className="h-5 w-5" strokeWidth={1.6} />
           </span>
           <span className="flex flex-col leading-none">
             <span

@@ -11,7 +11,7 @@ export function Footer() {
         <div className="md:col-span-5">
           <div className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ivory-50/10 text-ivory-50">
-              <Leaf className="h-4.5 w-4.5" strokeWidth={1.6} />
+              <Leaf className="h-5 w-5" strokeWidth={1.6} />
             </span>
             <span className="font-display text-lg font-medium text-ivory-50">
               {t('brand.name')}
