@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
@@ -19,21 +19,35 @@ interface JourneyTimelineProps {
   active?: boolean
 }
 
-const ease = [0.22, 1, 0.36, 1] as const
+/* Physical stack-slide transition: forward → current drifts out to the left,
+ * the next card steps forward from the stack; backward reverses it. */
+const cardVariants: Variants = {
+  enter: (dir: number) => ({
+    x: dir >= 0 ? 64 : -64,
+    y: 20,
+    scale: 0.92,
+    opacity: 0,
+    rotate: dir >= 0 ? 1.6 : -1.6,
+  }),
+  center: { x: 0, y: 0, scale: 1, opacity: 1, rotate: 0 },
+  exit: (dir: number) => ({
+    x: dir >= 0 ? -64 : 64,
+    y: -14,
+    scale: 0.94,
+    opacity: 0,
+    rotate: dir >= 0 ? -1.6 : 1.6,
+  }),
+}
+const cardSpring = { type: 'spring', stiffness: 240, damping: 30, mass: 0.9 }
+const textEase = [0.22, 1, 0.36, 1] as const
 
 /**
- * The narrative backbone of the homepage — the timeline IS the expedition.
+ * The narrative backbone of the homepage — a light, editorial expedition
+ * journal. Left: the day's story. Right: the hero photograph as a floating
+ * card with the next chapters peeking behind it. Bottom: the timeline.
  *
- * Interactions (all produce the same result — one synchronized day change):
- *  • horizontal swipe / mouse-drag on the main area
- *  • horizontal mouse wheel (or Shift + wheel)
- *  • ← / → arrow keys (when the chapter is active)
- *  • click any timeline node
- *  • drag the bottom strip itself (with momentum / inertial scrolling)
- *
- * On every change, the hero image (fade+scale+blur), the journal text
- * (fade+rise), the animated gold progress line (extends forward / retracts),
- * and the shared-layout indicator ring all move together.
+ * All interactions (swipe / drag / wheel / click / ←→) and the synchronized
+ * day-change animation are preserved; this is purely the layout & visuals.
  */
 export function JourneyTimeline({
   journeys,
@@ -44,16 +58,25 @@ export function JourneyTimeline({
   const t = useT()
   const n = journeys.length
   const [cur, setCur] = useState(0)
+  const [dir, setDir] = useState(1)
   const curRef = useRef(0)
   curRef.current = cur
   const clamp = (c: number) => Math.max(0, Math.min(n - 1, c))
-  const goTo = (c: number) => setCur(clamp(c))
+  const goTo = (c: number) => {
+    const next = clamp(c)
+    if (next === cur) return
+    setDir(next > cur ? 1 : -1)
+    setCur(next)
+  }
 
   const j = journeys[cur]
   const dayLabel = lang === 'zh' ? `第 ${j.day} 天` : `Day ${j.day}`
   const paragraphs = j.diary.slice(0, 2)
   const cover = media[j.slug]?.cover ?? null
   const species = media[j.slug]?.speciesCount ?? 0
+  const peeks = [1, 2]
+    .map((k) => (cur + k < n ? journeys[cur + k] : null))
+    .filter(Boolean) as Journey[]
 
   const rootRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -83,7 +106,7 @@ export function JourneyTimeline({
     let idle: ReturnType<typeof setTimeout>
     const onWheel = (e: WheelEvent) => {
       const dx = Math.abs(e.deltaX) >= Math.abs(e.deltaY) ? e.deltaX : 0
-      if (Math.abs(dx) < 6) return // leave vertical scrolling to the deck
+      if (Math.abs(dx) < 6) return
       e.preventDefault()
       e.stopPropagation()
       clearTimeout(idle)
@@ -124,13 +147,8 @@ export function JourneyTimeline({
   }
 
   /* ---- draggable strip with momentum / inertia ---- */
-  const strip = useRef({
-    down: false,
-    x: 0,
-    moved: false,
-    vx: 0,
-    raf: 0,
-  })
+  const strip = useRef({ down: false, x: 0, moved: false, vx: 0, raf: 0 })
+  const lastPointerX = useRef(0)
   const stopMomentum = () => {
     if (strip.current.raf) {
       cancelAnimationFrame(strip.current.raf)
@@ -149,28 +167,19 @@ export function JourneyTimeline({
   }
   const onStripDown = (e: React.PointerEvent) => {
     stopMomentum()
-    const track = trackRef.current
-    strip.current = {
-      down: true,
-      x: e.clientX,
-      moved: false,
-      vx: 0,
-      raf: 0,
-    }
-    void track
+    strip.current = { down: true, x: e.clientX, moved: false, vx: 0, raf: 0 }
+    lastPointerX.current = e.clientX
   }
   const onStripMove = (e: React.PointerEvent) => {
     const track = trackRef.current
     if (!track || !strip.current.down) return
-    const dx = e.clientX - strip.current.x
-    if (Math.abs(dx) > 4) strip.current.moved = true
+    if (Math.abs(e.clientX - strip.current.x) > 4) strip.current.moved = true
     const prev = track.scrollLeft
-    track.scrollLeft = strip.current.x ? prev - (e.clientX - lastPointerX.current) : prev
+    track.scrollLeft = prev - (e.clientX - lastPointerX.current)
     lastPointerX.current = e.clientX
-    strip.current.vx = track.scrollLeft - prev // per-event scroll delta
+    strip.current.vx = track.scrollLeft - prev
     strip.current.x = e.clientX
   }
-  const lastPointerX = useRef(0)
   const onStripUp = () => {
     if (!strip.current.down) return
     strip.current.down = false
@@ -181,76 +190,126 @@ export function JourneyTimeline({
   return (
     <div
       ref={rootRef}
-      className="flex h-full select-none flex-col py-14 md:py-20"
+      className="timeline-paper relative flex h-full select-none flex-col bg-ivory py-14 md:py-20"
     >
-      {/* ===== main area (swipeable) ===== */}
-      <div
-        className="container-wide flex flex-1 cursor-grab flex-col gap-6 md:grid md:grid-cols-[3fr_2fr] md:items-center md:gap-12 md:pb-4"
-        style={{ touchAction: 'pan-y' }}
-        onPointerDown={onSwipeDown}
-        onPointerUp={onSwipeUp}
-        onPointerCancel={() => (swipe.current.active = false)}
-      >
-        {/* ---- Left: editorial photograph ---- */}
-        <div className="relative h-[38vh] min-h-[220px] overflow-hidden rounded-[20px] shadow-[0_30px_70px_-30px_rgba(0,0,0,0.7)] md:h-[62vh]">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={j.slug}
-              src={cover ?? undefined}
-              alt={j.location[lang]}
-              initial={{ opacity: 0, scale: 1.05, filter: 'blur(14px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 1.03, filter: 'blur(10px)' }}
-              transition={{ duration: 0.7, ease }}
-              draggable={false}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          </AnimatePresence>
-          {!cover && <div className="shimmer absolute inset-0" />}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
-          <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-ivory-50/90 font-display text-base font-semibold text-forest-deep backdrop-blur-sm">
-            {j.day}
-          </span>
-        </div>
-
-        {/* ---- Right: field-journal text ---- */}
-        <div className="flex flex-col justify-center">
+      <div className="container-wide grid flex-1 gap-8 md:grid-cols-[5fr_7fr] md:items-center md:gap-14">
+        {/* ===== Left: field-journal text ===== */}
+        <div
+          className="order-2 flex flex-col justify-center md:order-1"
+          style={{ touchAction: 'pan-y' }}
+          onPointerDown={onSwipeDown}
+          onPointerUp={onSwipeUp}
+          onPointerCancel={() => (swipe.current.active = false)}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={j.slug}
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.6, ease }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.5, ease: textEase }}
             >
-              <p className="eyebrow text-ochre">{dayLabel}</p>
-              <h3 className="headline mt-3 text-4xl text-ivory-50 md:text-5xl">
+              <p className="eyebrow text-ochre">{t('journey.fieldJournal')}</p>
+              <div className="mt-3 flex items-baseline gap-3">
+                <span className="font-display text-2xl font-medium text-ochre">
+                  {dayLabel}
+                </span>
+                <span className="h-px flex-1 bg-stone-light" />
+              </div>
+              <h3 className="headline mt-3 text-4xl text-charcoal md:text-5xl">
                 {j.location[lang]}
               </h3>
-              <p className="mt-2 text-sm italic text-ivory-50/55">
+              <p className="mt-2 text-sm italic text-charcoal-soft">
                 {j.region[lang]} · {j.date}
                 {species > 0 &&
                   ` · ${formatCompact(species)} ${lang === 'zh' ? '物种' : 'species'}`}
               </p>
+
               <div className="mt-6 max-w-prose space-y-4">
                 {paragraphs.map((p, i) => (
                   <p
                     key={i}
-                    className="text-pretty leading-cn text-[15px] text-ivory-50/80"
+                    className="text-pretty leading-cn text-[15px] text-charcoal-soft"
                   >
                     {p[lang]}
                   </p>
                 ))}
               </div>
+
               <div className="mt-8">
                 <Link
                   to={`/journey/${j.slug}`}
-                  className="group inline-flex items-center gap-2 rounded-full border border-ochre/50 px-7 py-3 text-sm font-medium text-ochre transition-all duration-500 ease-organic hover:bg-ochre hover:text-charcoal"
+                  className="group inline-flex items-center gap-2 rounded-full border border-ochre/50 px-7 py-3 text-sm font-medium text-ochre transition-all duration-500 ease-organic hover:bg-ochre hover:text-ivory"
                 >
                   {t('home.journey.readStory')}
                   <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
                 </Link>
               </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* ===== Right: floating photo card + stacked preview ===== */}
+        <div
+          className="relative order-1 h-[40vh] min-h-[240px] cursor-grab md:order-2 md:h-[66vh] active:cursor-grabbing"
+          style={{ touchAction: 'pan-y' }}
+          onPointerDown={onSwipeDown}
+          onPointerUp={onSwipeUp}
+          onPointerCancel={() => (swipe.current.active = false)}
+        >
+          {/* peek cards behind — the journey continues */}
+          {peeks.map((pj, k) => {
+            const pk = k + 1
+            const pcover = media[pj.slug]?.cover
+            return (
+              <div
+                key={pj.slug}
+                className="absolute inset-0 overflow-hidden rounded-[20px] border border-stone-light/60 bg-ivory-100 shadow-[0_24px_50px_-30px_rgba(38,36,31,0.4)]"
+                style={{
+                  transform: `translate(${pk * 16}px, ${pk * 16}px) scale(${1 - pk * 0.05})`,
+                  opacity: 0.55 - k * 0.25,
+                  zIndex: 20 - pk,
+                }}
+              >
+                {pcover && (
+                  <img
+                    src={pcover}
+                    alt=""
+                    draggable={false}
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
+            )
+          })}
+
+          {/* active photo card */}
+          <AnimatePresence custom={dir} initial={false}>
+            <motion.div
+              key={j.slug}
+              custom={dir}
+              variants={cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={cardSpring}
+              className="absolute inset-0 z-30 overflow-hidden rounded-[20px] border border-stone-light/70 bg-ivory-100 shadow-[0_40px_80px_-34px_rgba(38,36,31,0.55)]"
+            >
+              <motion.img
+                key={cover ?? 'none'}
+                src={cover ?? undefined}
+                alt={j.location[lang]}
+                draggable={false}
+                initial={{ scale: 1.06, filter: 'blur(6px)' }}
+                animate={{ scale: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.8, ease: textEase }}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              {!cover && <div className="shimmer absolute inset-0" />}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+              <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/65 font-display text-base font-semibold text-ivory-50 backdrop-blur-sm">
+                {j.day}
+              </span>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -275,12 +334,12 @@ export function JourneyTimeline({
               <Fragment key={jj.slug}>
                 {i > 0 && (
                   <div className="flex h-5 min-w-[24px] flex-1 items-center md:min-w-[40px]">
-                    <div className="relative h-px w-full bg-ivory-50/12">
+                    <div className="relative h-px w-full bg-charcoal/10">
                       <motion.div
                         className="absolute inset-y-0 left-0 bg-ochre"
                         initial={false}
                         animate={{ width: i <= cur ? '100%' : '0%' }}
-                        transition={{ duration: 0.6, ease }}
+                        transition={{ duration: 0.6, ease: textEase }}
                       />
                     </div>
                   </div>
@@ -295,13 +354,12 @@ export function JourneyTimeline({
                   className="flex w-12 shrink-0 flex-col items-center md:w-16"
                   aria-label={`${lang === 'zh' ? '第' : 'Day'} ${jj.day}`}
                 >
-                  {/* dot row — fixed height so the connecting line aligns */}
                   <span className="relative flex h-5 w-full items-center justify-center">
                     {isCur && (
                       <motion.span
                         layoutId="tl-ring"
-                        className="absolute h-8 w-8 rounded-full bg-ochre/20 ring-1 ring-ochre/70"
-                        transition={{ duration: 0.55, ease }}
+                        className="absolute h-8 w-8 rounded-full bg-ochre/20 ring-1 ring-ochre/60"
+                        transition={{ duration: 0.55, ease: textEase }}
                       />
                     )}
                     <span
@@ -311,14 +369,18 @@ export function JourneyTimeline({
                           ? 'h-4 w-4 bg-ochre'
                           : isPast
                             ? 'h-2.5 w-2.5 bg-ochre/85'
-                            : 'h-2.5 w-2.5 bg-ivory-50/25',
+                            : 'h-2.5 w-2.5 bg-charcoal/20',
                       )}
                     />
                   </span>
                   <span
                     className={cn(
                       'mt-2 whitespace-nowrap text-[10px] uppercase tracking-widest-2 transition-colors duration-300',
-                      isCur ? 'text-ochre' : isPast ? 'text-ivory-50/55' : 'text-ivory-50/30',
+                      isCur
+                        ? 'text-ochre'
+                        : isPast
+                          ? 'text-charcoal/55'
+                          : 'text-charcoal/30',
                     )}
                   >
                     {lang === 'zh' ? `第${jj.day}天` : `Day ${jj.day}`}
@@ -326,7 +388,11 @@ export function JourneyTimeline({
                   <span
                     className={cn(
                       'mt-0.5 hidden max-w-[64px] truncate text-[10px] transition-colors duration-300 lg:block',
-                      isCur ? 'text-ivory-50/80' : isPast ? 'text-ivory-50/40' : 'text-ivory-50/25',
+                      isCur
+                        ? 'text-charcoal/80'
+                        : isPast
+                          ? 'text-charcoal/40'
+                          : 'text-charcoal/25',
                     )}
                   >
                     {jj.location[lang]}

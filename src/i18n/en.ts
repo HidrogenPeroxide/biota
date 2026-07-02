@@ -121,6 +121,7 @@ const en = {
 
   // ---- Journey detail page ----
   'journey.back': 'Back to the journey map',
+  'journey.fieldJournal': 'Field Journal',
   'journey.day': 'Day {n}',
   'journey.diary': 'Diary',
   'journey.moments': 'Memorable moments',
