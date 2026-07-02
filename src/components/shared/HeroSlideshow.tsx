@@ -5,9 +5,9 @@ import { useT } from '@/i18n'
 
 export interface HeroSlide {
   url: string
-  credit: string
+  credit?: string
   observer?: string
-  caption: string
+  caption?: string
   common?: string
   scientific?: string
 }
@@ -50,7 +50,7 @@ export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         >
           <LazyImage
             src={slide.url}
-            alt={slide.caption}
+            alt={slide.caption ?? ''}
             ratioClassName="absolute inset-0"
             className="animate-slow-pan"
           />
@@ -80,10 +80,17 @@ export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
         </div>
       )}
 
-      {/* Credit */}
-      <div className="absolute bottom-6 right-6 z-10 max-w-[60%] text-right text-[11px] uppercase tracking-widest-2 text-ivory-50/55">
-        {t('label.observedBy', { name: slide.observer || slide.credit })}
-      </div>
+      {/* Credit (only when an observer/credit is provided — e.g. live
+          iNaturalist slides; local photo slides have none) */}
+      {(() => {
+        const name = slide.observer || slide.credit
+        if (!name) return null
+        return (
+          <div className="absolute bottom-6 right-6 z-10 max-w-[60%] text-right text-[11px] uppercase tracking-widest-2 text-ivory-50/55">
+            {t('label.observedBy', { name })}
+          </div>
+        )
+      })()}
     </div>
   )
 }

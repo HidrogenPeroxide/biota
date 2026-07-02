@@ -5,7 +5,7 @@ import { ArrowRight, ArrowDown, MapPin, BarChart3, GitBranch, X } from 'lucide-r
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
 import { JourneyMap } from '@/components/journey/JourneyMap'
 import { JourneyTimeline } from '@/components/journey/JourneyTimeline'
-import { useHeroSlides } from '@/hooks/useBiodiversity'
+import { HERO_SLIDES } from '@/data/heroSlides'
 import { useAllJourneyMedia } from '@/hooks/useJourneyMedia'
 import { JOURNEYS, type Journey } from '@/data/journeys'
 import { useI18n, useT } from '@/i18n'
@@ -38,7 +38,6 @@ const item: Variants = {
 export function Landing() {
   const t = useT()
   const { lang } = useI18n()
-  const { data: slides, loading: slidesLoading } = useHeroSlides()
   const media = useAllJourneyMedia()
   const [selected, setSelected] = useState<Journey | null>(null)
 
@@ -149,11 +148,7 @@ export function Landing() {
         className="absolute inset-0 flex items-center overflow-hidden"
         style={{ pointerEvents: index === 0 ? 'auto' : 'none' }}
       >
-        {slidesLoading ? (
-          <div className="shimmer absolute inset-0 bg-forest-deep" />
-        ) : (
-          <HeroSlideshow slides={slides ?? []} />
-        )}
+        <HeroSlideshow slides={HERO_SLIDES} />
         <motion.div
           variants={stagger}
           initial="hidden"
