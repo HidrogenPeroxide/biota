@@ -148,7 +148,7 @@ export function Landing() {
         className="absolute inset-0 flex items-center overflow-hidden"
         style={{ pointerEvents: index === 0 ? 'auto' : 'none' }}
       >
-        <HeroSlideshow slides={HERO_SLIDES} />
+        <HeroSlideshow slides={HERO_SLIDES} active={index === 0} />
         <motion.div
           variants={stagger}
           initial="hidden"

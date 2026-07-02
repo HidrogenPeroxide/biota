@@ -332,24 +332,30 @@ export function JourneyMap({
       onSelectRef.current(journey)
     }, C.ScreenSpaceEventType.LEFT_CLICK)
 
-    // Per-frame: project the active label's 3D point to screen space.
+    // Per-frame: project the active label's 3D point to screen space. When the
+    // chapter is off-screen it keeps rescheduling but does no real work, so it
+    // can't burn CPU in the background.
     const positionLabel = () => {
-      const node = labelPosRef.current
-      const slug = labelSlugRef.current
-      if (!node) {
+      if (!activeRef.current) {
         labelRafRef.current = requestAnimationFrame(positionLabel)
         return
       }
-      const cart = slug ? markerCartRef.current.get(slug) : null
-      if (slug && cart) {
-        const p = viewer.scene.cartesianToCanvasCoordinates(cart)
-        if (p && p.x > 0 && p.y > 0) {
-          node.style.display = 'block'
-          node.style.transform = `translate(calc(${p.x}px - 50%), calc(${p.y}px - 140%))`
+      const node = labelPosRef.current
+      const slug = labelSlugRef.current
+      if (slug && node) {
+        const cart = markerCartRef.current.get(slug)
+        if (cart) {
+          const p = viewer.scene.cartesianToCanvasCoordinates(cart)
+          if (p && p.x > 0 && p.y > 0) {
+            node.style.display = 'block'
+            node.style.transform = `translate(calc(${p.x}px - 50%), calc(${p.y}px - 140%))`
+          } else {
+            node.style.display = 'none'
+          }
         } else {
           node.style.display = 'none'
         }
-      } else {
+      } else if (node) {
         node.style.display = 'none'
       }
       labelRafRef.current = requestAnimationFrame(positionLabel)
@@ -674,6 +680,15 @@ export function JourneyMap({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
+
+  // Pause Cesium's render loop while our chapter is off-screen — otherwise the
+  // globe keeps rendering at ~60fps in the background and, over time, drags the
+  // whole tab (which makes nav links feel unresponsive until a refresh).
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer) return
+    viewer.useDefaultRenderLoop = active
+  }, [active, cesiumReady])
 
   useEffect(() => {
     if (phaseRef.current === 'done') syncLabel()

@@ -16,18 +16,26 @@ export interface HeroSlide {
  * Full-bleed documentary hero slideshow. Each image slowly zooms (Ken Burns)
  * and cross-fades into the next with a long, organic dissolve.
  */
-export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+export function HeroSlideshow({
+  slides,
+  active = true,
+}: {
+  slides: HeroSlide[]
+  /** Only auto-advance while the hero is on screen (pauses the timer when the
+   *  chapter is hidden, so it can't run in the background). */
+  active?: boolean
+}) {
   const t = useT()
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    if (slides.length <= 1) return
+    if (!active || slides.length <= 1) return
     const id = setInterval(
       () => setIndex((i) => (i + 1) % slides.length),
       7000,
     )
     return () => clearInterval(id)
-  }, [slides.length])
+  }, [slides.length, active])
 
   if (!slides.length) {
     return (
