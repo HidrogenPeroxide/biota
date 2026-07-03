@@ -153,7 +153,7 @@ export function Landing() {
           variants={stagger}
           initial="hidden"
           animate={index === 0 ? 'show' : 'hidden'}
-          className="container-wide relative z-10 pt-24"
+          className="container-wide relative z-10 pb-28 pt-24"
         >
           <motion.h1
             variants={item}
