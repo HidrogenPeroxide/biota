@@ -174,25 +174,6 @@ export function Landing() {
               </span>
             )}
           </motion.p>
-          <motion.div
-            variants={item}
-            className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
-          >
-            <button
-              onClick={() => goTo(1)}
-              className="group inline-flex items-center justify-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium tracking-wide text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
-            >
-              {t('home.story.cta1')}
-              <ArrowDown className="h-4 w-4" />
-            </button>
-            <Link
-              to="/life-data/explore"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-ivory-50/40 px-8 py-4 text-sm font-medium tracking-wide text-ivory-50 backdrop-blur-sm transition-all duration-500 ease-organic hover:bg-ivory-50/10"
-            >
-              <MapPin className="h-4 w-4" />
-              {t('home.story.cta2')}
-            </Link>
-          </motion.div>
         </motion.div>
 
         {index === 0 && (
