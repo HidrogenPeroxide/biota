@@ -58,7 +58,7 @@ export function About() {
               <img
                 src={VLOG.cover}
                 alt={t('about.vlog.title')}
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.6s] ease-organic group-hover:scale-105"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-organic group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-charcoal/25 transition-colors duration-700 group-hover:bg-charcoal/10" />
               <span className="absolute left-1/2 top-1/2 flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ivory-50/90 text-forest-deep shadow-xl transition-transform duration-500 ease-organic group-hover:scale-110">
@@ -101,7 +101,7 @@ export function About() {
                       <img
                         src={u.cover}
                         alt=""
-                        className="aspect-[16/10] h-full w-full object-cover transition-transform duration-[1.4s] ease-organic group-hover:scale-105"
+                        className="aspect-[16/10] h-full w-full object-cover transition-transform duration-700 ease-organic group-hover:scale-105"
                       />
                     </div>
                     <div className="flex flex-1 flex-col justify-center p-6 md:p-8">
