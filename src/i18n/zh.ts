@@ -151,23 +151,35 @@ const zh = {
   'lifeData.statsDesc': '生物多样性的数据视角',
   'lifeData.filteredHere': '正显示 {place} 的观察',
 
-  // ---- About ----
+  // ---- About (documentary epilogue) ----
   'about.eyebrow': '关于',
-  'about.title': '一段由好奇心驱动的旅程',
-  'about.intro':
-    'Biota 是一份正在生长的数字野外手记。我们背着相机与图鉴走向山野，把每一次与生命的相遇记录下来——这个网站，是这些相遇的延续。',
-  'about.motivationTitle': '我们为什么出发',
-  'about.motivationBody':
-    '生物多样性数据常常以表格和图表的形式出现，冰冷而抽象。我们想换一种讲法：先讲我们去过的远方，再讲在那里遇见的生命。让数据有温度，让科学有故事。',
-  'about.teamTitle': '团队',
-  'about.teamBody': '由野外工作者、设计师与开发者组成的小型跨学科团队。',
-  'about.dataTitle': '数据来源',
-  'about.dataBody':
-    '所有物种数据均来自 {inat} 公开 API——加州科学院与国家地理学会共同发起的公民科学平台。照片版权归原始观察者所有。',
-  'about.techTitle': '技术',
-  'about.techBody': 'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Leaflet。',
-  'about.thanksTitle': '致谢',
-  'about.thanksBody': '感谢每一位在 iNaturalist 上记录自然的人；感谢向导、接待我们的社区，以及所有让这次旅程成为可能的人。',
+  'about.hero.title': '关于 Biota',
+  'about.hero.subtitle': '每一次观察，都是另一段旅程的开始。',
+  'about.vlog.eyebrow': '出发之前',
+  'about.vlog.title': '三江源 · 出发之前',
+  'about.vlog.desc':
+    '一段记录我们如何筹备这次科考的影像——从摊开的地图、反复检查的装备，到向当地向导的请教，与对远方的想象。',
+  'about.vlog.date': '2025 年 7 月',
+  'about.vlog.location': '北京 · 出发前夜',
+  'about.vlog.watch': '观看 vlog',
+  'about.updates.eyebrow': '旅程更新',
+  'about.updates.title': '一路写下的字',
+  'about.updates.body': '在山野与信号之间，我们断断续续记下一些片段。',
+  'about.thanks.eyebrow': '致谢',
+  'about.thanks.title': '感谢与我们同行的人',
+  'about.thanks.body':
+    '这一路并不只属于我们。感谢接待我们的当地社区与每一户人家，感谢在风雪与烈日里带我们辨认踪迹的向导，感谢每一位在 iNaturalist 上记录自然、把观察分享给世界的博物者——是这些微小而真诚的注视，让一份生物多样性图集成为可能。也感谢所有在幕后支持这次实践的人：你们让这段旅程，从一句"去看看吧"，变成了真正发生过的事。',
+  'about.credits.eyebrow': '数据与版权',
+  'about.credits.title': '安静的一页',
+  'about.credits.inatTitle': '数据来源',
+  'about.credits.inatBody':
+    '所有物种数据均来自 {inat} 公开 API——加州科学院与国家地理学会共同发起的公民科学平台。',
+  'about.credits.inat': 'iNaturalist',
+  'about.credits.photoTitle': '照片版权',
+  'about.credits.photoBody': '页面影像来自我们自己的科考，物种照片版权归原始观察者所有。',
+  'about.credits.techTitle': '技术构建',
+  'about.credits.techBody': 'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Cesium · Leaflet。',
+  'about.credits.repo': '项目仓库',
 
   // ---- Iconic taxa (group labels) ----
   'taxa.Aves': '鸟类',
