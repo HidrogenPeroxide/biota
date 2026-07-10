@@ -150,28 +150,6 @@ const en = {
   'lifeData.mapDesc': 'See observations on the map',
   'lifeData.statsDesc': 'Biodiversity, in data',
   'lifeData.filteredHere': 'Showing observations near {place}',
-  // Life Data — narrative reframing (progressive reveal)
-  'lifeData.narrative.eyebrow': 'It begins here',
-  'lifeData.narrative.title': 'A living atlas',
-  'lifeData.narrative.body':
-    'No form of life stands alone. It belongs to a species; a species belongs to a group; groups are linked to one another, until together they form a living web. Here, every encounter of ours flows into that larger picture.',
-  'lifeData.narrative.observationTitle': 'It begins with a moment',
-  'lifeData.narrative.observationBody':
-    'A shutter pressed, a call noted down, a leaf patiently identified — every observation is small, yet it is where all of this begins.',
-  'lifeData.narrative.speciesTitle': 'A moment becomes a species',
-  'lifeData.narrative.speciesBody':
-    'Named and gathered, countless encounters settle into species — something that can be spoken of, compared, and remembered.',
-  'lifeData.narrative.treeTitle': 'A species belongs to a larger lineage',
-  'lifeData.narrative.treeBody':
-    'No species is an island. Kin to one another, they form the tree of life — from the familiar birds and mammals to the strangest algae and fungi.',
-  'lifeData.narrative.atlasTitle': 'Linked together, a living atlas appears',
-  'lifeData.narrative.atlasBody':
-    'When species, lineages and places interweave, we no longer see a list — we see a planet still breathing.',
-  'lifeData.narrative.continue': 'Continue exploring',
-  'lifeData.narrative.observation': 'An observation',
-  'lifeData.narrative.species': 'A species',
-  'lifeData.narrative.taxon': 'The tree of life',
-  'lifeData.narrative.atlas': 'A living atlas',
 
   // ---- About (documentary epilogue) ----
   'about.eyebrow': 'About',
