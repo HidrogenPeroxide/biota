@@ -51,7 +51,7 @@
     background: theme('colors.ivory.200');
   }
   ::-webkit-scrollbar-thumb {
-    background: theme('colors.stone');
+    background: theme('colors.stone.DEFAULT');
     border-radius: 9999px;
     border: 2px solid theme('colors.ivory.200');
   }

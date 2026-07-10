@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, type Variants } from 'framer-motion'
-import { ArrowRight, ArrowDown, MapPin, BarChart3, GitBranch, X } from 'lucide-react'
+import { ArrowRight, ArrowDown, MapPin, X } from 'lucide-react'
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
 import { JourneyMap } from '@/components/journey/JourneyMap'
 import { JourneyTimeline } from '@/components/journey/JourneyTimeline'
@@ -324,7 +324,7 @@ export function Landing() {
         />
       </motion.section>
 
-      {/* ============ 4 · ENTER LIFE DATA ============ */}
+      {/* ============ 4 · BRIDGE: photograph → web of life ============ */}
       <motion.section
         variants={sectionVar}
         initial="hidden"
@@ -333,66 +333,59 @@ export function Landing() {
         style={{ pointerEvents: index === 3 ? 'auto' : 'none' }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-bark-dark via-forest-deep to-forest" />
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate={index === 3 ? 'show' : 'hidden'}
-          className="container-wide relative z-10"
-        >
-          <motion.p variants={item} className="eyebrow text-sage">
-            {t('home.bridge.eyebrow')}
-          </motion.p>
-          <motion.h2
-            variants={item}
-            className="headline mt-4 max-w-3xl text-4xl text-ivory-50 md:text-6xl"
-          >
-            {t('home.bridge.title')}
-          </motion.h2>
-          <motion.p
-            variants={item}
-            className="mt-6 max-w-xl leading-cn text-ivory-50/75"
-          >
-            {t('home.bridge.body')}
-          </motion.p>
-
+        <div className="container-wide relative z-10 grid items-center gap-12 md:grid-cols-2">
+          {/* Left — the emotional bridge */}
           <motion.div
-            variants={item}
-            className="mt-12 grid gap-5 sm:grid-cols-3"
+            variants={stagger}
+            initial="hidden"
+            animate={index === 3 ? 'show' : 'hidden'}
           >
-            <BridgeCard
-              to="/life-data/explore"
-              icon={<GitBranch className="h-5 w-5" />}
-              title={t('lifeData.explore')}
-              desc={t('lifeData.exploreDesc')}
-            />
-            <BridgeCard
-              to="/life-data/map"
-              icon={<MapPin className="h-5 w-5" />}
-              title={t('lifeData.map')}
-              desc={t('lifeData.mapDesc')}
-            />
-            <BridgeCard
-              to="/life-data/stats"
-              icon={<BarChart3 className="h-5 w-5" />}
-              title={t('lifeData.stats')}
-              desc={t('lifeData.statsDesc')}
-            />
-          </motion.div>
-
-          <motion.div
-            variants={item}
-            custom={1}
-            className="mt-12"
-          >
-            <Link
-              to="/life-data/explore"
-              className="group inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
+            <motion.p variants={item} className="eyebrow text-sage">
+              {t('home.bridge.eyebrow')}
+            </motion.p>
+            <motion.h2
+              variants={item}
+              className="headline mt-4 max-w-xl text-4xl text-ivory-50 md:text-6xl"
             >
-              {t('home.bridge.cta1')}
-              <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
-            </Link>
+              {t('home.bridge.title')}
+            </motion.h2>
+            <motion.p
+              variants={item}
+              className="mt-6 max-w-md leading-cn text-ivory-50/75"
+            >
+              {t('home.bridge.body')}
+            </motion.p>
+            <motion.div variants={item} className="mt-10">
+              <Link
+                to="/life-data"
+                className="group inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
+              >
+                {t('home.bridge.cta1')}
+                <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
+              </Link>
+            </motion.div>
           </motion.div>
-        </motion.div>
+
+          {/* Right — a photograph dissolving into a tree-of-life diagram */}
+          <motion.div
+            variants={item}
+            initial="hidden"
+            animate={index === 3 ? 'show' : 'hidden'}
+            className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[20px] shadow-[0_40px_80px_-34px_rgba(0,0,0,0.7)]"
+          >
+            <img
+              src="/hero/hero-10.jpg"
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              style={{
+                opacity: index === 3 ? 0.55 : 1,
+                transition: 'opacity 2.4s cubic-bezier(0.22,1,0.36,1) 0.6s',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/80 via-forest-deep/30 to-charcoal/40" />
+            <TreeOfLife active={index === 3} />
+          </motion.div>
+        </div>
       </motion.section>
 
       {/* Chapter progress dots */}
@@ -414,27 +407,66 @@ export function Landing() {
   )
 }
 
-function BridgeCard({
-  to,
-  icon,
-  title,
-  desc,
-}: {
-  to: string
-  icon: React.ReactNode
-  title: string
-  desc: string
-}) {
+/**
+ * A symbolic "tree of life" line diagram that draws itself when active —
+ * the expedition photograph dissolving into the hidden structure of life.
+ */
+function TreeOfLife({ active }: { active: boolean }) {
+  const branches = [
+    'M50 180 C50 160 50 150 50 138',
+    'M50 150 C40 130 30 110 22 86',
+    'M22 86 C20 70 18 58 16 44',
+    'M50 150 C60 130 70 110 78 86',
+    'M78 86 C80 70 82 58 84 44',
+    'M50 138 C46 110 42 86 38 60',
+    'M38 60 C36 48 34 38 32 26',
+    'M50 138 C54 110 58 86 62 60',
+    'M62 60 C64 48 66 38 68 26',
+    'M50 124 C50 96 50 70 50 44',
+  ]
+  const tips = [
+    [16, 44], [84, 44], [32, 26], [68, 26], [50, 44], [22, 86], [78, 86],
+  ]
   return (
-    <Link
-      to={to}
-      className="group rounded-2xl border border-ivory-50/15 bg-ivory-50/5 p-6 backdrop-blur-sm transition-colors duration-500 hover:bg-ivory-50/10"
+    <svg
+      viewBox="0 0 100 200"
+      preserveAspectRatio="xMidYMid meet"
+      className="absolute inset-0 h-full w-full"
+      aria-hidden="true"
     >
-      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-ivory-50/10 text-ochre">
-        {icon}
-      </span>
-      <h3 className="mt-4 font-display text-xl text-ivory-50">{title}</h3>
-      <p className="mt-1 text-sm leading-cn text-ivory-50/60">{desc}</p>
-    </Link>
+      <g
+        fill="none"
+        stroke="#e0b15e"
+        strokeLinecap="round"
+        strokeWidth="0.7"
+        style={{ opacity: active ? 0.85 : 0, transition: 'opacity 1.6s ease 0.4s' }}
+      >
+        {branches.map((d, i) => (
+          <motion.path
+            key={i}
+            d={d}
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: active ? 1 : 0 }}
+            transition={{ duration: 1.8, delay: 0.5 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
+          />
+        ))}
+      </g>
+      <g fill="#f4dca0">
+        {tips.map(([cx, cy], i) => (
+          <motion.circle
+            key={i}
+            cx={cx}
+            cy={cy}
+            r="1.5"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{
+              opacity: active ? 0.95 : 0,
+              scale: active ? 1 : 0,
+            }}
+            transition={{ duration: 0.6, delay: 0.6 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
+          />
+        ))}
+      </g>
+    </svg>
   )
 }

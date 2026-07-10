@@ -114,11 +114,11 @@ const zh = {
   'home.chapters.openJournal': '翻开这一天',
 
   // ---- Home: bridge into Life Data ----
-  'home.bridge.eyebrow': '故事之后，是数据',
-  'home.bridge.title': '从足迹，走进生命数据',
+  'home.bridge.eyebrow': '从一张照片，到一张生命之网',
+  'home.bridge.title': '每一次相遇，都是更大图景的一部分',
   'home.bridge.body':
-    '每一段旅程的背后，都是成百上千条真实的物种观察。走进 Life Data，按地点、时间与类群，亲手丈量我们记录下的生命。',
-  'home.bridge.cta1': '进入 Life Data',
+    '一只鸟、一声鸟鸣、一次停下脚步的凝视——单看时，它只是一瞬。可当千百次相遇彼此相连，一张隐形的生命之网便缓缓浮现。我们从照片走向记录，从记录走向关系，从关系走向理解。',
+  'home.bridge.cta1': '走进生命数据',
   'home.bridge.cta2': '查看数据洞察',
 
   // ---- Journey detail page ----
@@ -150,6 +150,28 @@ const zh = {
   'lifeData.mapDesc': '在地图上查看观察',
   'lifeData.statsDesc': '生物多样性的数据视角',
   'lifeData.filteredHere': '正显示 {place} 的观察',
+  // Life Data — narrative reframing (progressive reveal)
+  'lifeData.narrative.eyebrow': '从这里开始',
+  'lifeData.narrative.title': '一张活着的图集',
+  'lifeData.narrative.body':
+    '每一种生命，都不是孤立的。它属于一个物种，物种属于一个类群，类群又彼此相连，最终织成一张活着的网。在这里，我们的每一次相遇，都汇入这张更大的图景。',
+  'lifeData.narrative.observationTitle': '它始于一瞬',
+  'lifeData.narrative.observationBody':
+    '一次按下快门、一声记下的鸟鸣、一片被仔细辨认的叶——每一条观察都很小，却是这一切的起点。',
+  'lifeData.narrative.speciesTitle': '一瞬聚成一个物种',
+  'lifeData.narrative.speciesBody':
+    '当无数次相遇被归类、被命名，它们便汇成一个个物种——可被言说、可被比较、可被记忆。',
+  'lifeData.narrative.treeTitle': '物种归属一张更大的谱系',
+  'lifeData.narrative.treeBody':
+    '每一个物种都不是孤岛。它们彼此亲缘相连，构成生命之树——从最熟悉的鸟兽，到最陌生的菌藻。',
+  'lifeData.narrative.atlasTitle': '一切相连，便成一张活着的图集',
+  'lifeData.narrative.atlasBody':
+    '当物种、谱系与地点彼此交织，我们看到的不只是一张清单，而是一颗仍在呼吸的星球。',
+  'lifeData.narrative.continue': '继续探索',
+  'lifeData.narrative.observation': '一次观察',
+  'lifeData.narrative.species': '一个物种',
+  'lifeData.narrative.taxon': '生命之树',
+  'lifeData.narrative.atlas': '活着的图集',
 
   // ---- About ----
   'about.eyebrow': '关于',
