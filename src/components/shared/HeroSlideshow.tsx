@@ -16,18 +16,26 @@ export interface HeroSlide {
  * Full-bleed documentary hero slideshow. Each image slowly zooms (Ken Burns)
  * and cross-fades into the next with a long, organic dissolve.
  */
-export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
+export function HeroSlideshow({
+  slides,
+  active = true,
+}: {
+  slides: HeroSlide[]
+  /** Only auto-advance while the hero is on screen (pauses the timer when the
+   *  chapter is hidden, so it can't run in the background). */
+  active?: boolean
+}) {
   const t = useT()
   const [index, setIndex] = useState(0)
 
   useEffect(() => {
-    if (slides.length <= 1) return
+    if (!active || slides.length <= 1) return
     const id = setInterval(
       () => setIndex((i) => (i + 1) % slides.length),
       7000,
     )
     return () => clearInterval(id)
-  }, [slides.length])
+  }, [slides.length, active])
 
   if (!slides.length) {
     return (
@@ -60,25 +68,6 @@ export function HeroSlideshow({ slides }: { slides: HeroSlide[] }) {
       {/* Cinematic vignette + readability gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/85 via-forest-deep/25 to-charcoal/45" />
       <div className="absolute inset-0 bg-gradient-to-r from-charcoal/50 to-transparent" />
-
-      {/* Slide indicators */}
-      {slides.length > 1 && (
-        <div className="absolute bottom-10 left-0 right-0 z-10 flex justify-center gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className="h-1 rounded-full transition-all duration-700 ease-organic"
-              style={{
-                width: i === index ? 36 : 12,
-                background:
-                  i === index ? 'rgba(246,242,232,0.9)' : 'rgba(246,242,232,0.4)',
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Credit (only when an observer/credit is provided — e.g. live
           iNaturalist slides; local photo slides have none) */}

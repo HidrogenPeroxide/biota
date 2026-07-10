@@ -4,8 +4,8 @@
 
 const en = {
   // ---- Brand ----
-  'brand.name': 'Biota',
-  'brand.tagline': 'Living Atlas',
+  'brand.name': 'Sanjiangyuan 2026',
+  'brand.tagline': 'School of Life Sciences, Tsinghua University',
   'brand.cta': 'Begin exploring',
 
   // ---- Nav ----
@@ -90,7 +90,8 @@ const en = {
   'home.story.title1': 'Every Journey',
   'home.story.titleAccent': 'Begins With Curiosity',
   'home.story.subtitle':
-    'Every observation tells a story of a place, a landscape, and the life that inhabits it.',
+    '“To keep every cog and wheel is the first precaution of intelligent tinkering.”',
+  'home.story.subtitleAttribution': '— Aldo Leopold',
   'home.story.cta1': 'Follow our journeys',
   'home.story.cta2': 'Explore the Life Data',
   'home.story.scroll': 'Scroll',
@@ -172,26 +173,36 @@ const en = {
   'lifeData.narrative.taxon': 'The tree of life',
   'lifeData.narrative.atlas': 'A living atlas',
 
-  // ---- About ----
+  // ---- About (documentary epilogue) ----
   'about.eyebrow': 'About',
-  'about.title': 'A journey driven by curiosity',
-  'about.intro':
-    'Biota is a growing digital field journal. We head into the wild with cameras and field guides and record every encounter with life — this site is where those encounters continue.',
-  'about.motivationTitle': 'Why we set out',
-  'about.motivationBody':
-    'Biodiversity data usually arrives as tables and charts — cold and abstract. We wanted to tell it differently: first the places we travelled, then the life we met there. Data with warmth; science with a story.',
-  'about.teamTitle': 'Team',
-  'about.teamBody':
-    'A small, interdisciplinary crew of field workers, designers, and developers.',
-  'about.dataTitle': 'Data source',
-  'about.dataBody':
-    'All species data comes from the {inat} public API — a citizen-science platform run by the California Academy of Sciences and the National Geographic Society. Photography remains the property of the original observers.',
-  'about.techTitle': 'Technology',
-  'about.techBody':
-    'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Leaflet.',
-  'about.thanksTitle': 'Acknowledgements',
-  'about.thanksBody':
-    'Thanks to everyone who records nature on iNaturalist; to our guides and the communities that hosted us; and to everyone who made this journey possible.',
+  'about.hero.title': 'About Biota',
+  'about.hero.subtitle': 'Every observation becomes the beginning of another journey.',
+  'about.vlog.eyebrow': 'Before the expedition',
+  'about.vlog.title': 'Sanjiangyuan · Before the expedition',
+  'about.vlog.desc':
+    'A film of how this expedition came together — the maps spread out, the kit checked and rechecked, the questions asked of local guides, and the imagining of a place still far away.',
+  'about.vlog.date': 'July 2025',
+  'about.vlog.location': 'Beijing · the night before',
+  'about.vlog.watch': 'Watch the vlog',
+  'about.updates.eyebrow': 'Journey updates',
+  'about.updates.title': 'Notes from the road',
+  'about.updates.body': 'Between the wild and the reach of signal, we wrote down fragments now and then.',
+  'about.thanks.eyebrow': 'Acknowledgements',
+  'about.thanks.title': 'With thanks to those who travelled with us',
+  'about.thanks.body':
+    'This journey was never only ours. Thank you to the local communities and families that hosted us; to the guides who taught us to read tracks in snow and sun; to everyone who records nature on iNaturalist and shares their sightings with the world — it is these small, honest acts of attention that make a living atlas possible. And to everyone who supported this field practice behind the scenes: you turned a quiet "let’s go and see" into something that actually happened.',
+  'about.credits.eyebrow': 'Data & credits',
+  'about.credits.title': 'A quiet page',
+  'about.credits.inatTitle': 'Data source',
+  'about.credits.inatBody':
+    'All species data comes from the {inat} public API — a citizen-science platform run by the California Academy of Sciences and the National Geographic Society.',
+  'about.credits.inat': 'iNaturalist',
+  'about.credits.photoTitle': 'Photography',
+  'about.credits.photoBody':
+    'The imagery here is from our own expedition; species photos remain the property of their original observers.',
+  'about.credits.techTitle': 'Built with',
+  'about.credits.techBody': 'React · TypeScript · Vite · Tailwind · Framer Motion · D3 · Cesium · Leaflet.',
+  'about.credits.repo': 'Project repository',
 
   // ---- Iconic taxa ----
   'taxa.Aves': 'Birds',

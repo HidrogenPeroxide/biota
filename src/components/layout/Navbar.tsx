@@ -94,7 +94,7 @@ export function Navbar() {
           aria-label="Biota home"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest text-ivory-50 transition-transform duration-700 ease-organic group-hover:rotate-[18deg]">
-            <Leaf className="h-4.5 w-4.5" strokeWidth={1.6} />
+            <Leaf className="h-5 w-5" strokeWidth={1.6} />
           </span>
           <span className="flex flex-col leading-none">
             <span
@@ -138,20 +138,6 @@ export function Navbar() {
             <Languages className="h-3.5 w-3.5" />
             {lang === 'zh' ? 'EN' : '中'}
           </button>
-
-          <div className="hidden md:block">
-            <Link
-              to="/life-data/explore"
-              className={cn(
-                'inline-flex items-center rounded-full border px-5 py-2 text-sm font-medium tracking-wide transition-all duration-500 ease-organic',
-                solid
-                  ? 'border-forest/40 text-forest hover:bg-forest hover:text-ivory-50 hover:border-forest'
-                  : 'border-ivory-50/40 text-ivory-50 hover:bg-ivory-50 hover:text-forest-deep hover:border-ivory-50',
-              )}
-            >
-              {t('brand.cta')}
-            </Link>
-          </div>
 
           {/* Mobile toggle */}
           <button

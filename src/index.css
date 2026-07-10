@@ -125,11 +125,6 @@
   .leading-cn {
     line-height: 1.85;
   }
-  /* Slightly looser tracking for Chinese display headings — adds the
-     "breathable, luxury magazine" spacing CJK benefits from. */
-  .tracking-cn {
-    letter-spacing: 0.04em;
-  }
   /* CJK has no true italic; browsers synthesize an ugly oblique. Use this on
      accent words instead of `italic` so they stay elegant in both languages. */
   .accent {
