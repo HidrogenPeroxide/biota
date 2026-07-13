@@ -330,14 +330,11 @@ export function Landing() {
           variants={stagger}
           initial="hidden"
           animate={index === 3 ? 'show' : 'hidden'}
-          className="container-narrow pointer-events-none relative z-10 mx-auto max-w-2xl text-center"
+          className="container-narrow pointer-events-none relative z-10 mx-auto max-w-5xl text-center"
         >
-          <motion.p variants={item} className="eyebrow text-forest-mist">
-            {t('home.bridge.label')}
-          </motion.p>
           <motion.h2
             variants={item}
-            className="headline mt-4 text-3xl text-charcoal md:text-5xl"
+            className="headline whitespace-pre-line text-3xl text-charcoal md:text-5xl"
           >
             {t('home.bridge.title')}
           </motion.h2>
@@ -350,7 +347,7 @@ export function Landing() {
           <motion.div variants={item} className="mt-10">
             <button
               onClick={handleBridgeEnter}
-              className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-forest/30 px-8 py-4 text-sm font-medium text-forest transition-all duration-500 ease-organic hover:bg-forest hover:text-ivory-50"
+              className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-ochre/50 px-7 py-3 text-sm font-medium text-ochre transition-all duration-500 ease-organic hover:bg-ochre hover:text-ivory"
             >
               {t('home.bridge.cta1')}
               <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />

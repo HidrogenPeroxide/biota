@@ -114,9 +114,9 @@ const en = {
   // ---- Home: bridge into Life Data ----
   'home.bridge.eyebrow': 'From a photograph to a web of life',
   'home.bridge.label': 'Journey complete',
-  'home.bridge.title': 'Every observation becomes part of a larger story.',
-  'home.bridge.support':
-    'The species we met along the way are slowly rising and finding one another — gathering into a living atlas of biodiversity.',
+  'home.bridge.title':
+    '“In every walk with nature\none receives far more than he seeks.”',
+  'home.bridge.support': '— John Muir',
   'home.bridge.cta1': 'Explore Life Data',
   'home.bridge.cta2': 'View the insights',
 
