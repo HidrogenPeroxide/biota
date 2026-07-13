@@ -309,8 +309,8 @@ export function JourneyTimeline({
         </div>
       </div>
 
-      {/* ===== bottom timeline strip ===== */}
-      <div className="container-wide mt-6 md:mt-8">
+      {/* ===== bottom timeline strip (desktop only — mobile uses swipe) ===== */}
+      <div className="container-wide mt-6 hidden md:mt-8 md:block">
         <div
           ref={trackRef}
           onPointerDown={onStripDown}
