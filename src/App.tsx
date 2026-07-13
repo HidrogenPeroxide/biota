@@ -50,7 +50,7 @@ export default function App() {
   const location = useLocation()
 
   return (
-    <div className="flex min-h-screen flex-col bg-ivory">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-ivory">
       <ScrollToTop />
       <Navbar />
       <Routes>

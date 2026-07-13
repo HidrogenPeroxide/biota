@@ -160,71 +160,101 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="overflow-hidden border-t border-stone-light/60 bg-ivory-50 md:hidden"
-          >
-            <div className="container-wide flex flex-col gap-1 py-4">
-              {/* 首页 */}
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) =>
-                  cn(
-                    'rounded-xl px-4 py-3 text-base font-medium transition-colors',
-                    isActive
-                      ? 'bg-forest/8 text-forest'
-                      : 'text-charcoal-soft hover:bg-ivory-200',
-                  )
-                }
-              >
-                {t('nav.home')}
-              </NavLink>
+          <>
+            {/* blurred backdrop — tap to close */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[1300] bg-charcoal/40 backdrop-blur-sm md:hidden"
+            />
+            {/* slide-out panel */}
+            <motion.aside
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed right-0 top-0 z-[1400] flex h-full w-[82vw] max-w-sm flex-col border-l border-stone-light/60 bg-ivory-50 shadow-2xl md:hidden"
+            >
+              <div className="flex items-center justify-between border-b border-stone-light/60 px-5 py-4">
+                <span className="flex items-center gap-2">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-forest text-ivory-50">
+                    <Leaf className="h-4 w-4" strokeWidth={1.6} />
+                  </span>
+                  <span className="font-display text-base font-medium text-charcoal">
+                    {t('brand.name')}
+                  </span>
+                </span>
+                <button
+                  onClick={() => setOpen(false)}
+                  aria-label={t('nav.menu')}
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal-soft hover:bg-ivory-200"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
 
-              {/* 生命数据 (mobile group) */}
-              <p className="mt-2 px-4 pb-1 text-[10px] uppercase tracking-widest-2 text-forest-mist">
-                {t('nav.lifeData')}
-              </p>
-              {LIFE_DATA_ITEMS.map((item) => (
+              <nav className="flex-1 overflow-y-auto px-3 py-4">
                 <NavLink
-                  key={item.to}
-                  to={item.to}
-                  end={item.to === '/life-data'}
+                  to="/"
+                  end
+                  onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      'rounded-xl px-4 py-3 pl-6 text-base font-medium transition-colors',
+                      'block rounded-xl px-4 py-3 text-base font-medium transition-colors',
                       isActive
                         ? 'bg-forest/8 text-forest'
                         : 'text-charcoal-soft hover:bg-ivory-200',
                     )
                   }
                 >
-                  {t(item.labelKey)}
+                  {t('nav.home')}
                 </NavLink>
-              ))}
 
-              {/* 关于 */}
-              <NavLink
-                to="/about"
-                className={({ isActive }) =>
-                  cn(
-                    'mt-2 rounded-xl px-4 py-3 text-base font-medium transition-colors',
-                    isActive
-                      ? 'bg-forest/8 text-forest'
-                      : 'text-charcoal-soft hover:bg-ivory-200',
-                  )
-                }
-              >
-                {t('nav.about')}
-              </NavLink>
-            </div>
-          </motion.div>
+                <p className="mt-4 px-4 pb-1 text-[10px] uppercase tracking-widest-2 text-forest-mist">
+                  {t('nav.lifeData')}
+                </p>
+                {LIFE_DATA_ITEMS.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.to === '/life-data'}
+                    onClick={() => setOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'block rounded-xl px-4 py-3 pl-6 text-base font-medium transition-colors',
+                        isActive
+                          ? 'bg-forest/8 text-forest'
+                          : 'text-charcoal-soft hover:bg-ivory-200',
+                      )
+                    }
+                  >
+                    {t(item.labelKey)}
+                  </NavLink>
+                ))}
+
+                <NavLink
+                  to="/about"
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    cn(
+                      'mt-4 block rounded-xl px-4 py-3 text-base font-medium transition-colors',
+                      isActive
+                        ? 'bg-forest/8 text-forest'
+                        : 'text-charcoal-soft hover:bg-ivory-200',
+                    )
+                  }
+                >
+                  {t('nav.about')}
+                </NavLink>
+              </nav>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
     </header>
