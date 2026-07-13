@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, type Variants } from 'framer-motion'
 import { ArrowRight, ArrowDown, MapPin, X } from 'lucide-react'
 import { HeroSlideshow } from '@/components/shared/HeroSlideshow'
 import { JourneyMap } from '@/components/journey/JourneyMap'
 import { JourneyTimeline } from '@/components/journey/JourneyTimeline'
+import { SpeciesBubbles } from '@/components/home/SpeciesBubbles'
 import { HERO_SLIDES } from '@/data/heroSlides'
 import { useAllJourneyMedia } from '@/hooks/useJourneyMedia'
 import { JOURNEYS, type Journey } from '@/data/journeys'
@@ -38,15 +39,17 @@ const item: Variants = {
 export function Landing() {
   const t = useT()
   const { lang } = useI18n()
+  const navigate = useNavigate()
   const media = useAllJourneyMedia()
   const [selected, setSelected] = useState<Journey | null>(null)
 
   /* ---- presentation deck: one chapter at a time ---- */
   const [index, setIndex] = useState(0)
-  // The Travel Journey chapter is light-themed → switch the navbar to a solid
-  // dark-text variant while it's on screen (and restore on leaving the deck).
+  const [bridgeLeaving, setBridgeLeaving] = useState(false)
+  // The light-themed chapters (Travel Journey + bridge) use a solid, dark-text
+  // navbar; the dark chapters keep the transparent, light-text variant.
   useEffect(() => {
-    setNavTheme(index === 2 ? 'light' : 'dark')
+    setNavTheme(index === 2 || index === 3 ? 'light' : 'dark')
     return () => setNavTheme('dark')
   }, [index])
   const indexRef = useRef(0)
@@ -80,6 +83,12 @@ export function Landing() {
       return
     }
     goTo(indexRef.current + dir)
+  }
+
+  // Leaving the bridge: let the bubbles fade, then enter Life Data.
+  const handleBridgeEnter = () => {
+    setBridgeLeaving(true)
+    window.setTimeout(() => navigate('/life-data'), 650)
   }
 
   useEffect(() => {
@@ -304,68 +313,50 @@ export function Landing() {
         />
       </motion.section>
 
-      {/* ============ 4 · BRIDGE: photograph → web of life ============ */}
+      {/* ============ 4 · BRIDGE: species rising into a living atlas ============ */}
       <motion.section
         variants={sectionVar}
         initial="hidden"
         animate={index === 3 ? 'show' : 'hidden'}
-        className="absolute inset-0 flex items-center overflow-hidden"
+        className="absolute inset-0 flex items-center justify-center overflow-hidden bg-ivory"
         style={{ pointerEvents: index === 3 ? 'auto' : 'none' }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-bark-dark via-forest-deep to-forest" />
-        <div className="container-wide relative z-10 grid items-center gap-12 md:grid-cols-2">
-          {/* Left — the emotional bridge */}
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate={index === 3 ? 'show' : 'hidden'}
-          >
-            <motion.p variants={item} className="eyebrow text-sage">
-              {t('home.bridge.eyebrow')}
-            </motion.p>
-            <motion.h2
-              variants={item}
-              className="headline mt-4 max-w-xl text-4xl text-ivory-50 md:text-6xl"
-            >
-              {t('home.bridge.title')}
-            </motion.h2>
-            <motion.p
-              variants={item}
-              className="mt-6 max-w-md leading-cn text-ivory-50/75"
-            >
-              {t('home.bridge.body')}
-            </motion.p>
-            <motion.div variants={item} className="mt-10">
-              <Link
-                to="/life-data"
-                className="group inline-flex items-center gap-2 rounded-full bg-ivory-50 px-8 py-4 text-sm font-medium text-forest-deep transition-all duration-500 ease-organic hover:bg-ivory-100"
-              >
-                {t('home.bridge.cta1')}
-                <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
-              </Link>
-            </motion.div>
-          </motion.div>
+        {/* floating species bubbles (the only visual) */}
+        <SpeciesBubbles active={index === 3} leaving={bridgeLeaving} />
 
-          {/* Right — a photograph dissolving into a tree-of-life diagram */}
-          <motion.div
+        {/* quiet, centered text — pointer-events-none so bubbles stay
+            hoverable/clickable through the empty space around the text */}
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate={index === 3 ? 'show' : 'hidden'}
+          className="container-narrow pointer-events-none relative z-10 mx-auto max-w-2xl text-center"
+        >
+          <motion.p variants={item} className="eyebrow text-forest-mist">
+            {t('home.bridge.label')}
+          </motion.p>
+          <motion.h2
             variants={item}
-            initial="hidden"
-            animate={index === 3 ? 'show' : 'hidden'}
-            className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[20px] shadow-[0_40px_80px_-34px_rgba(0,0,0,0.7)]"
+            className="headline mt-4 text-3xl text-charcoal md:text-5xl"
           >
-            <img
-              src="/hero/hero-10.jpg"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{
-                opacity: index === 3 ? 0.55 : 1,
-                transition: 'opacity 2.4s cubic-bezier(0.22,1,0.36,1) 0.6s',
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-forest-deep/80 via-forest-deep/30 to-charcoal/40" />
-            <TreeOfLife active={index === 3} />
+            {t('home.bridge.title')}
+          </motion.h2>
+          <motion.p
+            variants={item}
+            className="mx-auto mt-5 max-w-md text-pretty leading-cn text-charcoal-soft"
+          >
+            {t('home.bridge.support')}
+          </motion.p>
+          <motion.div variants={item} className="mt-10">
+            <button
+              onClick={handleBridgeEnter}
+              className="group pointer-events-auto inline-flex items-center gap-2 rounded-full border border-forest/30 px-8 py-4 text-sm font-medium text-forest transition-all duration-500 ease-organic hover:bg-forest hover:text-ivory-50"
+            >
+              {t('home.bridge.cta1')}
+              <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
+            </button>
           </motion.div>
-        </div>
+        </motion.div>
       </motion.section>
 
       {/* Chapter progress dots */}
@@ -387,66 +378,3 @@ export function Landing() {
   )
 }
 
-/**
- * A symbolic "tree of life" line diagram that draws itself when active —
- * the expedition photograph dissolving into the hidden structure of life.
- */
-function TreeOfLife({ active }: { active: boolean }) {
-  const branches = [
-    'M50 180 C50 160 50 150 50 138',
-    'M50 150 C40 130 30 110 22 86',
-    'M22 86 C20 70 18 58 16 44',
-    'M50 150 C60 130 70 110 78 86',
-    'M78 86 C80 70 82 58 84 44',
-    'M50 138 C46 110 42 86 38 60',
-    'M38 60 C36 48 34 38 32 26',
-    'M50 138 C54 110 58 86 62 60',
-    'M62 60 C64 48 66 38 68 26',
-    'M50 124 C50 96 50 70 50 44',
-  ]
-  const tips = [
-    [16, 44], [84, 44], [32, 26], [68, 26], [50, 44], [22, 86], [78, 86],
-  ]
-  return (
-    <svg
-      viewBox="0 0 100 200"
-      preserveAspectRatio="xMidYMid meet"
-      className="absolute inset-0 h-full w-full"
-      aria-hidden="true"
-    >
-      <g
-        fill="none"
-        stroke="#e0b15e"
-        strokeLinecap="round"
-        strokeWidth="0.7"
-        style={{ opacity: active ? 0.85 : 0, transition: 'opacity 1.6s ease 0.4s' }}
-      >
-        {branches.map((d, i) => (
-          <motion.path
-            key={i}
-            d={d}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: active ? 1 : 0 }}
-            transition={{ duration: 1.8, delay: 0.5 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
-          />
-        ))}
-      </g>
-      <g fill="#f4dca0">
-        {tips.map(([cx, cy], i) => (
-          <motion.circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            r="1.5"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{
-              opacity: active ? 0.95 : 0,
-              scale: active ? 1 : 0,
-            }}
-            transition={{ duration: 0.6, delay: 0.6 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
-          />
-        ))}
-      </g>
-    </svg>
-  )
-}

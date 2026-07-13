@@ -254,6 +254,16 @@
   display: none;
 }
 
+/* Floating species orb (homepage bridge). */
+.species-orb {
+  opacity: 0.6;
+  box-shadow: 0 0 22px rgba(224, 177, 94, 0.18), inset 0 0 18px rgba(224, 177, 94, 0.12);
+}
+.group:hover .species-orb {
+  opacity: 1;
+  box-shadow: 0 0 40px rgba(224, 177, 94, 0.45), inset 0 0 22px rgba(224, 177, 94, 0.22);
+}
+
 /* Light paper texture for the Travel Journey (editorial) chapter. */
 .timeline-paper::before {
   content: '';

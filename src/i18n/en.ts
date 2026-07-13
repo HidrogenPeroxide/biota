@@ -113,10 +113,11 @@ const en = {
 
   // ---- Home: bridge into Life Data ----
   'home.bridge.eyebrow': 'From a photograph to a web of life',
-  'home.bridge.title': 'Every encounter is part of a larger picture',
-  'home.bridge.body':
-    'A bird, a call, a moment of stopping to look — alone, it is only an instant. But when thousands of encounters are linked, an invisible web of life slowly appears. We move from photograph to record, from record to relationship, from relationship to understanding.',
-  'home.bridge.cta1': 'Enter the Life Data',
+  'home.bridge.label': 'Journey complete',
+  'home.bridge.title': 'Every observation becomes part of a larger story.',
+  'home.bridge.support':
+    'The species we met along the way are slowly rising and finding one another — gathering into a living atlas of biodiversity.',
+  'home.bridge.cta1': 'Explore Life Data',
   'home.bridge.cta2': 'View the insights',
 
   // ---- Journey detail page ----

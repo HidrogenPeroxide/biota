@@ -115,9 +115,10 @@ const zh = {
 
   // ---- Home: bridge into Life Data ----
   'home.bridge.eyebrow': '从一张照片，到一张生命之网',
-  'home.bridge.title': '每一次相遇，都是更大图景的一部分',
-  'home.bridge.body':
-    '一只鸟、一声鸟鸣、一次停下脚步的凝视——单看时，它只是一瞬。可当千百次相遇彼此相连，一张隐形的生命之网便缓缓浮现。我们从照片走向记录，从记录走向关系，从关系走向理解。',
+  'home.bridge.label': '旅程告一段落',
+  'home.bridge.title': '每一次观察，都汇入更大的故事。',
+  'home.bridge.support':
+    '一路上遇见的物种，正缓缓浮起、彼此相连，汇成一座活着的生物多样性图集。',
   'home.bridge.cta1': '走进生命数据',
   'home.bridge.cta2': '查看数据洞察',
 
