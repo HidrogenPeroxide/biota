@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
 import { useT } from '@/i18n'
@@ -40,6 +39,8 @@ const cardVariants: Variants = {
 }
 const cardSpring = { type: 'spring', stiffness: 240, damping: 30, mass: 0.9 }
 const textEase = [0.22, 1, 0.36, 1] as const
+// A motion-enabled Link so the photo card can animate (incl. exit) AND navigate.
+const MotionLink = motion(Link)
 
 /**
  * The narrative backbone of the homepage — a light, editorial expedition
@@ -195,7 +196,7 @@ export function JourneyTimeline({
       <div className="container-wide grid flex-1 gap-8 md:grid-cols-[5fr_7fr] md:items-center md:gap-14">
         {/* ===== Left: field-journal text ===== */}
         <div
-          className="order-2 flex flex-col justify-center md:order-1"
+          className="order-2 flex flex-col justify-center pb-10 md:order-1 md:pb-24"
           style={{ touchAction: 'pan-y' }}
           onPointerDown={onSwipeDown}
           onPointerUp={onSwipeUp}
@@ -209,23 +210,25 @@ export function JourneyTimeline({
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.5, ease: textEase }}
             >
-              <p className="eyebrow text-ochre">{t('journey.fieldJournal')}</p>
+              <p className="eyebrow hidden text-ochre md:block">
+                {t('journey.fieldJournal')}
+              </p>
               <div className="mt-3 flex items-baseline gap-3">
                 <span className="font-display text-2xl font-medium text-ochre">
                   {dayLabel}
                 </span>
-                <span className="h-px flex-1 bg-stone-light" />
+                <span className="hidden h-px flex-1 bg-stone-light md:block" />
               </div>
               <h3 className="headline mt-3 text-4xl text-charcoal md:text-5xl">
                 {j.location[lang]}
               </h3>
-              <p className="mt-2 text-sm italic text-charcoal-soft">
+              <p className="mt-2 hidden text-sm italic text-charcoal-soft md:block">
                 {j.region[lang]} · {j.date}
                 {species > 0 &&
                   ` · ${formatCompact(species)} ${lang === 'zh' ? '物种' : 'species'}`}
               </p>
 
-              <div className="mt-6 max-w-prose space-y-4">
+              <div className="mt-6 hidden max-w-prose space-y-4 md:block">
                 {paragraphs.map((p, i) => (
                   <p
                     key={i}
@@ -234,16 +237,6 @@ export function JourneyTimeline({
                     {p[lang]}
                   </p>
                 ))}
-              </div>
-
-              <div className="mt-8">
-                <Link
-                  to={`/journey/${j.slug}`}
-                  className="group inline-flex items-center gap-2 rounded-full border border-ochre/50 px-7 py-3 text-sm font-medium text-ochre transition-all duration-500 ease-organic hover:bg-ochre hover:text-ivory"
-                >
-                  {t('home.journey.readStory')}
-                  <ArrowRight className="h-4 w-4 transition-transform duration-500 ease-organic group-hover:translate-x-1" />
-                </Link>
               </div>
             </motion.div>
           </AnimatePresence>
@@ -283,9 +276,10 @@ export function JourneyTimeline({
             )
           })}
 
-          {/* active photo card */}
+          {/* active photo card — click to read the full journal */}
           <AnimatePresence custom={dir} initial={false}>
-            <motion.div
+            <MotionLink
+              to={`/journey/${j.slug}`}
               key={j.slug}
               custom={dir}
               variants={cardVariants}
@@ -293,7 +287,7 @@ export function JourneyTimeline({
               animate="center"
               exit="exit"
               transition={cardSpring}
-              className="absolute inset-0 z-30 overflow-hidden rounded-[20px] border border-stone-light/70 bg-ivory-100 shadow-[0_40px_80px_-34px_rgba(38,36,31,0.55)]"
+              className="absolute inset-0 z-30 cursor-pointer overflow-hidden rounded-[20px] border border-stone-light/70 bg-ivory-100 shadow-[0_40px_80px_-34px_rgba(38,36,31,0.55)]"
             >
               <motion.img
                 key={cover ?? 'none'}
@@ -310,7 +304,7 @@ export function JourneyTimeline({
               <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/65 font-display text-base font-semibold text-ivory-50 backdrop-blur-sm">
                 {j.day}
               </span>
-            </motion.div>
+            </MotionLink>
           </AnimatePresence>
         </div>
       </div>
