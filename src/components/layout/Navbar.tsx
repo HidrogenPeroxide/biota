@@ -261,8 +261,8 @@ function LifeDataDropdown({ solid }: { solid: boolean }) {
       }}
       onMouseLeave={scheduleClose}
     >
-      <button
-        onClick={() => setOpen((v) => !v)}
+      <Link
+        to="/life-data"
         onFocus={() => {
           cancelClose()
           setOpen(true)
@@ -295,7 +295,7 @@ function LifeDataDropdown({ solid }: { solid: boolean }) {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           />
         )}
-      </button>
+      </Link>
 
       <AnimatePresence>
         {open && (
