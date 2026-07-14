@@ -191,7 +191,7 @@ export function JourneyTimeline({
   return (
     <div
       ref={rootRef}
-      className="timeline-paper relative flex h-full select-none flex-col bg-ivory py-14 md:py-20"
+      className="timeline-paper relative flex h-full select-none flex-col bg-ivory pt-24 pb-14 md:py-20"
     >
       <div className="container-wide grid flex-1 gap-8 md:grid-cols-[5fr_7fr] md:items-center md:gap-14">
         {/* ===== Left: field-journal text ===== */}
