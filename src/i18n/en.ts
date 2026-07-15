@@ -154,7 +154,7 @@ const en = {
 
   // ---- About (documentary epilogue) ----
   'about.eyebrow': 'About',
-  'about.hero.title': 'About Biota',
+  'about.hero.title': 'About Us',
   'about.hero.subtitle': 'Every observation becomes the beginning of another journey.',
   'about.vlog.eyebrow': 'Before the expedition',
   'about.vlog.title': 'Sanjiangyuan · Before the expedition',

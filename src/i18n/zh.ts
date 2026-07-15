@@ -154,7 +154,7 @@ const zh = {
 
   // ---- About (documentary epilogue) ----
   'about.eyebrow': '关于',
-  'about.hero.title': '关于 Biota',
+  'about.hero.title': '关于 我们',
   'about.hero.subtitle': '每一次观察，都是另一段旅程的开始。',
   'about.vlog.eyebrow': '出发之前',
   'about.vlog.title': '三江源 · 出发之前',
