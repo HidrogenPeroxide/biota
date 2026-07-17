@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
+import { FieldNote } from '@/components/easter-egg/FieldNote'
+import { fieldNoteStore } from '@/lib/fieldNoteStore'
 import { Landing } from '@/pages/Landing'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -49,6 +51,64 @@ const lazied = (el: React.ReactElement) => (
 export default function App() {
   const location = useLocation()
 
+  /* ---- Hidden field-note discovery tracking (quiet, never advertised) ---- */
+  const speciesSeen = useRef(new Set<string>())
+  const sectionsSeen = useRef(new Set<string>())
+  useEffect(() => {
+    const p = location.pathname
+    // #003 Field Naturalist — open several different species pages
+    if (p.startsWith('/life-data/species/')) {
+      speciesSeen.current.add(p)
+      if (speciesSeen.current.size >= 5) fieldNoteStore.discover('003')
+    }
+    // #004 Hidden Trail — visit Home → Journey → Life Data → About
+    const sec =
+      p === '/'
+        ? 'home'
+        : p.startsWith('/journey/')
+          ? 'journey'
+          : p.startsWith('/life-data')
+            ? 'lifedata'
+            : p === '/about'
+              ? 'about'
+              : null
+    if (sec) {
+      sectionsSeen.current.add(sec)
+      if (sectionsSeen.current.size >= 4) fieldNoteStore.discover('004')
+    }
+  }, [location.pathname])
+
+  // #002 Patient Observer — stay quietly on a journey page for a while
+  useEffect(() => {
+    if (!location.pathname.startsWith('/journey/')) return
+    let timer = window.setTimeout(() => fieldNoteStore.discover('002'), 40000)
+    const reset = () => {
+      clearTimeout(timer)
+      timer = window.setTimeout(() => fieldNoteStore.discover('002'), 40000)
+    }
+    const evts = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart']
+    evts.forEach((e) => window.addEventListener(e, reset, { passive: true }))
+    return () => {
+      clearTimeout(timer)
+      evts.forEach((e) => window.removeEventListener(e, reset))
+    }
+  }, [location.pathname])
+
+  // Dev-only: Cmd/Ctrl+Shift+E reveals every field note (for previewing).
+  useEffect(() => {
+    if (!(import.meta as { env?: { DEV?: boolean } }).env?.DEV) return
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
+        e.preventDefault()
+        ;(['001', '002', '003', '004'] as const).forEach((id) =>
+          fieldNoteStore.discover(id),
+        )
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <div className="flex min-h-screen flex-col overflow-x-hidden bg-ivory">
       <ScrollToTop />
@@ -78,6 +138,8 @@ export default function App() {
       </Routes>
       {/* The home page is an immersive full-screen deck — no footer there. */}
       {location.pathname !== '/' && <Footer />}
+      {/* Hidden easter egg — revealed by double-clicking the logo. */}
+      <FieldNote />
     </div>
   )
 }

@@ -321,6 +321,22 @@ const en = {
   'label.obs': 'obs',
   'label.observedBy': 'Observed by {name}',
   'label.wildlife': 'Wildlife',
+
+  // ---- Hidden field notes archive (easter egg) ----
+  'archive.title': 'Field Notes Archive',
+  'archive.subtitle': 'Some observations were never included in the official expedition journal.',
+  'archive.progressLabel': 'Field Notes Discovered',
+  'archive.remaining': 'Some pages remain hidden.',
+  'archive.locked': 'Contents unavailable',
+  'archive.noteLabel': 'Field Note #{n}',
+  'note.001.title': 'Curious Explorer',
+  'note.001.desc': 'You double-clicked the Biota logo and uncovered the hidden archive. This record celebrates curiosity.',
+  'note.002.title': 'Patient Observer',
+  'note.002.desc': 'The best observations often come to those willing to wait.',
+  'note.003.title': 'Field Naturalist',
+  'note.003.desc': 'Knowledge grows one observation at a time.',
+  'note.004.title': 'Hidden Trail',
+  'note.004.desc': 'Every expedition leaves traces beyond the map.',
 } as const
 
 export type Dict = typeof en

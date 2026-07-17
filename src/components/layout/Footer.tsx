@@ -58,7 +58,6 @@ export function Footer() {
       <div className="border-t border-ivory-50/10">
         <div className="container-wide flex flex-col items-center justify-between gap-3 py-6 text-xs text-ivory-50/50 sm:flex-row">
           <p>{t('footer.copyright', { year: new Date().getFullYear() })}</p>
-          <p>{t('footer.tagline2')}</p>
         </div>
       </div>
     </footer>

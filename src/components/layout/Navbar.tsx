@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Leaf, Menu, X, Languages, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getNavTheme, subscribeNavTheme } from '@/lib/navTheme'
+import { fieldNoteStore } from '@/lib/fieldNoteStore'
 import { useI18n, useT } from '@/i18n'
 
 const LIFE_DATA_ITEMS = [
@@ -29,6 +30,25 @@ export function Navbar() {
   const location = useLocation()
   const t = useT()
   const { lang, toggleLang } = useI18n()
+
+  // Hidden easter egg: double-click the logo (within ~350ms) to reveal a
+  // secret field note. Single clicks still navigate home normally. A 2s
+  // cooldown prevents accidental re-triggers.
+  const lastClickRef = useRef(0)
+  const lastEggRef = useRef(0)
+  const onLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const now = Date.now()
+    if (now - lastClickRef.current < 350) {
+      lastClickRef.current = 0
+      if (now - lastEggRef.current > 2000) {
+        lastEggRef.current = now
+        const r = e.currentTarget.getBoundingClientRect()
+        fieldNoteStore.open(r.left + r.width / 2, r.top + r.height / 2)
+      }
+    } else {
+      lastClickRef.current = now
+    }
+  }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -90,6 +110,7 @@ export function Navbar() {
       <nav className="container-wide flex h-[72px] items-center justify-between">
         <Link
           to="/"
+          onClick={onLogoClick}
           className="group flex items-center gap-2.5"
           aria-label="Biota home"
         >

@@ -317,6 +317,22 @@ const zh = {
   'label.obs': '次观察',
   'label.observedBy': '由 {name} 观察到',
   'label.wildlife': '野生动物',
+
+  // ---- Hidden field notes archive (easter egg) ----
+  'archive.title': '野外手记档案',
+  'archive.subtitle': '有些观察，从未被写进正式的远征日志。',
+  'archive.progressLabel': '已发现的野外手记',
+  'archive.remaining': '仍有一些篇章，尚未显现。',
+  'archive.locked': '内容暂未显现',
+  'archive.noteLabel': '野外手记 #{n}',
+  'note.001.title': '好奇的探索者',
+  'note.001.desc': '你双击了清溯江源的标志，发现了这份隐藏的档案。这一页，献给好奇心。',
+  'note.002.title': '耐心的观察者',
+  'note.002.desc': '最好的观察，常常属于愿意等待的人。',
+  'note.003.title': '田野博物者',
+  'note.003.desc': '知识在一次次观察中悄悄生长。',
+  'note.004.title': '隐秘的小径',
+  'note.004.desc': '每一次远征，都在地图之外留下痕迹。',
 } as const
 
 export type Dict = typeof zh
