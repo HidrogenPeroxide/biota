@@ -6,13 +6,13 @@ import { useT } from '@/i18n'
 const ease = [0.22, 1, 0.36, 1] as const
 
 /**
- * Hidden "Field Notes Archive" — a notebook of expedition records discovered
- * while exploring the site. Calm, museum-archive in tone; never game-like.
- * Revealed by double-clicking the Biota logo.
+ * Hidden "Field Notes Archive" — a notebook of expedition records that gains
+ * new pages only as the visitor discovers them. Undiscovered notes are never
+ * revealed: no placeholders, no counter, no total. Entries appear in the
+ * order they were found, so the archive becomes a personal record of the
+ * visitor's own exploration.
  *
- * - Discovered cards show their icon + title; clicking opens the full note in
- *   a floating detail card.
- * - Undiscovered cards reveal only their number — a quiet, mysterious page.
+ * Revealed by double-clicking the Biota logo.
  */
 export function FieldNote() {
   const t = useT()
@@ -31,13 +31,11 @@ export function FieldNote() {
     return () => window.removeEventListener('keydown', onKey)
   }, [snap.open, detail])
 
-  // Reset the detail popup whenever the archive closes.
   useEffect(() => {
     if (!snap.open) setDetail(null)
   }, [snap.open])
 
-  const discovered = fieldNoteStore.count()
-  const total = fieldNoteStore.total
+  const found = fieldNoteStore.discoveredList() // chronological order
   const detailNote = detail ? NOTES.find((n) => n.id === detail) : null
 
   return (
@@ -51,7 +49,6 @@ export function FieldNote() {
           transition={{ duration: 0.45, ease }}
           onClick={fieldNoteStore.close}
         >
-          {/* dimmed, blurred backdrop */}
           <div className="absolute inset-0 bg-charcoal/55 backdrop-blur-md" />
 
           {/* golden ripple from the logo */}
@@ -73,7 +70,7 @@ export function FieldNote() {
             exit={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
             transition={{ duration: 0.65, ease, delay: 0.1 }}
             onClick={(e) => e.stopPropagation()}
-            className="field-note-paper relative w-full max-w-2xl overflow-hidden rounded-[18px] border border-stone-light/70 bg-ivory-50 px-6 py-9 shadow-[0_40px_90px_-30px_rgba(38,36,31,0.6)] md:px-10 md:py-11"
+            className="field-note-paper relative w-full max-w-xl overflow-hidden rounded-[18px] border border-stone-light/70 bg-ivory-50 px-6 py-9 shadow-[0_40px_90px_-30px_rgba(38,36,31,0.6)] md:px-10 md:py-11"
           >
             {/* header */}
             <div className="text-center">
@@ -86,34 +83,49 @@ export function FieldNote() {
               <div className="mx-auto mt-4 h-px w-12 bg-ochre/50" />
             </div>
 
-            {/* 2×2 grid of archive cards */}
-            <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {NOTES.map((note, i) => (
-                <ArchiveCard
-                  key={note.id}
-                  index={i + 1}
-                  icon={note.icon}
-                  title={t(note.titleKey)}
-                  revealed={fieldNoteStore.isDiscovered(note.id)}
-                  onOpen={() => setDetail(note.id)}
-                />
-              ))}
-            </div>
-
-            {/* progress */}
-            <div className="mt-8 border-t border-stone-light/60 pt-5 text-center">
-              <p className="font-display text-lg text-charcoal">
-                {t('archive.progressLabel')}{' '}
-                <span className="text-ochre">
-                  {discovered} / {total}
-                </span>
-              </p>
-              {discovered < total && (
-                <p className="mt-1 text-xs italic leading-cn text-charcoal-soft/70">
-                  {t('archive.remaining')}
+            {/* discovered entries (chronological) — or the quiet empty state */}
+            {found.length === 0 ? (
+              <div className="mt-9 text-center">
+                <p className="text-pretty leading-cn text-[15px] text-charcoal-soft">
+                  {t('archive.empty')}
                 </p>
-              )}
-            </div>
+                <p className="mt-2 text-pretty leading-cn text-[15px] italic text-charcoal-soft/70">
+                  {t('archive.keepExploring')}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-7 flex flex-col gap-3">
+                <AnimatePresence initial={false}>
+                  {found.map((id) => {
+                    const note = NOTES.find((n) => n.id === id)
+                    if (!note) return null
+                    return (
+                      <motion.button
+                        key={id}
+                        type="button"
+                        layout
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, ease }}
+                        whileHover={{ y: -3 }}
+                        onClick={() => setDetail(id)}
+                        className="group relative flex w-full items-start gap-4 rounded-2xl border border-stone-light/70 bg-ivory px-5 py-4 text-left shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] transition-shadow duration-500 hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]"
+                      >
+                        <NoteIcon kind={note.icon} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[10px] font-medium uppercase tracking-widest-2 text-forest-mist">
+                            {t('archive.noteLabel', { n: Number(id) })}
+                          </p>
+                          <h3 className="mt-1 font-display text-lg leading-tight text-charcoal">
+                            {t(note.titleKey)}
+                          </h3>
+                        </div>
+                      </motion.button>
+                    )
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </motion.div>
 
           {/* floating detail card for a discovered note */}
@@ -156,51 +168,6 @@ export function FieldNote() {
         </motion.div>
       )}
     </AnimatePresence>
-  )
-}
-
-function ArchiveCard({
-  index,
-  icon,
-  title,
-  revealed,
-  onOpen,
-}: {
-  index: number
-  icon: 'compass' | 'feather' | 'leaf' | 'map'
-  title: string
-  revealed: boolean
-  onOpen: () => void
-}) {
-  const t = useT()
-  if (!revealed) {
-    // Undiscovered — only the number; quiet and mysterious.
-    return (
-      <div className="relative rounded-2xl border border-stone-light/50 bg-ivory/60 px-5 py-6">
-        <p className="text-[10px] font-medium uppercase tracking-widest-2 text-charcoal-soft/40">
-          {t('archive.noteLabel', { n: index })}
-        </p>
-      </div>
-    )
-  }
-  return (
-    <motion.button
-      type="button"
-      onClick={onOpen}
-      whileHover={{ y: -3 }}
-      transition={{ duration: 0.4, ease }}
-      className="group relative flex w-full items-start gap-4 rounded-2xl border border-stone-light/70 bg-ivory px-5 py-5 text-left shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] transition-shadow duration-500 hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]"
-    >
-      <NoteIcon kind={icon} />
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-medium uppercase tracking-widest-2 text-forest-mist">
-          {t('archive.noteLabel', { n: index })}
-        </p>
-        <h3 className="mt-1 font-display text-lg leading-tight text-charcoal">
-          {title}
-        </h3>
-      </div>
-    </motion.button>
   )
 }
 

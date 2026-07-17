@@ -33,7 +33,9 @@ interface Snapshot {
   rev: number
 }
 
-let discovered: Set<NoteId> = loadDiscovered()
+// Discovered notes, in the order they were found (a personal record of the
+// visitor's exploration history — never sorted by id).
+let discovered: NoteId[] = loadDiscovered()
 let open = false
 let x = 0
 let y = 0
@@ -41,20 +43,21 @@ let rev = 0
 let snapshot: Snapshot = { open, x, y, rev }
 const listeners = new Set<() => void>()
 
-function loadDiscovered(): Set<NoteId> {
+function loadDiscovered(): NoteId[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return new Set()
+    if (!raw) return []
     const arr = JSON.parse(raw) as NoteId[]
-    return new Set(arr.filter((n) => NOTES.some((nn) => nn.id === n)))
+    const valid = new Set(NOTES.map((n) => n.id))
+    return arr.filter((n) => valid.has(n))
   } catch {
-    return new Set()
+    return []
   }
 }
 
 function persist() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([...discovered]))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(discovered))
   } catch {
     /* ignore */
   }
@@ -81,18 +84,19 @@ export const fieldNoteStore = {
     emit()
   },
 
-  /** Mark a note discovered (no-op if already). Returns true if newly added. */
+  /** Mark a note discovered, appended in discovery order. No-op if already. */
   discover: (id: NoteId): boolean => {
-    if (discovered.has(id)) return false
-    discovered.add(id)
+    if (discovered.includes(id)) return false
+    discovered.push(id)
     persist()
     rev++
     emit()
     return true
   },
-  isDiscovered: (id: NoteId): boolean => discovered.has(id),
-  count: (): number => discovered.size,
-  total: NOTES.length,
+  /** Ordered list of discovered note ids (chronological discovery order). */
+  discoveredList: (): NoteId[] => discovered,
+  isDiscovered: (id: NoteId): boolean => discovered.includes(id),
+  count: (): number => discovered.length,
 
   subscribe: (l: () => void): (() => void) => {
     listeners.add(l)
@@ -101,3 +105,4 @@ export const fieldNoteStore = {
     }
   },
 }
+
