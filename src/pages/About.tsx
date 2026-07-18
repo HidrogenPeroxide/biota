@@ -1,10 +1,9 @@
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Play, ArrowUpRight } from 'lucide-react'
 import { PageTransition } from '@/components/motion/PageTransition'
 import { Reveal } from '@/components/motion/Reveal'
 import { useI18n, useT } from '@/i18n'
-import { UPDATES, VLOG, GROUP_PHOTO } from '@/data/updates'
+import { UPDATES, VLOG } from '@/data/updates'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -156,80 +155,13 @@ export function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
               transition={{ duration: 0.9, ease }}
-              className="mt-8 text-pretty text-xl leading-cn text-charcoal-soft md:text-2xl"
+              className="mt-8 text-pretty leading-cn text-base text-charcoal-soft md:text-lg"
             >
               {t('about.thanks.body')}
             </motion.p>
           </Reveal>
-
-          <Reveal delay={0.1} className="mt-14">
-            <img
-              src={GROUP_PHOTO}
-              alt=""
-              className="aspect-[16/9] w-full rounded-[20px] object-cover shadow-[0_40px_80px_-34px_rgba(38,36,31,0.5)]"
-            />
-          </Reveal>
-        </section>
-
-        {/* ===== 5 · DATA & CREDITS ===== */}
-        <section className="border-t border-stone-light/50 bg-ivory-50 py-24 md:py-28">
-          <div className="container-narrow">
-            <Reveal className="max-w-2xl">
-              <p className="eyebrow text-forest-mist">
-                {t('about.credits.eyebrow')}
-              </p>
-              <h2 className="headline mt-3 text-3xl text-charcoal md:text-4xl">
-                {t('about.credits.title')}
-              </h2>
-            </Reveal>
-
-            <div className="mt-12 grid gap-4 md:grid-cols-2">
-              <CreditCard title={t('about.credits.inatTitle')}>
-                {t('about.credits.inatBody', { inat: t('about.credits.inat') })}
-              </CreditCard>
-              <CreditCard title={t('about.credits.photoTitle')}>
-                {t('about.credits.photoBody')}
-              </CreditCard>
-              <CreditCard title={t('about.credits.techTitle')}>
-                {t('about.credits.techBody')}
-              </CreditCard>
-              <CreditCard title={t('about.credits.repo')}>
-                <Link
-                  to="/life-data"
-                  className="link-underline text-forest transition-colors hover:text-forest-deep"
-                >
-                  sanjiangyuan.thusls.org
-                </Link>
-              </CreditCard>
-            </div>
-
-            <Reveal delay={0.1}>
-              <p className="mt-12 text-center text-xs leading-cn text-charcoal-soft/70">
-                {t('footer.copyright', { year: new Date().getFullYear() })}
-              </p>
-            </Reveal>
-          </div>
         </section>
       </div>
     </PageTransition>
-  )
-}
-
-function CreditCard({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <Reveal>
-      <div className="h-full rounded-2xl border border-stone-light/60 bg-ivory p-6">
-        <p className="text-xs font-medium uppercase tracking-widest-2 text-forest-mist">
-          {title}
-        </p>
-        <p className="mt-3 text-sm leading-cn text-charcoal-soft">{children}</p>
-      </div>
-    </Reveal>
   )
 }
