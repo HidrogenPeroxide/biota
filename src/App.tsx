@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import { lazy, Suspense, useEffect, useRef } from 'react'
 
 import { Navbar } from '@/components/layout/Navbar'
@@ -137,7 +137,7 @@ export default function App() {
         <Route path="/explore" element={<Navigate to="/life-data/explore" replace />} />
         <Route path="/map" element={<Navigate to="/life-data/map" replace />} />
         <Route path="/statistics" element={<Navigate to="/life-data/stats" replace />} />
-        <Route path="/species/:id" element={<Navigate to="/life-data/species/:id" replace />} />
+        <Route path="/species/:id" element={<LegacySpeciesRedirect />} />
 
         <Route path="*" element={lazied(<NotFound />)} />
       </Routes>
@@ -147,4 +147,10 @@ export default function App() {
       <FieldNote />
     </div>
   )
+}
+
+/** Carry the id over for the legacy /species/:id → /life-data/species/:id. */
+function LegacySpeciesRedirect() {
+  const { id } = useParams()
+  return <Navigate to={`/life-data/species/${id}`} replace />
 }

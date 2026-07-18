@@ -137,7 +137,7 @@ export function SpeciesPanel({
                         }}
                       >
                         <Link
-                          to={`/species/${row.taxon.id}`}
+                          to={`/life-data/species/${row.taxon.id}`}
                           className="group flex items-center gap-4 py-4"
                         >
                           <LazyImage
