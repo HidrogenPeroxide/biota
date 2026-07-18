@@ -94,15 +94,20 @@ export default function App() {
     }
   }, [location.pathname])
 
-  // Dev-only: Cmd/Ctrl+Shift+E reveals every field note (for previewing).
+  // Dev-only: Cmd/Ctrl+Shift+E reveals every field note; Shift+R clears them.
   useEffect(() => {
     if (!(import.meta as { env?: { DEV?: boolean } }).env?.DEV) return
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'E' || e.key === 'e')) {
+      if (!(e.metaKey || e.ctrlKey) || !e.shiftKey) return
+      const k = e.key.toLowerCase()
+      if (k === 'e') {
         e.preventDefault()
         ;(['001', '002', '003', '004'] as const).forEach((id) =>
           fieldNoteStore.discover(id),
         )
+      } else if (k === 'r') {
+        e.preventDefault()
+        fieldNoteStore.clear()
       }
     }
     window.addEventListener('keydown', onKey)

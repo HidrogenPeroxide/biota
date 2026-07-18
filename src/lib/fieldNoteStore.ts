@@ -98,6 +98,14 @@ export const fieldNoteStore = {
   isDiscovered: (id: NoteId): boolean => discovered.includes(id),
   count: (): number => discovered.length,
 
+  /** Clear every discovered note (dev reset). */
+  clear: () => {
+    discovered = []
+    persist()
+    rev++
+    emit()
+  },
+
   subscribe: (l: () => void): (() => void) => {
     listeners.add(l)
     return () => {

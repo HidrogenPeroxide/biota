@@ -137,7 +137,12 @@ export function FieldNote() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.35, ease }}
-                onClick={() => setDetail(null)}
+                onClick={(e) => {
+                  // Only close the detail popup — never bubble up to the
+                  // archive's outside-click (which would close the archive).
+                  e.stopPropagation()
+                  setDetail(null)
+                }}
               >
                 <div className="absolute inset-0 bg-charcoal/30 backdrop-blur-sm" />
                 <motion.div
