@@ -49,14 +49,14 @@ const zh = {
   'home.hero.scroll': '向下滚动',
 
   // ---- Landing / stats ----
-  'home.stats.observations': '观察记录',
-  'home.stats.observationsSub': '公民科学数据条目',
-  'home.stats.species': '物种',
-  'home.stats.speciesSub': '仍有无数未知',
-  'home.stats.naturalists': '博物者',
-  'home.stats.naturalistsSub': '正在凝视荒野的人',
-  'home.stats.places': '地点',
-  'home.stats.placesSub': '遍布星球各处',
+  'home.stats.observations': '条观察记录',
+  'home.stats.observationsSub': '',
+  'home.stats.species': '个物种',
+  'home.stats.speciesSub': '',
+  'home.stats.naturalists': '个博物者',
+  'home.stats.naturalistsSub': '',
+  'home.stats.places': '处地点',
+  'home.stats.placesSub': '',
   'home.stats.fallbackNote': '展示代表性数据——实时总量暂时不可用。',
 
   // ---- Landing / narrative ----
@@ -118,7 +118,7 @@ const zh = {
   'home.bridge.label': '旅程告一段落',
   'home.bridge.title': '每一次观察，都汇入更大的故事。',
   'home.bridge.support':
-    '一路上遇见的物种，正缓缓浮起、彼此相连，汇成一座活着的生物多样性图集。',
+    '那些旅途中遇见的名字，正缓缓浮起，彼此相连，织就一张生命之网。',
   'home.bridge.cta1': '走进生命数据',
   'home.bridge.cta2': '查看数据洞察',
 
@@ -155,7 +155,7 @@ const zh = {
   // ---- About (documentary epilogue) ----
   'about.eyebrow': '关于',
   'about.hero.title': '关于 我们',
-  'about.hero.subtitle': '每一次观察，都是另一段旅程的开始。',
+  'about.hero.subtitle': '"山似翠，酒如油，醉眼看山百自由。"',
   'about.vlog.eyebrow': '出发之前',
   'about.vlog.title': '三江源 · 出发之前',
   'about.vlog.desc':
