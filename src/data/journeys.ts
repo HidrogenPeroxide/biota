@@ -1,14 +1,9 @@
 /**
- * The field expeditions that sit behind every observation.
+ * The 2026 Sanjiangyuan field expedition — real itinerary.
+ * Xining → Yushu → Zaduo → Yangtze Source → Angsai → Zhaqing.
  *
- * This is the storytelling spine of the homepage: each entry is one day /
- * one chapter of a journey. Content here is bilingual placeholder prose for
- * now — replace with real diary text and dates. Cover photos and the
- * "species observed that day" are fetched live from iNaturalist by location,
- * so imagery and species lists are always real.
- *
- * The example route traces an expedition toward Sanjiangyuan — the source
- * region of the Yangtze, Yellow and Mekong rivers.
+ * Diary text is bilingual placeholder; replace with real field notes.
+ * Cover photos and species are fetched live from iNaturalist by location.
  */
 
 export interface Bilingual {
@@ -17,217 +12,189 @@ export interface Bilingual {
 }
 
 export interface Journey {
-  /** URL-safe id, e.g. "day-3-sanjiangyuan". */
   slug: string
-  /** Sequential chapter number, shown on the marker + card. */
   day: number
   location: Bilingual
-  /** Short qualifier under the location name. */
   region: Bilingual
   coords: [number, number]
-  /** ISO date (placeholder field-season dates — replace with real ones). */
-  date: string
-  /** One-line teaser for the preview card + chapter grid. */
+  date: Bilingual
   intro: Bilingual
-  /** Long-form diary paragraphs. */
   diary: Bilingual[]
-  /** Memorable moments, shown as a short list. */
   moments: Bilingual[]
-  /** Approximate weather (optional, editorial flavor). */
   weather: { tempC: number; condition: Bilingual }
-  /** Elevation in metres where notable (plateau chapters). */
   elevation?: number
-  /** Mark the flagship chapter that gets the homepage spotlight. */
   spotlight?: boolean
 }
 
 export const JOURNEYS: Journey[] = [
   {
-    slug: 'day-1-beijing',
+    slug: 'day-1-xining',
     day: 1,
-    location: { zh: '北京', en: 'Beijing' },
-    region: { zh: '华北平原 · 起点', en: 'North China Plain · Departure' },
-    coords: [39.9042, 116.4074],
-    date: '2025-07-10',
+    location: { zh: '西宁', en: 'Xining' },
+    region: { zh: '青海 · 集结', en: 'Qinghai · Assembly' },
+    coords: [36.617, 101.778],
+    date: { zh: '7.31 – 8.1', en: 'Jul 31 – Aug 1' },
     intro: {
-      zh: '在城市苏醒之前出发。一切尚未开始，但旅程的形状已经浮现。',
-      en: 'We left before the city woke. Nothing had begun, but the shape of the journey was already there.',
+      zh: '在海拔两千余米的高原门户集结。装备、路线、向导，最后一次确认。',
+      en: 'Gathering at the plateau gateway, 2,200 m up. Kit, route, guides — one last check.',
     },
     diary: [
       {
-        zh: '清晨五点的首都机场还浸在蓝灰色的薄雾里。背包塞满了相机、录音机和一沓来不及读完的图鉴。我们要去的地方很远——远到需要在心里反复描摹它的轮廓，才能确认它真的存在。',
-        en: 'At five in the morning the capital\'s airport sat wrapped in blue-grey haze. Packs crammed with cameras, recorders, and a stack of field guides we never finished. The place we were headed was far enough that we had to sketch its outline again and again in our minds before we could believe it existed.',
+        zh: '西宁的清晨带着高原特有的干爽。我们在旅馆大厅摊开地图，从西宁到玉树，再到杂多、昂赛，每一段路都用红笔标注。窗外是湟水河谷，远处山脊在薄雾中若隐若现。',
+        en: 'Xining mornings carry the dry crispness of the plateau. We spread the map across the hotel lobby — Xining to Yushu, then Zaduo, Angsai, every leg marked in red. Outside, the Huangshui River valley, distant ridges half-hidden in mist.',
       },
       {
-        zh: '候机厅里，有人翻开三江源的卫星图，手指沿着长江、黄河、澜沧江的源头慢慢游走。三条大江从同一片高原出发，却流向了截然不同的远方。这成了整趟旅程最常被提起的隐喻。',
-        en: 'In the departure lounge someone opened a satellite view of Sanjiangyuan and traced a finger along the headwaters of the Yangtze, the Yellow, and the Mekong. Three great rivers leaving the same plateau for utterly different futures. It became the journey\'s most-repeated metaphor.',
+        zh: '向导老扎西来了，带着一壶酥油茶。他说今年的草比去年好，但雨水也来得更早。我们聊到深夜，关于三江源的冰川、雪豹、和那些只有当地人才知道的小路。',
+        en: 'Guide Tashi arrived with a thermos of butter tea. The grass is better this year, he said, but the rains came early too. We talked late into the night — about Sanjiangyuan\'s glaciers, snow leopards, and the trails only locals know.',
       },
     ],
     moments: [
-      { zh: '起飞前最后一杯热咖啡', en: 'One last hot coffee before takeoff' },
-      { zh: '舷窗外云海之上第一次看见西部山脊', en: 'First glimpse of western ridges above the sea of clouds' },
+      { zh: '最后一碗牦牛肉面', en: 'One last bowl of yak noodle soup' },
+      { zh: '向导指着地图上的一条虚线说"这里没有路"', en: 'Guide pointing at a dashed line on the map: "No road here"' },
     ],
-    weather: { tempC: 26, condition: { zh: '晴', en: 'Clear' } },
+    weather: { tempC: 22, condition: { zh: '晴', en: 'Clear' } },
+    elevation: 2261,
   },
   {
-    slug: 'day-2-wuhan',
+    slug: 'day-2-yushu',
     day: 2,
-    location: { zh: '武汉', en: 'Wuhan' },
-    region: { zh: '江汉平原 · 中转', en: 'Jianghan Plain · Layover' },
-    coords: [30.5928, 114.3052],
-    date: '2025-07-11',
-    intro: {
-      zh: '长江穿城而过。我们在江边短暂停留，记录第一份真正属于"南方"的物种。',
-      en: 'The Yangtze cuts the city in two. We paused along its banks to log our first truly "southern" species.',
-    },
-    diary: [
-      {
-        zh: '武汉的热是潮湿而稠密的，像一块拧不干的毛巾。傍晚沿着东湖走，芦苇丛里传出秩田鸟细碎的叫声，水面上是成群的鹭。',
-        en: 'Wuhan\'s heat is dense and wet, a towel that never fully wrings dry. At dusk along East Lake, warblers chattered in the reeds and egrets gathered over the water in loose flocks.',
-      },
-      {
-        zh: '这是旅程第一次"取样"。一只停在荷叶上的蜻蜓，一只掠过栈道的燕子，都被郑重地记进本子里。数据于是有了温度。',
-        en: 'This was the journey\'s first real "sampling." A dragonfly resting on a lotus leaf, a swallow cutting across the boardwalk — each solemnly entered into the notebook. The data, suddenly, had a temperature.',
-      },
-    ],
-    moments: [
-      { zh: '东湖日落时鹭群归巢', en: 'Egrets coming home to roost at East Lake sunset' },
-      { zh: '第一次在野外使用 iNaturalist 记录', en: 'First field record logged in iNaturalist' },
-    ],
-    weather: { tempC: 33, condition: { zh: '闷热·午后雷阵雨', en: 'Humid · afternoon thunderstorm' } },
-  },
-  {
-    slug: 'day-3-chengdu',
-    day: 3,
-    location: { zh: '成都', en: 'Chengdu' },
-    region: { zh: '川西门户 · 进山', en: 'Gateway to the West · Into the Mountains' },
-    coords: [30.5728, 104.0668],
-    date: '2025-07-12',
-    intro: {
-      zh: '从盆地抬升向高原前的最后一座大城市。从这里开始，空气变薄，节奏变慢。',
-      en: 'The last great city before the basin lifts toward the plateau. From here the air thins and the pace slows.',
-    },
-    diary: [
-      {
-        zh: '成都的清晨有花椒与雨水的气味。补给、检查装备、和当地向导敲定进山路线。地图上的虚线将在明天变成真实的土路与垭口。',
-        en: 'A Chengdu morning smells of Sichuan peppercorn and rain. Resupply, check the kit, fix the route with our local guide. Tomorrow the dashed lines on the map become real dirt roads and mountain passes.',
-      },
-    ],
-    moments: [
-      { zh: '在茶馆里摊开整张高原地图', en: 'Unrolling the full plateau map in a teahouse' },
-      { zh: '向导讲起他见过雪豹的那个山谷', en: 'The guide\'s story of the valley where he once saw a snow leopard' },
-    ],
-    weather: { tempC: 28, condition: { zh: '阴·小雨', en: 'Overcast · light rain' } },
-  },
-  {
-    slug: 'day-4-yushu',
-    day: 4,
     location: { zh: '玉树', en: 'Yushu' },
-    region: { zh: '青南高原 · 登高', en: 'Southern Qinghai · Climbing' },
-    coords: [33.0042, 97.0069],
-    date: '2025-07-13',
+    region: { zh: '青南高原 · 结古', en: 'Southern Qinghai · Jiegu' },
+    coords: [33.004, 97.007],
+    date: { zh: '8.2', en: 'Aug 2' },
+    intro: {
+      zh: '翻越巴颜喀拉山口，抵达玉树。三江源的大门在此打开。',
+      en: 'Crossing Bayan Har Pass, we reach Yushu. The gateway to Sanjiangyuan opens here.',
+    },
+    diary: [
+      {
+        zh: '巴颜喀拉山口海拔四千八百米，是黄河与长江的分水岭。车停在垭口，所有人都下来了。风很大，经幡猎猎作响。脚下的一侧水流向黄河，另一侧汇入长江。',
+        en: 'Bayan Har Pass, 4,800 m — the watershed between the Yellow and the Yangtze. We pulled over. The wind was fierce, prayer flags snapping. Water on one side flows to the Yellow River; on the other, to the Yangtze.',
+      },
+      {
+        zh: '玉树结古镇比想象中热闹。2010 年的地震早已过去，新城拔地而起。但通天河畔的老经筒还在转，虔诚的人们绕着它走了一圈又一圈。',
+        en: 'Yushu\'s Jiegu town was busier than expected. The 2010 earthquake long past, a new city has risen. But the old prayer wheels by the Tongtian River still turn — the faithful circling, again and again.',
+      },
+    ],
+    moments: [
+      { zh: '巴颜喀拉垭口的风', en: 'The wind at Bayan Har Pass' },
+      { zh: '通天河畔转动经筒的老人', en: 'An elder turning prayer wheels by the Tongtian River' },
+    ],
+    weather: { tempC: 14, condition: { zh: '多云·风大', en: 'Cloudy · strong wind' } },
     elevation: 3700,
-    intro: {
-      zh: '海拔骤升至三千七百米。第一眼的高原辽阔得让人失语。',
-      en: 'Elevation leaps to 3,700 metres. The first sight of the plateau is vast enough to take away speech.',
-    },
-    diary: [
-      {
-        zh: '翻过垭口的那一刻，所有人都沉默了。眼前的草甸一直铺到天际，牦牛黑点般散落其间，远处雪峰在云影里明灭。空气稀薄，每一次呼吸都变得清晰可辨。',
-        en: 'At the pass everyone went quiet. Meadow unrolled to the horizon, yak scattered across it like dark seeds, distant snow peaks flickering in and out of cloud. The air was thin; every breath became something you could hear.',
-      },
-      {
-        zh: '我们在经幡旁扎营。第一只高原物种是一只鼠兔，它从洞口探出头，盯着我们看了很久，又倏地缩回。',
-        en: 'We pitched camp beside prayer flags. The first plateau species was a pika — it poked its head from a burrow, studied us for a long moment, then vanished back inside.',
-      },
-    ],
-    moments: [
-      { zh: '垭口处经幡在风中猎猎作响', en: 'Prayer flags snapping at the pass' },
-      { zh: '第一只鼠兔的好奇对视', en: 'A long, curious stare from the first pika' },
-    ],
-    weather: { tempC: 12, condition: { zh: '多云·强紫外线', en: 'Partly cloudy · intense UV' } },
   },
   {
-    slug: 'day-5-sanjiangyuan',
-    day: 5,
-    location: { zh: '三江源', en: 'Sanjiangyuan' },
-    region: { zh: '江河之源 · 核心', en: 'Source of the Rivers · Heart' },
-    coords: [34.201, 97.342],
-    date: '2025-07-14',
-    elevation: 4350,
-    spotlight: true,
-    intro: {
-      zh: '三条大江的源头。我们站在分水岭上，看水流各自奔赴远方。',
-      en: 'The headwaters of three great rivers. We stood on the divide and watched the water set off for different seas.',
-    },
-    diary: [
-      {
-        zh: '三江源不是某一条河的开始，而是无数细小水脉的总和。冰川融水在冻土上蜿蜒，汇成溪，汇成河，最终分道扬镳——向东、向东、再向南。',
-        en: 'Sanjiangyuan is not the start of a single river but the sum of countless threads. Meltwater meanders over permafrost, gathering into brooks, into rivers, then parting ways — east, east, and south.',
-      },
-      {
-        zh: '在这里，每一种生命都懂得珍惜水。旱獭在溪边饮水，黑颈鹤在湿地里踱步，雪豹的脚印据说就印在昨夜的泥地上。我们放低声音，怕惊扰了这片刚刚诞生的江河。',
-        en: 'Here every living thing knows the worth of water. Marmots drink at the stream, black-necked cranes pace the wetlands, and a snow leopard\'s prints, they say, were left in last night\'s mud. We lowered our voices, afraid to disturb rivers so newly born.',
-      },
-    ],
-    moments: [
-      { zh: '清晨湿地里三只黑颈鹤低飞', en: 'Three black-necked cranes gliding low over the wetlands at dawn' },
-      { zh: '俯身喝了一口源头冰凉的溪水', en: 'Bending to drink from the ice-cold source' },
-      { zh: '向导指认雪豹留下的爪印', en: 'The guide pointing out a snow leopard\'s track' },
-    ],
-    weather: { tempC: 8, condition: { zh: '晴·夜间结霜', en: 'Clear · frost overnight' } },
-  },
-  {
-    slug: 'day-6-maduo',
-    day: 6,
-    location: { zh: '玛多', en: 'Madoi' },
-    region: { zh: '黄河源头 · 星宿海', en: 'Yellow River Source · Lakes' },
-    coords: [34.821, 98.194],
-    date: '2025-07-15',
-    elevation: 4250,
-    intro: {
-      zh: '星星般密布的湖泊。黄河在这里还只是清浅的水洼。',
-      en: 'Lakes scattered like stars. Here the Yellow River is still a clear, shallow pool.',
-    },
-    diary: [
-      {
-        zh: '玛多的湖多到数不清，藏人称之"星宿海"。水鸟在湖面起落，远处是连绵的鼠兔群落——它们是高原生态里不起眼却至关重要的一环。',
-        en: 'Madoi has more lakes than anyone can count; Tibetans call it the "Sea of Stars." Waterbirds rose and settled on the surface, and beyond them stretched endless pika colonies — an unremarkable creature that holds the whole plateau ecosystem together.',
-      },
-    ],
-    moments: [
-      { zh: '夕阳下湖面碎成万千金箔', en: 'Sunset breaking the lakes into a thousand gold leaves' },
-      { zh: '记录到当季第一群迁徙水鸟', en: 'Logging the season\'s first flock of migrating waterbirds' },
-    ],
-    weather: { tempC: 10, condition: { zh: '晴·风大', en: 'Clear · strong wind' } },
-  },
-  {
-    slug: 'day-7-zaduo',
-    day: 7,
+    slug: 'day-3-zaduo',
+    day: 3,
     location: { zh: '杂多', en: 'Zaduo' },
-    region: { zh: '澜沧江源 · 告别', en: 'Mekong Source · Farewell' },
+    region: { zh: '澜沧江源 · 扎那', en: 'Mekong Source · Zana' },
     coords: [32.896, 95.301],
-    date: '2025-07-16',
-    elevation: 4100,
+    date: { zh: '8.3', en: 'Aug 3' },
     intro: {
-      zh: '第三条江的源头，也是旅程的终点。带回去的，是满本子的名字。',
-      en: 'The source of the third river, and the journey\'s end. What we carried home was a notebook full of names.',
+      zh: '抵达杂多——澜沧江的源头。这里是我们接下来几天的大本营。',
+      en: 'Reaching Zaduo — the source of the Mekong. Our base camp for the days ahead.',
     },
     diary: [
       {
-        zh: '杂多的峡谷比想象中更深。澜沧江从冰川下涌出，奔腾着向南，最终将抵达另一片国土的海。我们坐在江边，把这一路记下的物种一一清点——它们不再只是名字，而是一段我们共同走过的路。',
-        en: 'Zaduo\'s gorges ran deeper than we imagined. The Mekong surged out from beneath the glacier and hurtled south, bound at last for another country\'s sea. We sat by the river and counted the species we had gathered — no longer just names now, but a road we had walked together.',
+        zh: '杂多县城不大，嵌在澜沧江上游的峡谷里。这条江从这里出发，穿越高山与雨林，最终在越南入海。而我们站在这里，在它的起点。',
+        en: 'Zaduo is a small county seat, wedged in the upper gorge of the Mekong. From here the river sets out — through mountains and rainforests, to reach the sea in Vietnam. And we stand here, at its beginning.',
       },
       {
-        zh: '返程的飞机上，有人翻看 iNaturalist 里这七天的记录：几百条观察、上百个物种、七个地点。它们安静地排列在地图上，像一条由好奇心丈量出的轨迹。',
-        en: 'On the flight home someone scrolled through seven days of iNaturalist records: hundreds of observations, over a hundred species, seven places. They lay quietly across the map like a trail measured out in curiosity.',
+        zh: '县里的生态保护站给了我们一份最近的雪豹监测数据。红外相机拍到的画面让人兴奋：一只母豹带着两只幼崽，在月光下走过山脊。',
+        en: 'The local conservation station shared recent snow leopard monitoring data. The infrared camera footage was thrilling: a mother leopard with two cubs, walking a ridgeline under moonlight.',
       },
     ],
     moments: [
-      { zh: '澜沧江边最后一次合影', en: 'A last group photo beside the Mekong' },
-      { zh: '在地图上回看完整的七日轨迹', en: 'Looking back at the full seven-day track on the map' },
+      { zh: '第一次看到红外相机里的雪豹', en: 'First glimpse of a snow leopard on the infrared camera' },
+      { zh: '杂多夜空——银河横跨天顶', en: 'Zaduo night sky — the Milky Way overhead' },
     ],
-    weather: { tempC: 11, condition: { zh: '多云', en: 'Partly cloudy' } },
+    weather: { tempC: 11, condition: { zh: '晴·夜间低温', en: 'Clear · cold night' } },
+    elevation: 4100,
+  },
+  {
+    slug: 'day-4-yangtze-source',
+    day: 4,
+    location: { zh: '长江源', en: 'Source of the Yangtze' },
+    region: { zh: '各拉丹冬 · 沱沱河', en: 'Geladandong · Tuotuo River' },
+    coords: [33.4, 91.9],
+    date: { zh: '8.4', en: 'Aug 4' },
+    intro: {
+      zh: '一路向西，穿越无人区，抵达长江的正源——各拉丹冬冰川。',
+      en: 'Driving west through uninhabited land to the true source of the Yangtze — the Geladandong glaciers.',
+    },
+    diary: [
+      {
+        zh: '从杂多到长江源，车开了整整一天。路况越来越差，最后几十公里全是碎石和冻土。但当各拉丹冬的冰川出现在地平线上时，车里安静了下来。',
+        en: 'From Zaduo to the Yangtze source took a full day\'s drive. The road worsened, the last stretch all scree and permafrost. But when the Geladandong glaciers appeared on the horizon, the car fell silent.',
+      },
+      {
+        zh: '沱沱河从冰川下涌出，水清澈见底，冰凉刺骨。这就是长江的源头——中国最长的河流，从这里的一滴水开始。我们蹲下身，捧起一把水，喝了下去。',
+        en: 'The Tuotuo River surges from beneath the glacier, crystal-clear and bone-cold. This is the source of the Yangtze — China\'s longest river, beginning as a single drop. We crouched, cupped the water, and drank.',
+      },
+    ],
+    moments: [
+      { zh: '各拉丹冬冰川的第一眼', en: 'The first sight of the Geladandong glacier' },
+      { zh: '饮下长江源头的水', en: 'Drinking from the source of the Yangtze' },
+    ],
+    weather: { tempC: 6, condition: { zh: '晴·高海拔', en: 'Clear · high altitude' } },
+    elevation: 5300,
+    spotlight: true,
+  },
+  {
+    slug: 'day-5-angsai',
+    day: 5,
+    location: { zh: '昂赛乡', en: 'Angsai Township' },
+    region: { zh: '澜沧江源 · 大峡谷', en: 'Mekong Source · Grand Canyon' },
+    coords: [32.7, 95.2],
+    date: { zh: '8.5 – 8.6', en: 'Aug 5 – Aug 6' },
+    intro: {
+      zh: '回到杂多以南的昂赛乡。这里有澜沧江源最壮观的大峡谷，也是雪豹的核心栖息地。',
+      en: 'South of Zaduo lies Angsai — the Mekong\'s most spectacular canyon, and the heart of snow leopard habitat.',
+    },
+    diary: [
+      {
+        zh: '昂赛大峡谷的红色岩壁在午后阳光下像在燃烧。澜沧江从谷底奔涌而过，两侧的山坡上是密集的柏树林。向导说，雪豹常在这些岩壁间出没。',
+        en: 'The red cliffs of the Angsai Grand Canyon seemed to burn in the afternoon sun. The Mekong surged through the valley floor; cypress forests clung to both slopes. The leopards, our guide said, move along these very cliffs.',
+      },
+      {
+        zh: '第二天清晨，我们在峡谷里架好了红外相机。运气好的话，也许能拍到它们。下午，沿着山路徒步，海拔从四千米降到谷底的三千七——植被的变化肉眼可见。',
+        en: 'The next morning we set infrared cameras in the canyon. With luck, we might catch them. In the afternoon, a hike down from 4,000 m to the valley floor at 3,700 — the change in vegetation visible to the naked eye.',
+      },
+    ],
+    moments: [
+      { zh: '昂赛峡谷红色岩壁下的午餐', en: 'Lunch beneath the red cliffs of Angsai' },
+      { zh: '在岩壁上发现雪豹的爪印', en: 'Finding snow leopard tracks on a cliff' },
+    ],
+    weather: { tempC: 13, condition: { zh: '晴·午后有云', en: 'Clear · afternoon clouds' } },
+    elevation: 4000,
+  },
+  {
+    slug: 'day-6-zhaqing',
+    day: 6,
+    location: { zh: '扎青', en: 'Zhaqing' },
+    region: { zh: '昂赛以北 · 归途', en: 'North of Angsai · Homeward' },
+    coords: [32.9, 94.6],
+    date: { zh: '8.7', en: 'Aug 7' },
+    intro: {
+      zh: '最后一站。在扎青整理记录，清点物种，准备返程。',
+      en: 'The final stop. Tallying records and species in Zhaqing before heading home.',
+    },
+    diary: [
+      {
+        zh: '扎青乡很小，几排平房围着一个小广场。我们在保护站里整理这几天的记录：物种清单、GPS 坐标、照片编号。每一个名字背后都是一次真实的相遇。',
+        en: 'Zhaqing is tiny — a few rows of single-story houses around a small square. At the conservation station we tallied our records: species lists, GPS coordinates, photo numbers. Behind each name, a real encounter.',
+      },
+      {
+        zh: '返程的车上，有人翻看着 iNaturalist 里的上传记录。几百条观察、几十个物种、六个地点——它们安静地排列在地图上，像一条由好奇心丈量出的轨迹。旅程结束了，但这些记录将继续生长。',
+        en: 'On the drive back, someone scrolled through our iNaturalist uploads. Hundreds of observations, dozens of species, six locations — lying quietly across the map like a trail measured out in curiosity. The journey ends, but the records keep growing.',
+      },
+    ],
+    moments: [
+      { zh: '在保护站清点全部物种记录', en: 'Tallying every species record at the station' },
+      { zh: '返程路上最后一抹夕阳', en: 'The last sunset on the road home' },
+    ],
+    weather: { tempC: 12, condition: { zh: '多云', en: 'Partly cloudy' } },
+    elevation: 4200,
   },
 ]
 

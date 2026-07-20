@@ -6,6 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
 import { FieldNote } from '@/components/easter-egg/FieldNote'
 import { fieldNoteStore } from '@/lib/fieldNoteStore'
+import { journeyReset } from '@/lib/journeyReset'
 import { Landing } from '@/pages/Landing'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -108,6 +109,7 @@ export default function App() {
       } else if (k === 'r') {
         e.preventDefault()
         fieldNoteStore.clear()
+        journeyReset.trigger()
       }
     }
     window.addEventListener('keydown', onKey)

@@ -223,7 +223,7 @@ export function JourneyTimeline({
                 {j.location[lang]}
               </h3>
               <p className="mt-2 hidden text-sm italic text-charcoal-soft md:block">
-                {j.region[lang]} · {j.date}
+                {j.region[lang]} · {j.date[lang]}
                 {species > 0 &&
                   ` · ${formatCompact(species)} ${lang === 'zh' ? '物种' : 'species'}`}
               </p>

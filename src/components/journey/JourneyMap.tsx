@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Journey } from '@/data/journeys'
 import type { Lang } from '@/i18n'
+import { journeyReset } from '@/lib/journeyReset'
 
 /* Cesium is loaded from the CDN (see index.html) as a global to avoid
  * bundling its workers/assets into the Vite build. */
@@ -680,6 +681,24 @@ export function JourneyMap({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active])
+
+  /* ---- external reset signal (dev shortcut) ---- */
+  const resetCount = useSyncExternalStore(journeyReset.subscribe, journeyReset.getCount)
+  useEffect(() => {
+    if (resetCount === 0 || !viewerRef.current) return
+    cancelAllAnim()
+    const viewer = viewerRef.current
+    revealedRef.current = []
+    if (routeLineRef.current) routeLineRef.current.positions = []
+    markersRef.current.forEach((ent) => viewer.entities.remove(ent))
+    markersRef.current.clear()
+    markerCartRef.current.clear()
+    viewer.scene.screenSpaceCameraController.enabled = false
+    sessionStorage.removeItem(PLAYED_KEY)
+    playedRef.current = false
+    setPhaseBoth('idle')
+    timersRef.current.push(setTimeout(() => playIntro(), 60))
+  }, [resetCount])
 
   // Pause Cesium's render loop while our chapter is off-screen — otherwise the
   // globe keeps rendering at ~60fps in the background and, over time, drags the

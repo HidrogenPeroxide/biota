@@ -27,13 +27,12 @@ export function JourneyDetail() {
   const { lang } = useI18n()
   const journey = slug ? getJourney(slug) : undefined
 
-  // Live imagery + species for this location.
+  // Live imagery + species for this location (by coords; date is display-only).
   const { cover, speciesCount } = useJourneyCover(
     journey?.slug ?? '',
     journey?.coords ?? [0, 0],
-    journey?.date,
   )
-  const species = useJourneySpecies(journey?.coords ?? [0, 0], journey?.date)
+  const species = useJourneySpecies(journey?.coords ?? [0, 0])
 
   if (!journey) {
     return (
@@ -108,7 +107,7 @@ export function JourneyDetail() {
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-ivory-50/75">
               <span className="inline-flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-sage" />
-                {journey.date}
+                {journey.date[lang]}
               </span>
               <span className="inline-flex items-center gap-2">
                 <Thermometer className="h-4 w-4 text-sage" />
