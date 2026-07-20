@@ -23,7 +23,7 @@ export function About() {
         {/* ===== 1 · HERO ===== */}
         <section className="relative flex min-h-[78vh] items-end overflow-hidden">
           <img
-            src="/hero/hero-04.jpg"
+            src="/hero/hero-09.jpg"
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />

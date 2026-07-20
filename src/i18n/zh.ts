@@ -34,7 +34,8 @@ const zh = {
   'footer.insights': '数据洞察',
   'footer.dataTitle': '数据与致谢',
   'footer.dataBody':
-    '所有生物多样性数据均来自 {inat} 公开 API，这是加州科学院与国家地理学会共同发起的项目。照片版权归原始观察者所有。',
+    '网站中的观察数据与照片均由团队成员在三江源野外实践中采集，并上传至 iNaturalist。本网站基于 iNaturalist API 构建，谨向所有参与记录与分享的观察者致谢。',
+  'footer.hidden': '每一条记录，都始于一次真实的相遇。',
   'footer.inat': 'iNaturalist',
   'footer.copyright': '© {year} sanjiangyuan.thusls.org',
   'footer.tagline2': '怀揣好奇心打造，由公民科学驱动。',
@@ -74,8 +75,8 @@ const zh = {
   // ---- Landing / branches ----
   'home.branches.eyebrow': '生命的分支',
   'home.branches.title': '通往荒野的十扇门',
-  'home.branches.body':
-    '从生命之树的某个分支开始。每一扇门后，都通向一整个等待被发现的物种世界。',
+  'home.branches.body':'',
+    // '从生命之树的某个分支开始。每一扇门后，都通向一整个等待被发现的物种世界。',
 
   // ---- Landing / featured ----
   'home.featured.eyebrow': '聚光灯下',
@@ -167,7 +168,7 @@ const zh = {
   'about.vlog.watch': '观看 vlog',
   'about.updates.eyebrow': '旅程更新',
   'about.updates.title': '一路写下的字',
-  'about.updates.body': '在山野与信号之间，我们断断续续记下一些片段。',
+  'about.updates.body': '在山野与信号之间，我们断断续续写下一些片段。',
   'about.thanks.eyebrow': '致谢',
   'about.thanks.title': '感谢与我们同行的人',
   // 'about.thanks.body':

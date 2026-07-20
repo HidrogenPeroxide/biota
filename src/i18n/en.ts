@@ -28,7 +28,8 @@ const en = {
   'footer.insights': 'Insights',
   'footer.dataTitle': 'Data & Attribution',
   'footer.dataBody':
-    'All biodiversity data is sourced from the {inat} public API, a joint initiative of the California Academy of Sciences and the National Geographic Society. Photography remains the property of the original observers.',
+    'Recorded by our team during the Sanjiangyuan expedition and shared through {inat}, these records are presented using the iNaturalist API. All photographs remain the property of their original photographers.',
+  'footer.hidden': 'Every record begins with a real encounter.',
   'footer.inat': 'iNaturalist',
   'footer.copyright': '© {year} Biota — a non-commercial showcase.',
   'footer.tagline2': 'Crafted with curiosity. Powered by citizen science.',
