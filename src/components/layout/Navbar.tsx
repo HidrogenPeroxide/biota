@@ -63,6 +63,8 @@ export function Navbar() {
   const heroPage = isHeroPage(location.pathname)
   const navLight = useSyncExternalStore(subscribeNavTheme, getNavTheme) === 'light'
   const solid = scrolled || !heroPage || navLight
+  // Golden ripple from the logo when a new field note is discovered.
+  const fnSnap = useSyncExternalStore(fieldNoteStore.subscribe, fieldNoteStore.getSnapshot)
 
   /** A plain nav link with the shared active-underline animation. */
   const renderPill = (to: string, key: string, end: boolean) => (
@@ -111,10 +113,23 @@ export function Navbar() {
         <Link
           to="/"
           onClick={onLogoClick}
-          className="group flex items-center gap-2.5"
+          className="group relative flex items-center gap-2.5"
           aria-label="Biota home"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-forest text-ivory-50 transition-transform duration-700 ease-organic group-hover:rotate-[18deg]">
+          <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-forest text-ivory-50 transition-transform duration-700 ease-organic group-hover:rotate-[18deg]">
+            {/* Golden ripple when a new field note is discovered */}
+            <AnimatePresence>
+              {fnSnap.rippleRev > 0 && (
+                <motion.span
+                  key={`ripple-${fnSnap.rippleRev}`}
+                  className="pointer-events-none absolute left-1/2 top-1/2 rounded-full border border-ochre/60"
+                  style={{ translateX: '-50%', translateY: '-50%' }}
+                  initial={{ width: 36, height: 36, opacity: 0.6 }}
+                  animate={{ width: 100, height: 100, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                />
+              )}
+            </AnimatePresence>
             <Leaf className="h-5 w-5" strokeWidth={1.6} />
           </span>
           <span className="flex flex-col leading-none">

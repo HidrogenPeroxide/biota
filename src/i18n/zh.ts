@@ -331,7 +331,7 @@ const zh = {
   'archive.locked': '内容暂未显现',
   'archive.empty': '尚未发现未公开的记录。',
   'archive.keepExploring': '继续探索吧。',
-  'archive.noteLabel': '野外手记 #{n}',
+  'archive.noteLabel': '野外手记',
   'note.001.title': '好奇的探索者',
   'note.001.desc': '"I have no special talents. I am only passionately curious."',
   'note.002.title': '耐心的观察者',
@@ -340,6 +340,10 @@ const zh = {
   'note.003.desc': '"一花一世界，三貌三菩提"',
   'note.004.title': '隐秘的小径',
   'note.004.desc': '"时间永远分岔，通向无数的将来"',
+  'note.005.title': '精神领袖',
+  'note.005.desc': '草莓会有季节。\n我们的故事不会。',
+  'note.006.title': '隐藏的字',
+  'note.006.desc': '有些字句，只为愿意细看的人而写。',
 } as const
 
 export type Dict = typeof zh

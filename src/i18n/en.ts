@@ -331,7 +331,7 @@ const en = {
   'archive.locked': 'Contents unavailable',
   'archive.empty': 'No unpublished records have been found yet.',
   'archive.keepExploring': 'Keep exploring.',
-  'archive.noteLabel': 'Field Note #{n}',
+  'archive.noteLabel': 'Field Note',
   'note.001.title': 'Curious Explorer',
   'note.001.desc': '"I have no special talents. I am only passionately curious."',
   'note.002.title': 'Patient Observer',
@@ -340,6 +340,10 @@ const en = {
   'note.003.desc': 'Knowledge grows one observation at a time.',
   'note.004.title': 'Hidden Trail',
   'note.004.desc': 'Every expedition leaves traces beyond the map.',
+  'note.005.title': 'First Footstep',
+  'note.005.desc': 'Every expedition begins with a single step.\n\nThank you for joining this journey.',
+  'note.006.title': 'Hidden Words',
+  'note.006.desc': 'Some messages are written only for those who choose to look more closely.',
 } as const
 
 export type Dict = typeof en

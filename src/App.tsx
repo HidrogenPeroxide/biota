@@ -53,6 +53,11 @@ export default function App() {
   const location = useLocation()
 
   /* ---- Hidden field-note discovery tracking (quiet, never advertised) ---- */
+  // #005 First Footstep — auto-discovered on the very first visit
+  useEffect(() => {
+    fieldNoteStore.discover('005')
+  }, [])
+
   const speciesSeen = useRef(new Set<string>())
   const sectionsSeen = useRef(new Set<string>())
   useEffect(() => {
@@ -103,7 +108,7 @@ export default function App() {
       const k = e.key.toLowerCase()
       if (k === 'e') {
         e.preventDefault()
-        ;(['001', '002', '003', '004'] as const).forEach((id) =>
+        ;(['001', '002', '003', '004', '005', '006'] as const).forEach((id) =>
           fieldNoteStore.discover(id),
         )
       } else if (k === 'r') {

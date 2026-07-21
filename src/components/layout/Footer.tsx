@@ -1,9 +1,33 @@
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Leaf } from 'lucide-react'
 import { useT } from '@/i18n'
+import { fieldNoteStore } from '@/lib/fieldNoteStore'
 
 export function Footer() {
   const t = useT()
+  const hiddenRef = useRef<HTMLSpanElement>(null)
+
+  // #006 Hidden Words — discover when the user selects any text within the
+  // invisible footer sentence.
+  useEffect(() => {
+    const check = () => {
+      const sel = window.getSelection()
+      if (!sel || sel.isCollapsed || sel.toString().length === 0) return
+      const span = hiddenRef.current
+      if (!span) return
+      const range = sel.getRangeAt(0)
+      if (range.intersectsNode(span)) {
+        fieldNoteStore.discover('006')
+      }
+    }
+    document.addEventListener('mouseup', check)
+    document.addEventListener('touchend', check)
+    return () => {
+      document.removeEventListener('mouseup', check)
+      document.removeEventListener('touchend', check)
+    }
+  }, [])
 
   return (
     <footer className="border-t border-stone-light/60 bg-forest-deep text-ivory-50/80">
@@ -51,7 +75,7 @@ export function Footer() {
           </h4>
           <p className="mt-4 text-sm leading-cn text-ivory-50/60">
             {t('footer.dataBody', { inat: t('footer.inat') })}
-            <span className="hidden-message">
+            <span ref={hiddenRef} className="hidden-message">
               {t('footer.hidden')}
             </span>
           </p>

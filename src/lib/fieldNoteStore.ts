@@ -7,14 +7,14 @@
  * position, used as the origin of the opening golden ripple).
  */
 
-export type NoteId = '001' | '002' | '003' | '004'
+export type NoteId = '001' | '002' | '003' | '004' | '005' | '006'
 
 export interface NoteDef {
   id: NoteId
   titleKey: string
   descKey: string
   /** which illustration to render */
-  icon: 'compass' | 'feather' | 'leaf' | 'map'
+  icon: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen'
 }
 
 export const NOTES: NoteDef[] = [
@@ -22,6 +22,8 @@ export const NOTES: NoteDef[] = [
   { id: '002', titleKey: 'note.002.title', descKey: 'note.002.desc', icon: 'feather' },
   { id: '003', titleKey: 'note.003.title', descKey: 'note.003.desc', icon: 'leaf' },
   { id: '004', titleKey: 'note.004.title', descKey: 'note.004.desc', icon: 'map' },
+  { id: '005', titleKey: 'note.005.title', descKey: 'note.005.desc', icon: 'cake' },
+  { id: '006', titleKey: 'note.006.title', descKey: 'note.006.desc', icon: 'pen' },
 ]
 
 const STORAGE_KEY = 'biota-field-notes-v1'
@@ -31,6 +33,7 @@ interface Snapshot {
   x: number
   y: number
   rev: number
+  rippleRev: number
 }
 
 // Discovered notes, in the order they were found (a personal record of the
@@ -40,7 +43,8 @@ let open = false
 let x = 0
 let y = 0
 let rev = 0
-let snapshot: Snapshot = { open, x, y, rev }
+let rippleRev = 0
+let snapshot: Snapshot = { open, x, y, rev, rippleRev }
 const listeners = new Set<() => void>()
 
 function loadDiscovered(): NoteId[] {
@@ -64,7 +68,7 @@ function persist() {
 }
 
 function emit() {
-  snapshot = { open, x, y, rev }
+  snapshot = { open, x, y, rev, rippleRev }
   listeners.forEach((l) => l())
 }
 
@@ -84,12 +88,14 @@ export const fieldNoteStore = {
     emit()
   },
 
-  /** Mark a note discovered, appended in discovery order. No-op if already. */
+  /** Mark a note discovered, appended in discovery order. No-op if already.
+   *  On a NEW discovery, bumps rippleRev so the navbar can emit a golden ripple. */
   discover: (id: NoteId): boolean => {
     if (discovered.includes(id)) return false
     discovered.push(id)
     persist()
     rev++
+    rippleRev++
     emit()
     return true
   },

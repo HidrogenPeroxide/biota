@@ -2,6 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { fieldNoteStore, NOTES, type NoteId } from '@/lib/fieldNoteStore'
 import { useT } from '@/i18n'
+import { cn } from '@/lib/utils'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -109,12 +110,17 @@ export function FieldNote() {
                         transition={{ duration: 0.5, ease }}
                         whileHover={{ y: -3 }}
                         onClick={() => setDetail(id)}
-                        className="group relative flex w-full items-start gap-4 rounded-2xl border border-stone-light/70 bg-ivory px-5 py-4 text-left shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] transition-shadow duration-500 hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]"
+                        className={cn(
+                          'group relative flex w-full items-start gap-4 rounded-2xl border px-5 py-4 text-left transition-shadow duration-500',
+                          id === '005' || id === '006'
+                            ? 'border-ochre/40 bg-ivory-50 shadow-[0_0_20px_-4px_rgba(184,137,58,0.2),0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_0_28px_-4px_rgba(184,137,58,0.3),0_18px_36px_-20px_rgba(38,36,31,0.5)]'
+                            : 'border-stone-light/70 bg-ivory shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]',
+                        )}
                       >
                         <NoteIcon kind={note.icon} />
                         <div className="min-w-0 flex-1">
                           <p className="text-[10px] font-medium uppercase tracking-widest-2 text-forest-mist">
-                            {t('archive.noteLabel', { n: Number(id) })}
+                            {t('archive.noteLabel')}
                           </p>
                           <h3 className="mt-1 font-display text-lg leading-tight text-charcoal">
                             {t(note.titleKey)}
@@ -157,7 +163,7 @@ export function FieldNote() {
                     <NoteIcon kind={detailNote.icon} />
                   </div>
                   <p className="mt-4 text-[10px] font-medium uppercase tracking-widest-2 text-forest-mist">
-                    {t('archive.noteLabel', { n: Number(detailNote.id) })}
+                    {t('archive.noteLabel')}
                   </p>
                   <h3 className="headline mt-2 text-2xl text-charcoal">
                     {t(detailNote.titleKey)}
@@ -177,7 +183,11 @@ export function FieldNote() {
 }
 
 /** Hand-drawn, scientific-notebook line illustrations (charcoal + muted gold). */
-function NoteIcon({ kind }: { kind: 'compass' | 'feather' | 'leaf' | 'map' }) {
+function NoteIcon({
+  kind,
+}: {
+  kind: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen'
+}) {
   const stroke = '#26241f'
   const gold = '#b8893a'
   const common = {
@@ -218,6 +228,28 @@ function NoteIcon({ kind }: { kind: 'compass' | 'feather' | 'leaf' | 'map' }) {
           <path d="M8 14l10-3 12 3 10-3v24l-10 3-12-3-10 3z" />
           <path d="M18 11v24M30 14v24" />
           <path d="M12 32c4-6 8-4 12-8s8 0 12-6" stroke={gold} />
+        </g>
+      )}
+      {kind === 'cake' && (
+        <g {...common}>
+          {/* triangular slice */}
+          <path d="M10 36L24 10L38 36Z" />
+          {/* cream layer */}
+          <path d="M16 26c4-2 12-2 16 0" stroke={gold} />
+          {/* base crust */}
+          <path d="M10 36L38 36" />
+          {/* topping dot */}
+          <circle cx="24" cy="13" r="1.5" fill={gold} stroke="none" />
+          {/* small berry accent */}
+          <circle cx="20" cy="31" r="1.2" />
+        </g>
+      )}
+      {kind === 'pen' && (
+        <g {...common}>
+          <path d="M14 38l4-4 14-14-4-4-14 14-4 4z" />
+          <path d="M28 16l4 4" stroke={gold} />
+          <path d="M14 38l2-6 2 2z" />
+          <path d="M10 34c2 0 4 2 4 4" stroke={gold} />
         </g>
       )}
     </svg>
