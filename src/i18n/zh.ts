@@ -157,7 +157,8 @@ const zh = {
 
   // ---- About (documentary epilogue) ----
   'about.eyebrow': '关于',
-  'about.hero.title': '关于 我们',
+  'about.hero.title': '关于',
+  'about.hero.titleAccent': '我们',
   'about.hero.subtitle': '"山似翠，酒如油，醉眼看山百自由。"',
   'about.vlog.eyebrow': '出发之前',
   'about.vlog.title': '三江源 · 出发之前',
@@ -166,9 +167,13 @@ const zh = {
   'about.vlog.date': '2025 年 7 月',
   'about.vlog.location': '北京 · 出发前夜',
   'about.vlog.watch': '观看 vlog',
-  'about.updates.eyebrow': '旅程更新',
-  'about.updates.title': '一路写下的字',
-  'about.updates.body': '在山野与信号之间，我们断断续续写下一些片段。',
+  'about.meet.eyebrow': '远行之前',
+  'about.meet.title': '同行的人',
+  'about.meet.date': '2026 · 出发之前',
+  'about.meet.articleTitle': '生命学院 2026 三江源实践｜队员介绍',
+  'about.meet.desc':
+    '在真正踏上三江源之前，我们记录下了这次实践的起点：来自不同方向的人，因为共同的热爱相聚，也因为同一个目标，即将走向同一片山野。',
+  'about.meet.readArticle': '阅读全文',
   'about.thanks.eyebrow': '致谢',
   'about.thanks.title': '感谢与我们同行的人',
   // 'about.thanks.body':

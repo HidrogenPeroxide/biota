@@ -155,7 +155,8 @@ const en = {
 
   // ---- About (documentary epilogue) ----
   'about.eyebrow': 'About',
-  'about.hero.title': 'About Us',
+  'about.hero.title': 'About',
+  'about.hero.titleAccent': 'Us',
   'about.hero.subtitle': 'Every observation becomes the beginning of another journey.',
   'about.vlog.eyebrow': 'Before the expedition',
   'about.vlog.title': 'Sanjiangyuan · Before the expedition',
@@ -164,9 +165,13 @@ const en = {
   'about.vlog.date': 'July 2025',
   'about.vlog.location': 'Beijing · the night before',
   'about.vlog.watch': 'Watch the vlog',
-  'about.updates.eyebrow': 'Journey updates',
-  'about.updates.title': 'Notes from the road',
-  'about.updates.body': 'Between the wild and the reach of signal, we wrote down fragments now and then.',
+  'about.meet.eyebrow': 'Before the Expedition',
+  'about.meet.title': 'Meet the Expedition',
+  'about.meet.date': '2026 · Before Departure',
+  'about.meet.articleTitle': '2026 Sanjiangyuan Field Expedition — Meet the Team',
+  'about.meet.desc':
+    'Before setting foot on the Sanjiangyuan Plateau, we introduced the people behind this expedition—students brought together by a shared curiosity for nature and biodiversity.',
+  'about.meet.readArticle': 'Read Article',
   'about.thanks.eyebrow': 'Acknowledgements',
   'about.thanks.title': 'With thanks to those who travelled with us',
   'about.thanks.body':
