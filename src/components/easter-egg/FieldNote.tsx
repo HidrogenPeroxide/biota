@@ -111,10 +111,10 @@ export function FieldNote() {
                         whileHover={{ y: -3 }}
                         onClick={() => setDetail(id)}
                         className={cn(
-                          'group relative flex w-full items-start gap-4 rounded-2xl border px-5 py-4 text-left transition-shadow duration-500',
+                          'group relative flex w-full items-start gap-4 rounded-2xl border bg-ivory-50 px-5 py-4 text-left transition-shadow duration-500',
                           id === '005' || id === '006'
-                            ? 'border-ochre/40 bg-ivory-50 shadow-[0_0_20px_-4px_rgba(184,137,58,0.2),0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_0_28px_-4px_rgba(184,137,58,0.3),0_18px_36px_-20px_rgba(38,36,31,0.5)]'
-                            : 'border-stone-light/70 bg-ivory shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]',
+                            ? 'border-ochre/70 shadow-[0_0_20px_-4px_rgba(184,137,58,0.2),0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_0_28px_-4px_rgba(184,137,58,0.3),0_18px_36px_-20px_rgba(38,36,31,0.5)]'
+                            : 'border-stone-light/70 shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]',
                         )}
                       >
                         <NoteIcon kind={note.icon} />

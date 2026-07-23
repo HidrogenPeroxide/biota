@@ -75,7 +75,7 @@ export function Footer() {
           </h4>
           <p className="mt-4 text-sm leading-cn text-ivory-50/60">
             {t('footer.dataBody', { inat: t('footer.inat') })}
-            <span ref={hiddenRef} className="hidden-message">
+            <span ref={hiddenRef} className="hidden-message block">
               {t('footer.hidden')}
             </span>
           </p>
