@@ -114,7 +114,9 @@ export function FieldNote() {
                           'group relative flex w-full items-start gap-4 rounded-2xl border bg-ivory-50 px-5 py-4 text-left transition-shadow duration-500',
                           id === '005' || id === '006'
                             ? 'border-ochre/70 shadow-[0_0_20px_-4px_rgba(184,137,58,0.2),0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_0_28px_-4px_rgba(184,137,58,0.3),0_18px_36px_-20px_rgba(38,36,31,0.5)]'
-                            : 'border-stone-light/70 shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]',
+                            : id === '007'
+                              ? 'border-sage-light/60 shadow-[0_0_20px_-4px_rgba(168,181,155,0.2),0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_0_28px_-4px_rgba(168,181,155,0.3),0_18px_36px_-20px_rgba(38,36,31,0.5)]'
+                              : 'border-stone-light/70 shadow-[0_10px_24px_-18px_rgba(38,36,31,0.4)] hover:shadow-[0_18px_36px_-20px_rgba(38,36,31,0.5)]',
                         )}
                       >
                         <NoteIcon kind={note.icon} />
@@ -186,7 +188,7 @@ export function FieldNote() {
 function NoteIcon({
   kind,
 }: {
-  kind: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen'
+  kind: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen' | 'poles'
 }) {
   const stroke = '#26241f'
   const gold = '#b8893a'
@@ -250,6 +252,19 @@ function NoteIcon({
           <path d="M28 16l4 4" stroke={gold} />
           <path d="M14 38l2-6 2 2z" />
           <path d="M10 34c2 0 4 2 4 4" stroke={gold} />
+        </g>
+      )}
+      {kind === 'poles' && (
+        <g {...common}>
+          {/* two hiking poles crossing to form a peak */}
+          <path d="M10 38L20 8" />
+          <path d="M38 38L28 8" stroke={gold} />
+          {/* peak where they meet */}
+          <path d="M20 8L24 8" />
+          {/* small ground line */}
+          <path d="M6 38L42 38" />
+          {/* tiny snow cap */}
+          <path d="M18 14c2-2 6-2 8 0" stroke={gold} />
         </g>
       )}
     </svg>

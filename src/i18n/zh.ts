@@ -102,8 +102,8 @@ const zh = {
   'home.story.scroll': '向下滚动',
 
   // ---- Home: journey map ----
-  'home.journey.eyebrow': '我们的足迹',
-  'home.journey.title': '我们去过的远方',
+  'home.journey.eyebrow': '我们去过的远方',
+  'home.journey.title': '我们的足迹',
   'home.journey.body':
     '地图上的每个标记都是旅程中的一章——一个清晨、一座山谷、一段与自然的相遇。悬停预览，点击进入当天的故事。',
   'home.journey.hint': '悬停标记预览 · 点击进入当天故事',
@@ -174,12 +174,15 @@ const zh = {
   'about.meet.desc':
     '在真正踏上三江源之前，我们记录下了这次实践的起点：来自不同方向的人，因为共同的热爱相聚，也因为同一个目标，即将走向同一片山野。',
   'about.meet.readArticle': '阅读全文',
-  'about.thanks.eyebrow': '致谢',
-  'about.thanks.title': '感谢与我们同行的人',
+  // 'about.thanks.eyebrow': '致谢',
+  'about.thanks.eyebrow': '',
+  // 'about.thanks.title': '感谢与我们同行的人',
+  'about.thanks.title': '敬请期待^ ^',
+
   // 'about.thanks.body':
   //   '这一路并不只属于我们。感谢接待我们的当地社区与每一户人家，感谢在风雪与烈日里带我们辨认踪迹的向导，感谢每一位在 iNaturalist 上记录自然、把观察分享给世界的博物者——是这些微小而真诚的注视，让一份生物多样性图集成为可能。也感谢所有在幕后支持这次实践的人：你们让这段旅程，从一句"去看看吧"，变成了真正发生过的事。',
   'about.thanks.body':
-    '--还没想好怎么写--',
+    'vlog & blog 将稍后上线',
   'about.credits.eyebrow': '数据与版权',
   'about.credits.title': '安静的一页',
   'about.credits.inatTitle': '数据来源',
@@ -339,16 +342,18 @@ const zh = {
   'archive.noteLabel': '野外手记',
   'note.001.title': '好奇的探索者',
   'note.001.desc': '"I have no special talents. I am only passionately curious."',
-  'note.002.title': '耐心的观察者',
-  'note.002.desc': '最好的观察，常常属于愿意等待的人。',
+  'note.002.title': '时空之旅',
+  'note.002.desc': '"从前的日子变得慢，\n\n车，马，邮件都慢"',
   'note.003.title': '田野博物者',
-  'note.003.desc': '"一花一世界，三貌三菩提"',
+  'note.003.desc': '野花绣满山冈。在七月盛夏，我再一次找到了春天',
   'note.004.title': '隐秘的小径',
   'note.004.desc': '"时间永远分岔，通向无数的将来"',
   'note.005.title': '精神领袖',
-  'note.005.desc': '草莓有季节。\n我们的故事不会。',
-  'note.006.title': '隐藏的字',
-  'note.006.desc': '有些字句，只为愿意细看的人而写。',
+  'note.005.desc': '草莓有季节。\n\n我们的故事不会。',
+  'note.006.title': '字里行间',
+  'note.006.desc': '"我横竖睡不着，仔细看了半夜……"',
+  'note.007.title': '同行',
+  'note.007.desc': '"何夜无月？何处无竹柏？但少闲人如吾两人者耳。"',
 } as const
 
 export type Dict = typeof zh

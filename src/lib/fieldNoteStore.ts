@@ -7,14 +7,14 @@
  * position, used as the origin of the opening golden ripple).
  */
 
-export type NoteId = '001' | '002' | '003' | '004' | '005' | '006'
+export type NoteId = '001' | '002' | '003' | '004' | '005' | '006' | '007'
 
 export interface NoteDef {
   id: NoteId
   titleKey: string
   descKey: string
   /** which illustration to render */
-  icon: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen'
+  icon: 'compass' | 'feather' | 'leaf' | 'map' | 'cake' | 'pen' | 'poles'
 }
 
 export const NOTES: NoteDef[] = [
@@ -24,6 +24,7 @@ export const NOTES: NoteDef[] = [
   { id: '004', titleKey: 'note.004.title', descKey: 'note.004.desc', icon: 'map' },
   { id: '005', titleKey: 'note.005.title', descKey: 'note.005.desc', icon: 'cake' },
   { id: '006', titleKey: 'note.006.title', descKey: 'note.006.desc', icon: 'pen' },
+  { id: '007', titleKey: 'note.007.title', descKey: 'note.007.desc', icon: 'poles' },
 ]
 
 const STORAGE_KEY = 'biota-field-notes-v1'

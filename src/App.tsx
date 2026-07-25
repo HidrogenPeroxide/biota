@@ -108,7 +108,7 @@ export default function App() {
       const k = e.key.toLowerCase()
       if (k === 'e') {
         e.preventDefault()
-        ;(['001', '002', '003', '004', '005', '006'] as const).forEach((id) =>
+        ;(['001', '002', '003', '004', '005', '006', '007'] as const).forEach((id) =>
           fieldNoteStore.discover(id),
         )
       } else if (k === 'r') {

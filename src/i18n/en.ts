@@ -349,6 +349,8 @@ const en = {
   'note.005.desc': 'Every expedition begins with a single step.\n\nThank you for joining this journey.',
   'note.006.title': 'Hidden Words',
   'note.006.desc': 'Some messages are written only for those who choose to look more closely.',
+  'note.007.title': 'Together',
+  'note.007.desc': 'Every expedition is completed by many hands, not one.\n\nBehind every observation are companions, guides, teachers, communities, and countless quiet acts of support.\n\nNo journey belongs to a single person.',
 } as const
 
 export type Dict = typeof en

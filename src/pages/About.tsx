@@ -1,7 +1,9 @@
-import { motion } from 'framer-motion'
+import { useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { PageTransition } from '@/components/motion/PageTransition'
 import { Reveal } from '@/components/motion/Reveal'
 import { useT } from '@/i18n'
+import { fieldNoteStore } from '@/lib/fieldNoteStore'
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -10,10 +12,28 @@ const MEET_ARTICLE_URL = 'https://mp.weixin.qq.com/s/0g-6bDVo0LZMXD8KG9jT6Q'
 /**
  * The closing chapter of the site — a calm, documentary-style epilogue.
  * Hero + Acknowledgements. The gold "我们 / Us" in the title links to the
- * team introduction article.
+ * team introduction article, with a subtle sage-light ripple easter egg.
  */
 export function About() {
   const t = useT()
+  const [ripple, setRipple] = useState<{ x: number; y: number; key: number } | null>(null)
+  const keyRef = useRef(0)
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    // Discover the hidden "Together" field note (once; no-op after).
+    fieldNoteStore.discover('007')
+    const rect = e.currentTarget.getBoundingClientRect()
+    keyRef.current++
+    setRipple({
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      key: keyRef.current,
+    })
+    window.setTimeout(() => {
+      window.open(MEET_ARTICLE_URL, '_blank', 'noopener')
+    }, 550)
+  }
 
   return (
     <PageTransition>
@@ -31,9 +51,9 @@ export function About() {
               {t('about.hero.title')}{' '}
               <a
                 href={MEET_ARTICLE_URL}
-                target="_blank"
+                onClick={handleClick}
                 rel="noreferrer"
-                className="accent text-ochre transition-colors duration-500 hover:text-sage-light"
+                className="accent cursor-pointer text-ochre transition-colors duration-500 hover:text-sage-light"
               >
                 {t('about.hero.titleAccent')}
               </a>
@@ -43,6 +63,27 @@ export function About() {
             </p>
           </Reveal>
         </section>
+
+        {/* Ripple easter egg — sage-light, matching the hover color */}
+        <AnimatePresence>
+          {ripple && (
+            <motion.span
+              key={ripple.key}
+              className="pointer-events-none fixed z-[2000] rounded-full border"
+              style={{
+                left: ripple.x,
+                top: ripple.y,
+                translateX: '-50%',
+                translateY: '-50%',
+                borderColor: 'rgba(168,181,155,0.7)',
+              }}
+              initial={{ width: 20, height: 20, opacity: 0.7 }}
+              animate={{ width: 400, height: 400, opacity: 0 }}
+              transition={{ duration: 0.55, ease }}
+              onAnimationComplete={() => setRipple(null)}
+            />
+          )}
+        </AnimatePresence>
 
         {/* ===== 2 · ACKNOWLEDGEMENTS ===== */}
         <section className="container-narrow py-24 md:py-32">
