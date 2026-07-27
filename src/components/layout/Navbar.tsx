@@ -101,6 +101,7 @@ export function Navbar() {
   )
 
   return (
+    <>
     <header
       className={cn(
         'fixed inset-x-0 top-0 z-[1200] transition-all duration-700 ease-organic',
@@ -195,8 +196,10 @@ export function Navbar() {
           </button>
         </div>
       </nav>
+    </header>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — outside <header> so it escapes backdrop-blur's
+          stacking context and stays on top of everything. */}
       <AnimatePresence>
         {open && (
           <>
@@ -293,7 +296,7 @@ export function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </header>
+    </>
   )
 }
 
