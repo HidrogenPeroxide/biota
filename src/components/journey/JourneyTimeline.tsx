@@ -211,7 +211,7 @@ export function JourneyTimeline({
               transition={{ duration: 0.5, ease: textEase }}
             >
               <p className="eyebrow hidden text-ochre md:block">
-                {t('journey.fieldJournal')}
+                {t('journey.coming.label')}
               </p>
               <div className="mt-3 flex items-baseline gap-3">
                 <span className="font-display text-2xl font-medium text-ochre">
@@ -224,20 +224,13 @@ export function JourneyTimeline({
               </h3>
               <p className="mt-2 hidden text-sm italic text-charcoal-soft md:block">
                 {j.region[lang]} · {j.date[lang]}
-                {species > 0 &&
-                  ` · ${formatCompact(species)} ${lang === 'zh' ? '物种' : 'species'}`}
               </p>
-
-              <div className="mt-6 hidden max-w-prose space-y-4 md:block">
-                {paragraphs.map((p, i) => (
-                  <p
-                    key={i}
-                    className="text-pretty leading-cn text-[15px] text-charcoal-soft"
-                  >
-                    {p[lang]}
-                  </p>
-                ))}
-              </div>
+              <h4 className="mt-6 font-display text-xl text-charcoal/80 md:text-2xl">
+                {t('journey.coming.title')}
+              </h4>
+              <p className="mt-3 max-w-prose text-pretty leading-cn text-[15px] text-charcoal-soft">
+                {t('journey.coming.body')}
+              </p>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -250,33 +243,23 @@ export function JourneyTimeline({
           onPointerUp={onSwipeUp}
           onPointerCancel={() => (swipe.current.active = false)}
         >
-          {/* peek cards behind — the journey continues */}
+          {/* peek cards behind — paper placeholders */}
           {peeks.map((pj, k) => {
             const pk = k + 1
-            const pcover = media[pj.slug]?.cover
             return (
               <div
                 key={pj.slug}
                 className="absolute inset-0 overflow-hidden rounded-[20px] border border-stone-light/60 bg-ivory-100 shadow-[0_24px_50px_-30px_rgba(38,36,31,0.4)]"
                 style={{
                   transform: `translate(${pk * 16}px, ${pk * 16}px) scale(${1 - pk * 0.05})`,
-                  opacity: 0.55 - k * 0.25,
+                  opacity: 0.4 - k * 0.15,
                   zIndex: 20 - pk,
                 }}
-              >
-                {pcover && (
-                  <img
-                    src={pcover}
-                    alt=""
-                    draggable={false}
-                    className="h-full w-full object-cover"
-                  />
-                )}
-              </div>
+              />
             )
           })}
 
-          {/* active photo card — click to read the full journal */}
+          {/* active card — "Coming Soon" paper placeholder */}
           <AnimatePresence custom={dir} initial={false}>
             <MotionLink
               to={`/journey/${j.slug}`}
@@ -287,21 +270,15 @@ export function JourneyTimeline({
               animate="center"
               exit="exit"
               transition={cardSpring}
-              className="absolute inset-0 z-30 cursor-pointer overflow-hidden rounded-[20px] border border-stone-light/70 bg-ivory-100 shadow-[0_40px_80px_-34px_rgba(38,36,31,0.55)]"
+              className="timeline-paper absolute inset-0 z-30 flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-[20px] border border-stone-light/70 bg-ivory-100 shadow-[0_40px_80px_-34px_rgba(38,36,31,0.55)]"
             >
-              <motion.img
-                key={cover ?? 'none'}
-                src={cover ?? undefined}
-                alt={j.location[lang]}
-                draggable={false}
-                initial={{ scale: 1.06, filter: 'blur(6px)' }}
-                animate={{ scale: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 0.8, ease: textEase }}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
-              {!cover && <div className="shimmer absolute inset-0" />}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-              <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-charcoal/65 font-display text-base font-semibold text-ivory-50 backdrop-blur-sm">
+              <span className="font-display text-2xl font-light text-stone-dark md:text-4xl">
+                {t('journey.coming.placeholder')}
+              </span>
+              <span className="mt-3 text-xs uppercase tracking-widest-2 text-stone">
+                {t('journey.coming.soon')}
+              </span>
+              <span className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-ivory-50/80 font-display text-base font-semibold text-charcoal backdrop-blur-sm">
                 {j.day}
               </span>
             </MotionLink>

@@ -128,6 +128,13 @@ const zh = {
   // ---- Journey detail page ----
   'journey.back': '返回行程地图',
   'journey.fieldJournal': '野外手记',
+  'journey.coming.label': '远征日志',
+  'journey.coming.title': '这一页，在等待一个真实的故事。',
+  'journey.coming.body':
+    '',
+    // '我们希望这里的每一篇日志、每一张照片，都来自真正的野外相遇——而不是编造的故事。2026 年三江源科考实践结束后，这些页面将逐渐成为旅程的完整记录。',
+  'journey.coming.placeholder': '野外手记',
+  'journey.coming.soon': '即将到来',
   'journey.day': '第 {n} 天',
   'journey.diary': '日记',
   'journey.moments': '难忘瞬间',

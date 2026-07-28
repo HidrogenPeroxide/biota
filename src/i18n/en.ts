@@ -124,6 +124,12 @@ const en = {
   // ---- Journey detail page ----
   'journey.back': 'Back to the journey map',
   'journey.fieldJournal': 'Field Journal',
+  'journey.coming.label': 'Expedition Journal',
+  'journey.coming.title': 'This page is waiting for a real story.',
+  'journey.coming.body':
+    'We want every journal entry and every photograph on these pages to come from genuine encounters in the field—not generated stories. After the 2026 Sanjiangyuan Field Expedition, these pages will gradually become a complete record of the journey.',
+  'journey.coming.placeholder': 'Field Notes',
+  'journey.coming.soon': 'Coming Soon',
   'journey.day': 'Day {n}',
   'journey.diary': 'Diary',
   'journey.moments': 'Memorable moments',
