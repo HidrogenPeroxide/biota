@@ -33,13 +33,13 @@ import type {
 const BASE_URL = 'https://api.inaturalist.org/v1'
 
 /**
- * Active locale. iNaturalist localizes `preferred_common_name` per request,
- * so setting `locale=zh` returns Chinese common names. Driven by the i18n
- * context via `setApiLocale()`.
+ * Active locale. iNaturalist localizes `preferred_common_name` per request.
+ * Use `zh-CN` (not `zh`) so names come back in Simplified Chinese, not
+ * Traditional. Driven by the i18n context via `setApiLocale()`.
  */
-let activeLocale: 'zh' | 'en' = 'zh'
+let activeLocale: string = 'zh-CN'
 export function setApiLocale(locale: 'zh' | 'en') {
-  activeLocale = locale
+  activeLocale = locale === 'zh' ? 'zh-CN' : 'en'
 }
 
 /** Build a query string from a record, skipping null/undefined/empty values.
