@@ -129,7 +129,7 @@ const zh = {
   'journey.back': '返回行程地图',
   'journey.fieldJournal': '野外手记',
   'journey.coming.label': '远征日志',
-  'journey.coming.title': '这一页，在等待一个真实的故事。',
+  'journey.coming.title': '--敬请期待--',
   'journey.coming.body':
     '',
     // '我们希望这里的每一篇日志、每一张照片，都来自真正的野外相遇——而不是编造的故事。2026 年三江源科考实践结束后，这些页面将逐渐成为旅程的完整记录。',
@@ -356,7 +356,7 @@ const zh = {
   'note.004.title': '隐秘的小径',
   'note.004.desc': '"时间永远分岔，通向无数的将来"',
   'note.005.title': '精神领袖',
-  'note.005.desc': '草莓有季节。\n\n我们的故事不会。',
+  'note.005.desc': '草莓有季节，\n\n我们的故事没有。',
   'note.006.title': '字里行间',
   'note.006.desc': '"我横竖睡不着，仔细看了半夜……"',
   'note.007.title': '同行',

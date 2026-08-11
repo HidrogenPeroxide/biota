@@ -32,6 +32,9 @@ import type {
 
 const BASE_URL = 'https://api.inaturalist.org/v1'
 
+/** All observation data is scoped to this iNaturalist project. */
+const PROJECT_ID = 'thu-2026'
+
 /**
  * Active locale. iNaturalist localizes `preferred_common_name` per request.
  * Use `zh-CN` (not `zh`) so names come back in Simplified Chinese, not
@@ -193,6 +196,7 @@ export async function fetchObservations(
   query: ObservationQuery,
 ): Promise<Observation[]> {
   const params: Record<string, unknown> = {
+    project_id: PROJECT_ID,
     photos: true,
     quality_grade: 'research',
     per_page: 24,
@@ -220,6 +224,7 @@ export async function fetchSpeciesCounts(
   perPage = 40,
 ): Promise<SpeciesCount[]> {
   const params: Record<string, unknown> = {
+    project_id: PROJECT_ID,
     photos: true,
     quality_grade: 'research',
     per_page: perPage,
@@ -238,6 +243,7 @@ export async function fetchObservers(
   perPage = 20,
 ): Promise<ObserverCount[]> {
   const params: Record<string, unknown> = {
+    project_id: PROJECT_ID,
     photos: true,
     quality_grade: 'research',
     per_page: perPage,
@@ -259,6 +265,7 @@ export async function fetchObservationPoints(
   perPage = 200,
 ): Promise<Observation[]> {
   const params: Record<string, unknown> = {
+    project_id: PROJECT_ID,
     photos: true,
     quality_grade: 'research',
     per_page: perPage,
@@ -287,15 +294,15 @@ export async function fetchGlobalStats(): Promise<{
   // total_results envelope. We parallelize a few representative queries.
   const [obs, species, observers] = await Promise.all([
     getJSON<iNatResponse<Observation>>(
-      `/observations${qs({ photos: true, quality_grade: 'research', per_page: 1 })}`,
+      `/observations${qs({ project_id: PROJECT_ID, photos: true, quality_grade: 'research', per_page: 1 })}`,
       1000 * 60 * 30,
     ),
     getJSON<iNatResponse<SpeciesCount>>(
-      `/observations/species_counts${qs({ photos: true, quality_grade: 'research', per_page: 1, hierarchy: 'rank' })}`,
+      `/observations/species_counts${qs({ project_id: PROJECT_ID, photos: true, quality_grade: 'research', per_page: 1, hierarchy: 'rank' })}`,
       1000 * 60 * 30,
     ),
     getJSON<iNatResponse<ObserverCount>>(
-      `/observations/observers${qs({ photos: true, quality_grade: 'research', per_page: 1 })}`,
+      `/observations/observers${qs({ project_id: PROJECT_ID, photos: true, quality_grade: 'research', per_page: 1 })}`,
       1000 * 60 * 30,
     ),
   ])
