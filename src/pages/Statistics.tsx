@@ -3,21 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import {
   BarChart3,
+  BookOpen,
   PieChart,
-  LineChart as LineIcon,
   Grid3x3,
   Trophy,
-  Bird,
 } from 'lucide-react'
 import { PageTransition } from '@/components/motion/PageTransition'
 import { Reveal } from '@/components/motion/Reveal'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Treemap } from '@/components/charts/Treemap'
 import { Sunburst } from '@/components/charts/Sunburst'
-import { TrendLine } from '@/components/charts/TrendLine'
-import { Heatmap } from '@/components/charts/Heatmap'
-import type { HeatmapCell } from '@/components/charts/Heatmap'
 import { BarList, type BarDatum } from '@/components/charts/BarList'
+import { SpeciesCatalog } from '@/components/statistics/SpeciesCatalog'
 import { useStatistics } from '@/hooks/useStatistics'
 import { useGlobalStats } from '@/hooks/useBiodiversity'
 import { CountUp } from '@/components/motion/CountUp'
@@ -30,17 +27,6 @@ export function Statistics() {
   const navigate = useNavigate()
   const t = useT()
   const [hover, setHover] = useState<{ name: string; value: number } | null>(null)
-
-  // Localize the seasonal heatmap rows + cells to the active language.
-  const seasonRows = useMemo(
-    () => stats.seasonGroups.map((g) => iconicLabel(t, g)),
-    [stats.seasonGroups, t],
-  )
-  const seasonCells = useMemo<HeatmapCell[]>(
-    () =>
-      stats.seasonality.map((c) => ({ ...c, row: iconicLabel(t, c.row) })),
-    [stats.seasonality, t],
-  )
 
   // Localize the treemap/sunburst hierarchy: root "Life" + each group node.
   const hierarchy = useMemo(
@@ -141,50 +127,18 @@ export function Statistics() {
             </div>
           </section>
 
-          {/* Trend line */}
+          {/* Qinghai species catalogs */}
           <section>
             <Reveal>
               <SectionTitle
-                icon={<LineIcon className="h-5 w-5" />}
-                eyebrow={t('stats.growth.eyebrow')}
-                title={t('stats.growth.title')}
-                desc={t('stats.growth.desc')}
+                icon={<BookOpen className="h-5 w-5" />}
+                eyebrow={t('stats.catalog.eyebrow')}
+                title={t('stats.catalog.title')}
+                desc={t('stats.catalog.desc')}
               />
             </Reveal>
             <Reveal delay={0.1}>
-              <div className="mt-10">
-                <ChartCard title={t('stats.chart.growthTitle')}>
-                  {stats.loading ? (
-                    <Skeleton className="h-[320px] w-full rounded-xl" />
-                  ) : (
-                    <TrendLine data={stats.trend} height={320} />
-                  )}
-                  <ChartCaption>{t('stats.growthCaption')}</ChartCaption>
-                </ChartCard>
-              </div>
-            </Reveal>
-          </section>
-
-          {/* Seasonal heatmap */}
-          <section>
-            <Reveal>
-              <SectionTitle
-                icon={<Bird className="h-5 w-5" />}
-                eyebrow={t('stats.season.eyebrow')}
-                title={t('stats.season.title')}
-                desc={t('stats.season.desc')}
-              />
-            </Reveal>
-            <Reveal delay={0.1}>
-              <div className="mt-10">
-                <ChartCard title={t('stats.chart.seasonTitle')}>
-                  {stats.loading ? (
-                    <Skeleton className="h-[260px] w-full rounded-xl" />
-                  ) : (
-                    <Heatmap cells={seasonCells} rows={seasonRows} />
-                  )}
-                </ChartCard>
-              </div>
+              <SpeciesCatalog />
             </Reveal>
           </section>
 

@@ -5,7 +5,10 @@
   "type": "module",
   "description": "A web-based biodiversity exploration platform powered by iNaturalist data.",
   "scripts": {
+    "catalogs:generate": "python3 scripts/generate-species-catalogs.py",
+    "predev": "npm run catalogs:generate",
     "dev": "vite",
+    "prebuild": "npm run catalogs:generate",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler deploy",
